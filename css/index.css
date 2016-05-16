@@ -1,0 +1,74 @@
+.fisha {
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: transparent;
+    background-image: url("../image/fish5.png");
+    background-origin: padding-box;
+    background-position: 0px  0px;
+    background-repeat: no-repeat;
+    height: 122px;
+    margin-left: 10px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    width: 107px;
+}
+.fishb {
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: transparent;
+    background-image: url("../image/fish5.png");
+    background-origin: padding-box;
+    background-position: 0px  -488px;
+    background-repeat: no-repeat;
+    height: 122px;
+    margin-left: 10px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    width: 107px;
+}
+.adddiv {
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: transparent;
+    background-image: url("../image/fish5.png");
+    background-origin: padding-box;
+    background-position: 0px  -488px;
+    background-repeat: no-repeat;
+    height: 122px;
+    margin-left: 10px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    width: 107px;	
+}
+#hexagon {
+	width: 100px;
+	height: 55px;
+	background: #0c3;
+	position: relative;
+}
+#hexagon:before {
+	content: "";
+	position: absolute;
+	top: -25px;
+	left: 0;
+	width: 0;
+	height: 0;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+	border-bottom: 25px solid #0c3;
+}
+#hexagon:after {
+	content: "";
+	position: absolute;
+	bottom: -25px;
+	left: 0;
+	width: 0;
+	height: 0;
+	border-left: 50px solid transparent;
+	border-right: 50px solid transparent;
+	border-top: 25px solid #0c3;
+}
+textarea {
+    height: 400px;
+    width: 400px;
+}

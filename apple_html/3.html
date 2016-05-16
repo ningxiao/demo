@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>CSS 列布局</title>
+    <style type="text/css">
+        *{padding: 0;margin: 0}
+        html,body{
+            margin: 0;
+            height: 100%;
+        }
+        body{
+            font-family: Georgia, serif;
+        }
+        .left{
+            background-color: #cccccc;border:2px solid #333333;width: 100px;height:100%;position: absolute;
+            top: 0;left: 2px;
+        }
+        .right{
+            background-color: #cccccc;border:2px solid #333333;width: 100px;height: 100%;position: absolute;
+            top: 0;right: 2px;
+        }
+        .center{
+            background-color: #cccccc;border:2px solid #333333;height: 100%;margin-left: 104px;margin-right: 104px;
+            top: 0;right: 0;
+        }
+        .A{
+            width: 100px;height: 100px;background-color: #eeeeee;border: 5px solid #bbbbbb;margin: 10px;float: left;display: inline;
+        }
+        .B{
+            width: 100px;height: 100px;background-color: #eeeeee;border: 5px solid #bbbbbb;margin: 10px;float: left;clear: left;display: inline;
+        }
+    </style>
+</head>
+<body>
+<div class="left">左边</div>
+<div class="center">
+    <div style="width: 100%;height: 100%;background-color: rgba(255,5,12,0.70);position: absolute;z-index: 0">
+        <img src="images/a.jpg" alt="示例" width="200" height="200" style="float: left;"/>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+        <p style="float: left;">请注意，从技术上讲，<img> 标签并不会在网页中插入图像，而是从网页上链接图像。<img> 标签创建的是被引用图像的占位空间</p>
+    </div>
+</div>
+<div class="right">右边</div>
+</body>
+</html>

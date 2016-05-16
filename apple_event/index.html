@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>html的事件练习</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+		var IE=top.execScript?1:0;//判断浏览器是否为IE
+		/**鼠标执行事件*/
+		function whichButton(event){
+			var btnNum = event.button;
+			var str;
+				if(IE){
+					 if(btnNum==2){
+					     str = "您点击了鼠标右键！";
+					  }else if(btnNum==1){
+					     str = "您点击了鼠标左键！";
+					  }else if(btnNum==4){
+					     str = "您点击了鼠标中键！";
+					  }else {
+					      str = "您点击了" + btnNum+ "号键，我不能确定它的名称。";
+					  }
+				}else{
+					if (btnNum==2){
+					     str = "您点击了鼠标右键！";
+					  }else if(btnNum==0){
+					     str = "您点击了鼠标左键！";
+					  }else if(btnNum==1){
+					     str = "您点击了鼠标中键！";
+					  }else {
+					      str = "您点击了" + btnNum+ "号键，我不能确定它的名称。";
+					  }					
+				}	
+				var cx=event.clientX;
+                var cy=event.clientY;
+                var sx=event.screenX
+                var sy=event.screenY
+				document.getElementById("inputevent").innerHTML+=str+"屏幕X/y坐标("+sx+"/"+sy+")&nbsp&nbsp&nbsp&nbsp&nbsp页面X/Y坐标("+cx+"/"+cy+")<br>";
+		}
+		/**键盘执行事件*/
+		function cwhichButton(event){
+            document.getElementById("inputevent").innerHTML+="键盘按键"+event.keyCode+"<br>";
+        }
+        function isEvent(event){
+        	var  event = event || window.event;//取得不同浏览器下的事件对象
+        	var  targ = event.target || event.srcElement;
+        	if(targ.tagName=="HTML" || targ.tagName=="BODY"){
+	        	if(event.type=="keyup"){
+	        		cwhichButton(event);
+	        	}else{
+	        		whichButton(event);
+	        	}
+        	};
+        }
+        /**取得单击对象执行并且阻止事件冒泡**/
+        function button_click(event){
+        	var event = event || window.event;//判断是否为IE浏览器
+        	var  targ = event.target || event.srcElement;
+			var tname = targ.tagName;
+			alert("单击按钮 " + tname + "单击id"+targ.id);
+			document.getElementById("isdisabled").disabled=!document.getElementById("isdisabled").disabled;
+			document.getElementById("myCheck").checked = !document.getElementById("myCheck").checked;
+			IE?event.cancelBubble = true:event.stopPropagation();//阻止事件冒泡机制
+        }
+        /**单击按钮修改提哦action数据**/
+        function changeAction(event){
+             var event = event || window.event;//判断是否为IE浏览器
+        	 var  targ = event.target || event.srcElement;
+        	 var obj = targ.parentNode;
+			 alert("form的Action属性" + obj.action);
+			 obj.action="/MiaovJs/apple_event/index.html";
+			 alert("修改form的Action属性: " + obj.action);
+			 obj.submit();
+        	IE?event.cancelBubble = true:event.stopPropagation();//阻止事件冒泡机制
+        }
+        /**取得表单对象的设置的值**/
+        function createOrder(type){
+        	var coffe;
+        	var str = '';
+        	if(type=='div'){//提交对象为div的时候
+        		 coffe = document.getElementById("checkorm").getElementsByTagName("input");//取得对象下面名称
+        	}else{//提交对象为form的时候
+        		coffe = document.getElementById("checkorm").coffee;//取得对象下面名称
+        	}
+        	for(var i=0;i<coffe.length;i++){
+    	    	if(coffe[i].name=='coffee'&& coffe[i].checked){
+    	    		str+=coffe[i].value+"<-->";
+    	    	}
+        	}
+        	document.getElementById("order").value = str;
+        	document.getElementById("order").blur();
+        }
+        /**重置表单对象值*/
+        function button_sub(){
+        	document.getElementById("checkorm").reset();
+        	document.getElementById("order").focus();
+        	document.getElementById("order").select();
+        }
+        /**取得你选择下拉框的内容**/
+        function favBrowser(event){
+        	 var targ = event.target || window.event.srcElement;//判断是否为IE浏览器
+        	document.getElementById("favorite").value = targ.options[targ.selectedIndex].text;
+        }
+        /**动态注册事件*/
+       function addevent(event){
+       	var obj = document.getElementById('addevent');
+       	if(!obj.ie){
+       		IE?obj.attachEvent("onclick", Foo):obj.addEventListener("click",foo,false);
+       		obj.ie= true;
+       	}else{
+       		alert(obj+'已经注册事件了。');
+       	}
+       }
+       function foo(){
+       		var obj = document.getElementById('addevent');
+		    alert("测试动态注册事件。"+obj.hasOwnProperty('ie'));
+		}
+		</script>
+	</head>
+	<body onclick="isEvent(event)" onkeyup="isEvent(event)">
+	<p>请在文档中点击鼠标。会输出你鼠标点击哪一个键,按下键盘键显示对应键值</p>
+	<div id="inputevent"></div>
+	<input id="mybutton" type="button" value="单击事件" onclick="button_click(event)"/><input id="isdisabled"  type="button" value="按钮可见"/><input type="checkbox" id="myCheck" checked="true" value="复选框"/>复选框
+	<br><br>
+	<form id="myForm" action="/i/eg_smile.gif">名称：<input type="text" value="米老鼠" />
+		<input type="button" onclick="changeAction(event)"value="改变 action 属性并提交表单"/>
+    </form>
+    <br><br>
+    <form id="checkorm">
+    	<input type="checkbox" name="coffee" value="奶油"/>加奶油<br />
+		<input type="checkbox" name="coffee" value="糖块"/>加糖块<br />
+		<input type="radio" name="coffee" checked="true" value="Internet Explorer">Internet Explorer<br />
+        <input type="radio" name="coffee" value="Firefox">Firefox<br />
+		<input type="radio" name="coffee" value="Netscape">Netscape<br />
+		<input type="radio" name="coffee" value="Opera">Opera<br />
+		<br/>
+		<input type="button" onclick="createOrder('form')" value="发送订单"/>
+		<input type="button" onclick="button_sub();" value="重置订单"/>
+		<br/><br/>
+    </form>
+    <input type="text" id="order" size="50"/>
+    <form>
+    	<p>
+		请选择您喜欢的浏览器：
+		<select id="myList" onchange="favBrowser(event)">
+		  <option>Internet Explorer</option>
+		  <option>Netscape</option>
+		  <option>Opera</option>
+		</select><input type="text" id="favorite" size="20"/>
+	</form>
+	<p>
+	<input type="button" value="注册单击事件" onclick="addevent(event)"/><input type="button" value="单击" id="addevent"/>
+	</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>frame_noresize</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+		function disableResize(){
+			  parent.document.getElementById("leftFrame").noResize=true;
+			  parent.document.getElementById("rightFrame").noResize=true;
+		}
+		function enableResize(){
+			  parent.document.getElementById("leftFrame").noResize=false;
+			  parent.document.getElementById("rightFrame").noResize=false;
+		}
+		function enableScrolling(){
+			  parent.document.getElementById("leftFrame").scrolling="yes";
+			  parent.document.getElementById("rightFrame").scrolling="yes";
+		}
+		function disableScrolling(){
+			  parent.document.getElementById("leftFrame").scrolling="no";
+			  parent.document.getElementById("rightFrame").scrolling="no";
+		} 
+		function newSrc(){
+			parent.document.getElementById("rightFrame").src="http://w3school.com.cn";
+		} 
+		</script>
+	</head>
+	<body>
+		<input type="button" value="不能调整" onclick="disableResize()"/>
+		<input type="button" value="可以调整" onclick="enableResize()"/>
+		<input type="button" value="滚动条" onclick="enableScrolling()"/>
+		<input type="button" value="没有滚动条" onclick="disableScrolling()"/>
+		<input type="button" value="修改链接" onclick="newSrc();" />
+		<p>请尝试去调整框架的尺寸。</p>
+	</body>
+</html>

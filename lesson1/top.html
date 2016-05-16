@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<script type="text/javascript" src="js/ads.js"></script>
+		<title>top</title>
+		<meta name="author" content="leju" />
+		<style>
+			body{
+				background:#E6EEF7;
+				margin: 0px;
+				padding: 0px;
+			}
+			#mydiv{
+				width: 500px;
+				height: 1600px;
+			}
+			#swfdiv{
+				width:133px;
+				height:200px;
+				position:absolute;
+				right:0px;
+				display:none;
+				z-index: 9999;
+			}
+		</style>
+		<script type="text/javascript">
+			var swfobj;
+			var swfHe = 200;
+			window.onload = function(){
+				var inHeight = window.innerHeight||document.documentElement.clientHeight;
+				swfobj = document.getElementById('swfdiv');
+				swfobj.style.top = (inHeight - swfHe)+"px";
+				swfobj.isclick = true;
+			}
+			window.onscroll = function(){
+				animation();
+			}
+			window.onresize=function(){
+				animation();
+			}			
+			function goTop(acceleration, time) {
+				var acceleration = acceleration || 0.1;
+				var time = time || 16;
+				var x1 = 0;
+				var y1 = 0;
+				var x2 = 0;
+				var y2 = 0;
+				var x3 = 0;
+				var y3 = 0;
+				if (document.documentElement) {
+					x1 = document.documentElement.scrollLeft || 0;
+					y1 = document.documentElement.scrollTop || 0;
+				}
+				if (document.body) {
+					x2 = document.body.scrollLeft || 0;
+					y2 = document.body.scrollTop || 0;
+				}
+				var x3 = window.scrollX || 0;
+				var y3 = window.scrollY || 0;
+				var x = Math.max(x1, Math.max(x2, x3));
+				var y = Math.max(y1, Math.max(y2, y3));
+				var speed = 1 + acceleration;
+				window.scrollTo(Math.floor(x / speed), Math.floor(y / speed));
+				if(x > 0 || y > 0) {
+					var invokeFunction = "goTop(" + acceleration + ", " + time + ")";
+					window.setTimeout(invokeFunction, time);
+				}else{
+					swfobj.isclick = true;
+				}
+			}
+			function animation(){
+				var inHeight = window.innerHeight||document.documentElement.clientHeight;
+				if(document.documentElement.scrollTop>0 && swfobj.isclick){
+					swfobj.style.display = 'block';
+				}else{
+					swfobj.style.display = 'none';
+				}
+				ads.animate(swfobj, {
+	                top:(document.documentElement.scrollTop+inHeight-swfHe)+"px"
+	            },{
+					duration: 600,
+					easing: "easeOutCirc"
+				});		
+			}
+		    function topjs(){/**flash调用的js接口方法**/
+				swfobj.style.display = 'none';	
+				swfobj.isclick = false;
+				var swfobjL=ads.ie?swfobj.firstChild:swfobj.getElementsByTagName('embed')[0];	
+				swfobjL.blur();
+				goTop();
+			}
+		</script>
+	</head>
+	<body>
+	<div id="mydiv"></div>
+	<div id="swfdiv">		
+		<object height="200px" width="133px" type="application/x-shockwave-flash" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="SinaPlayer">
+			<param value="http://127.0.0.1:8020/MiaovJs/lesson1/swf/top.swf" name="movie">
+			<param value="high" name="quality">
+			<param value="transparent" name="wmode">
+			<param value="always" name="allowscriptaccess">
+			<embed height="200px" width="133px" type="application/x-shockwave-flash" allowscriptaccess="always" wmode="transparent" pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" src="http://127.0.0.1:8020/MiaovJs/lesson1/swf/top.swf" id="SinaPlayer">
+		</object>		
+	</div>
+	</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>刮奖游戏</title>
+    <meta name="author" content="Administrator" />
+    <script type="text/javascript" src="js/Utils.js"></script>
+    <style type="text/css">
+        *{margin: 0;padding: 0}
+        .box{
+            width: 244px;height: 420px;background: url("img/gj.jpg") no-repeat;margin: 20px auto;position: relative;
+        }
+        .tc{text-align: center}
+        .prize{
+           position: absolute;
+           top: 240px;
+           width: 244px;
+           height: 32px;
+           line-height: 32px;
+        }
+        #canvas{
+            position: absolute;
+        }
+    </style>
+    <script type="text/javascript">
+    </script>
+</head>
+<body>
+<div class="box">
+    <h1 class="prize tc" id="prize">一等奖</h1>
+    <canvas id="canvas" width="216" height="114">
+        <p>对不起该浏览器不支持刮奖！</p>
+    </canvas>
+</div>
+<script type="text/javascript">
+    window.onload = function(){
+        var prize,canvas,ctx,area,list=[{"prize":"img/prize.png"}],bitmaps={};
+        var imgBitmap,color,offsetX = 10;
+        function upBitmapData(co,rec,bitmap){
+            var len = rec.width * rec.height, x = rec.x, y = rec.y,w = rec.width;
+            var data = bitmap.data,bitmapW = bitmap.width;
+            if(data){
+                color.r = co >> 16 & 0xFF;
+                color.g = co >> 8 & 0xFF;
+                color.b = co & 0xFF;
+                color.a = co >> 24 & 0xFF;
+                for (var i = 0; i < len; i++) {
+                    rec.x = x + i % w;
+                    rec.y =  y + parseInt(i / w);
+                    rec.width = bitmapW;
+                    upColor(rec, data, color, true);
+                }
+            }
+        }
+        function upColor (rec, data, color, bol) {
+            var sum = rec.y * rec.width + rec.x;
+            var bool = bol || data[sum * 4];
+            if (bool) {
+                data[sum * 4] = color.r;
+                data[sum * 4 + 1] = color.g;
+                data[sum * 4 + 2] = color.b;
+                data[sum * 4 + 3] = color.a;
+            }
+        }
+        function init(){
+            prize = $("prize");
+            canvas = $("canvas");
+            ctx = canvas.getContext('2d');
+            area = new Rectangle(0,0,216,114);
+            color = new Color(0,0,0,0);
+            ctx.drawImage(bitmaps["prize"],area.x,area.y,area.width,area.height,area.x,area.y,area.width,area.height);
+            imgBitmap = ctx.getImageData(area.x,area.y,area.width,area.height);
+            ctx.clearRect(area.x,area.y,area.width,area.height);
+            canvas.onmousemove = function(event){
+                area.x =  event.layerX-offsetX;
+                area.y =  event.layerY-offsetX;
+                if(area.x<0){
+                    area.x = 0;
+                }
+                if(area.x>216-offsetX*2){
+                    area.x = 216-offsetX*2;
+                }
+                if(area.y<0){
+                    area.y = 0;
+                }
+                if(area.y>114-offsetX*2){
+                    area.y = 114-offsetX*2;
+                }
+                area.width = offsetX*2;
+                area.height = offsetX*2;
+                upBitmapData(0x00000000,area,imgBitmap);
+            }
+            layout();
+        }
+        function layout(){
+            ctx.putImageData(imgBitmap, 0, 0);
+            requestAnimationFrame(layout);
+        }
+        flash.utils.queueImg(list,bitmaps, function () {
+            init();
+        })
+    }
+</script>
+</body>
+</html>

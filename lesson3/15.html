@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<title>Css3粒子效果</title>
+<style type="text/css">
+  *{padding: 0;margin: 0;}
+  body,html,.wrap {
+    height:100%;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+  }
+  body {
+    -webkit-filter: contrast(30);
+    -moz-filter: contrast(30);
+    filter:contrast(30);
+    background: black;
+  }
+  .wrap {
+    background: inherit;
+    animation: 7s spin ease-in-out infinite;
+    -webkit-animation: 7s spin ease-in-out infinite;
+    -moz-animation: 6s spin ease-in-out infinite;
+  }
+
+  .meta:before,
+  .meta:after {
+    content: "";
+    position: absolute;
+    width:100px;
+    height:100px;
+    left:50%;
+    top:50%;
+    margin:-50px;
+    background: rgba(160,230,245,.9);
+    border-radius:50%;
+    -webkit-filter: blur(25px);
+    animation: move 12s infinite alternate ease-in-out;
+    -webkit-animation: move 12s infinite alternate ease-in-out;
+    -moz-animation: move 12s infinite alternate ease-in-out;
+
+  }
+  .meta:before {
+    -webkit-animation-duration: 19.3s;
+    -webkit-animation-delay: -3.3s;
+    -moz-animation-duration: 19.3s;
+    -moz-animation-delay: -3.3s;
+  }
+  .meta:nth-child(2):before {
+    -webkit-animation-duration: 14.7s;
+    -webkit-animation-delay: -2.7s;
+    -moz-animation-duration: 14.7s;
+    -moz-animation-delay: -2.7s;
+  }
+  }
+
+  .meta:nth-child(2):after {
+    -webkit-animation-duration: 8.7s;
+    -webkit-animation-delay: -5.32s;
+    -moz-animation-duration: 8.7s;
+    -moz-animation-delay: -5.32s;
+  }
+  @-webkit-keyframes spin {
+    to {
+      transform: rotate(360deg)
+    }
+  }
+  @-moz-keyframes spin {
+    to {
+      transform: rotate(360deg)
+    }
+  }
+  @-webkit-keyframes move {
+    0% {
+      transform: translate(0%, 100%);
+    }
+    15% {
+      transform: translate(-120%, 160%);
+    }
+    30% {
+      transform: translate(100%, -80%);
+    }
+    40% {
+      transform: translate(-140%, 0%);
+    }
+    60% {
+      transform: translate(40%, -80%);
+    }
+    80% {
+      transform: translate(-160%, -20%);
+    }
+    100% {
+      transform: translate(40%, 60%);
+    }
+  }
+  @-moz-keyframes move {
+    0% {
+      transform: translate(0%, 100%);
+    }
+    15% {
+      transform: translate(-120%, 160%);
+    }
+    30% {
+      transform: translate(100%, -80%);
+    }
+    40% {
+      transform: translate(-140%, 0%);
+    }
+    60% {
+      transform: translate(40%, -80%);
+    }
+    80% {
+      transform: translate(-160%, -20%);
+    }
+    100% {
+      transform: translate(40%, 60%);
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="meta"></div>
+  <div class="meta"></div>
+</div>
+</body>
+</html>

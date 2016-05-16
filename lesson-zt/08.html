@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>时间版运动框架</title>
+<style>
+*{ margin:0; padding:0;}
+#ul1{ width:336px; height:auto; margin:20px auto; position:relative;}
+#ul1 li{ width:100px; height:100px; border:1px #000 solid; margin:5px; float:left; background:red; list-style:none;}
+</style>
+<script type="text/javascript" src="js/move.js"></script>
+<script>
+window.onload = function(){
+	var aLi = document.getElementsByTagName('li');
+	var arr = [],izIndex = 2;
+	for(var i=0;i<aLi.length;i++){
+		arr.push([ aLi[i].offsetLeft , aLi[i].offsetTop ]);
+	}
+	for(var i=0;i<aLi.length;i++){
+		aLi[i].style.position = 'absolute';
+		aLi[i].style.left = arr[i][0] + 'px';
+		aLi[i].style.top = arr[i][1] + 'px';
+		aLi[i].style.margin = 0;
+	}
+	for(var i=0;i<aLi.length;i++){
+		aLi[i].index = i;
+		aLi[i].onmouseover = function(){
+			this.style.zIndex = izIndex++;
+            startMove2(this,{width:200,height:200,left: arr[this.index][0] - 50, top : arr[this.index][1] - 50 },2000,'linear',function(){});
+		}
+		aLi[i].onmouseout = function(){
+            startMove2(this,{width:100,height:100,left: arr[this.index][0], top : arr[this.index][1]},2000,'elasticOut',function(){});
+		}
+	}
+}
+</script>
+</head>
+
+<body>
+<ul id="ul1">
+	<li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+</ul>
+</body>
+</html>

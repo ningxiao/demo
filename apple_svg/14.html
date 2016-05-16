@@ -1,0 +1,106 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+        <title>SVG的图形使用</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+                background:#001122;
+                line-height: 0;
+                font-size: 0;   
+                overflow: hidden;             
+            }
+            svg {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }                  
+        </style>
+        <script type="text/javascript">
+            window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+                    setTimeout(callback, 1000 / 60);
+                });
+            window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame ||window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);        
+        </script>        
+    </head>
+    <body>
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-400 -300 800 600" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <polygon id="star" points="0 -10 2 -2 10 0 2 2 0 10 -2 2 -10 0 -2 -2" fill="white"></polygon>
+            </defs>
+            <g id="real">
+                <g id="star-group"></g>
+                <g id="moon-group">
+                    <mask id="moon-mask">
+                        <circle cx="-250" cy="-150" r="100" fill="yellow"></circle>
+                        <circle cx="-200" cy="-200" r="100" fill="black"></circle>
+                    </mask>
+                    <circle cx="-250" cy="-150" r="100" fill="yellow" mask="url(#moon-mask)"></circle>
+                </g>
+                <g id="light-tower" transform="translate(250,0)">
+                    <defs>
+                        <linearGradient id="tower" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0" stop-color="#999"></stop>
+                            <stop offset="1" stop-color="#333"></stop>
+                        </linearGradient>
+                        <radialGradient id="light" cx="0.5" cy="0.5" r="0.5">
+                            <stop offset="0" stop-color="rgba(255,255,255,0.8)"></stop>
+                            <stop offset="1" stop-color="rgba(255,255,255,0)"></stop>
+                        </radialGradient>
+                        <clipPath id="light-clip">
+                            <polygon points="0 0 -400 -15 -400 15" fill="rgba(255,0,0,0.5)">
+                                <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0" to="360" dur="10s" repeatCount="indefinite"></animateTransform>
+                            </polygon>
+                            <circle cx="0" cy="0" r="2"></circle>                        
+                        </clipPath>    
+                    </defs>    
+                    <polygon points="0 0 5 50 -5 50" fill="url(#tower)"></polygon>
+                    <ellipse cx="0" cy="0" rx="300" ry="100" fill="url(#light)" clip-path="url(#light-clip)"></ellipse>
+                </g>
+            </g>
+            <g id="reflact" transform="translate(0 50)" mask="url(#fading)">
+                <defs>
+                    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="rgba(255,255,255,0.3)"></stop>
+                        <stop offset="0.5" stop-color="rgba(255,255,255,0)"></stop>
+                    </linearGradient>                      
+                    <mask id="fading">                  
+                        <rect x="-400" y="0" width="800" height="300" fill="url(#fade)"></rect>
+                    </mask>
+                </defs>
+                <use xlink:href="#real" transform="scale(1,-1) translate(0 -50)"></use> 
+            </g>
+        </svg>
+        <script type="text/javascript">
+        var paper = document.querySelector("svg");
+        var SVG_NS = "http://www.w3.org/2000/svg";
+        var XLINK_NS = "http://www.w3.org/1999/xlink";
+        function use(origin){
+            var _use = document.createElementNS(SVG_NS,'use');
+            _use.setAttributeNS(XLINK_NS, "xlink:href", '#' + origin.id);
+            return _use;
+        }
+        function random(min,max){
+            return min + (max - min) * Math.random();
+        }
+        function renderStar(){
+            var star,starcount = 500,starref = document.getElementById("star");
+            var stargroup = document.getElementById("star-group");
+            while(starcount--){
+                star = use(starref);
+                star.setAttribute("opacity",random(0.1 ,0.4));
+                star.setAttribute("transform",'translate('+random(-400 ,400) + ',' + random(-300 ,50) + ') scale(' + random(0.1,0.6) + ')');
+                stargroup.appendChild(star);
+            }
+        }
+        renderStar();
+        </script>        
+    </body>
+</html>

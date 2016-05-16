@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>3D开箱</title>
+    <link rel="stylesheet" type="text/css" href="style/normalize.css" />
+    <style type="text/css">
+      *,*:after,*:before {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+      body, html { 
+        font-size: 100%;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+      body{
+        background: #f9f7f6;
+        color: #404d5b;
+        font-weight: 500;
+        font-size: 1.05em;
+        font-family: "Segoe UI", "Lucida Grande", Helvetica, Arial, "Microsoft YaHei", FreeSans, Arimo, "Droid Sans", "wenquanyi micro hei", "Hiragino Sans GB", "Hiragino Sans GB W3", "FontAwesome", sans-serif;
+      }
+      a{
+        color: #2fa0ec;
+        text-decoration: none;
+        outline: none;
+      }
+      a:hover,a:focus{
+        color:#74777b;
+      }
+      .center {
+        text-align: center;
+      }
+      .content {
+        font-size: 150%;
+        padding: 3rem 0;
+        width: 100%;
+        height: 100%;
+      }
+      .content h2 {
+        margin: 0 0 2rem;
+        opacity: 0.1;
+      }
+      .bgcolor-1 {
+        background: #f0efee;
+      }
+      @-webkit-keyframes spin {
+        from { 
+          -webkit-transform:rotateX(-15deg) rotateY(0); 
+        }
+        to { 
+          -webkit-transform:rotateX(-15deg) rotateY(360deg); 
+        }
+      }
+      @keyframes spin {
+        from {
+          transform:rotateX(-15deg) rotateY(0); 
+        }
+        to {
+          transform:rotateX(-15deg) rotateY(360deg);
+        }
+      }
+      .wrapper{
+        height: 300px;
+        margin-top:120px;
+        position:relative;
+        -webkit-perspective: 800;
+        perspective: 800;
+        -webkit-perspective-origin: 50% 100px;
+        perspective-origin: 50% 100px;
+      }
+      .cube{
+        position: relative;
+        margin: 0 auto;
+        top:0px;
+        width: 200px;
+        -webkit-transform-style: preserve-3d;
+        transform-style: preserve-3d;
+        animation: spin 4s infinite linear;
+        -webkit-animation: spin 4s infinite linear;
+        -webkit-transition: all 1s linear;
+        transition: all 1s linear;
+      }
+      b{
+        position:absolute;
+        width:200px;
+        height:200px;
+        display:block;
+        background:rgba(255,255,255,0.1);
+        -webkit-box-shadow:inset 0 0 30px rgba(0,0,0,0.2);
+        box-shadow:inset 0 0 30px rgba(0,0,0,0.2);
+        font-size:20px;
+        text-align:center;
+        line-height:200px;
+        color:rgba(0,0,0,0.5);
+        font-family:sans-serif;
+        text-transform:uppercase;
+        -webkit-transition: all 1s linear;
+        transition: all 1s linear;
+      }
+      b.back{
+        -webkit-transform: translateZ(-100px) rotateY(180deg);
+        transform: translateZ(-100px) rotateY(180deg);
+      }
+      b.right{
+        -webkit-transform:rotateY(90deg) translateX(100px);
+        -webkit-transform-origin: top right;
+        transform:rotateY(90deg) translateX(100px);
+        transform-origin: top right;
+      }
+      b.left{
+        -webkit-transform:rotateY(-90deg) translateX(-100px);
+        -webkit-transform-origin: center left;
+        transform:rotateY(-90deg) translateX(-100px);
+        transform-origin: center left;
+      }
+      b.top{
+        -webkit-transform:rotateX(-90deg) translateY(-100px);
+        -webkit-transform-origin: top center;
+        transform:rotateX(-90deg) translateY(-100px);
+        transform-origin: top center;
+      }
+      b.bottom{
+        -webkit-transform:rotateX(90deg) translateY(100px);
+        -webkit-transform-origin: bottom center;
+        transform:rotateX(90deg) translateY(100px);
+        transform-origin: bottom center;
+      }
+      b.front{
+        -webkit-transform: translateZ(100px);
+        transform: translateZ(100px);
+      }
+      i{
+        position:absolute;
+        top:50px;
+        left:50px;
+        width:100px;
+        height:100px;
+        display:block;
+        background:url(./image/cube.png);
+        transition: all 1s linear;
+      }
+      i.front{
+        -webkit-transform: translateZ(50px);
+        transform: translateZ(50px);
+      }
+      i.back{
+        -webkit-transform: translateZ(-50px) rotateY(180deg);
+        transform: translateZ(-50px) rotateY(180deg);
+      }
+      i.bottom{
+        -webkit-transform:rotateX(-90deg) translateY(50px);
+        -webkit-transform-origin: left bottom;
+        transform:rotateX(-90deg) translateY(50px);
+        transform-origin: left bottom;
+      }
+      i.left{
+        -webkit-transform:rotateY(-90deg) translateX(-50px);
+        -webkit-transform-origin: center left;
+        transform:rotateY(-90deg) translateX(-50px);
+        transform-origin: center left;
+      }
+      i.right{
+        -webkit-transform:rotateY(90deg) translateX(50px);
+        -webkit-transform-origin: top right;
+        transform:rotateY(90deg) translateX(50px);
+        transform-origin: top right;
+      }
+      i.top{
+        -webkit-transform:rotateX(90deg) translateY(-50px);
+        -webkit-transform-origin: left top;
+        transform:rotateX(90deg) translateY(-50px);
+        transform-origin: left top;
+      }
+      .cube:hover{
+        top:150px;
+      }
+      .cube:hover b.top{
+        -webkit-transform: translateZ(100px) rotateX(-210deg);
+        -webkit-transform-origin: top center;
+        transform: translateZ(100px) rotateX(-210deg);
+        transform-origin: top center;
+      }
+      .cube:hover i{
+        top:-200px;
+      }      
+    </style>
+  </head>
+  <body>
+    <div class="content bgcolor-1">
+      <div class="wrapper">
+        <div class="cube">
+          <b class="front">front</b>
+          <b class="back">back</b>
+          <b class="top">top</b>
+          <b class="bottom">bottom</b>
+          <b class="left">left</b>
+          <b class="right">right</b>
+          <i class="front"></i>
+          <i class="back"></i>
+          <i class="top"></i>
+          <i class="bottom"></i>
+          <i class="left"></i>
+          <i class="right"></i>
+        </div>
+      </div>  
+      <h5 class="center">用鼠标滑过开箱寻宝！</h5>
+    </div>   
+  </body>
+</html>

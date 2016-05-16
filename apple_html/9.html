@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>QQ聊天</title>
+<style type="text/css">
+    *{margin: 0;padding: 0}
+    body{ font-size:12px; line-height:24px; font-family:"微软雅黑";}
+    a{text-decoration:none;}
+    input,image{outline:none;border:none;}
+    li{list-style:none;}
+    .tl{text-align: left}
+    .tr{text-align: right}
+    .tc{text-align: center}
+    .fl{float: left;display:inline;}
+    .fr{float: right;display: inline;}
+    .cl{clear: both;line-height: 0px;height: 1px;}
+    .undis{display:none;}
+    .man_box{width:1006px;height:564px;margin:20px auto;border: 1px solid #dadfe3;}
+    .left_box{width: 335px;height: 564px;border-right: 1px solid #bdc1c4;;background: #d4d7da}
+    .left_box img{width: 28px;height: 29px;vertical-align: middle;margin-right: 10px;}
+    .left_box .head{background: url("images/background.png") repeat-x;height: 61px;position: relative;}
+    .left_box .head .input{padding-left: 24px;padding-right: 12px;position: absolute;left: 14px;bottom: 8px;}
+    .left_box .head .input_l{height: 27px;width: 24px;background: url("images/input_head.png") no-repeat;margin-left: -24px;}
+    .left_box .head .input_r{height: 27px;width: 12px;background: url("images/input_head.png") no-repeat -24px 0;margin-right: -12px;}
+    .left_box .head .input_bg{height: 27px;width:273px;background: url("images/background_input.png") repeat-x;}
+    .left_box .head .input_bg input{height: 25px;line-height: 25px;background: none;}
+    .left_box .head .panel{height: 20px;left:8px;top: 6px;position: absolute}
+    .left_box .head .panel a{height: 12px;width: 12px;background: url("images/closebutton.png") no-repeat 0 -14px;margin-left: 8px;}
+    .left_box .head .panel .close:hover{background-position:0 0}
+    .left_box .head .panel .min:hover{background-position:-20px 0}
+    .left_box .head .panel .max:hover{background-position:-40px 0}
+    .left_box .list{height: 461px;border-bottom: 1px solid #c1c3c6;overflow: hidden;}
+    .left_box .list a{display: inline;float:left;height: 46px;width: 335px;line-height: 46px;padding-left: 15px;color: #000000;}
+    .left_box .list a:hover{background: #4c98d4;color: #dfe9f1;}
+    .left_box .bottom{height: 41px;border-top: 1px solid #e5e5e5;background: url("images/avatar.png") no-repeat 15px 6px;}
+    .left_box .user{background: url("images/soundbutton.png") no-repeat 0 -17px;width: 20px;height: 19px;margin-right: 14px;margin-top: 11px;}
+    .right_box{width: 670px;height: 564px;}
+    .right_box .head{height: 60px;border-bottom: 1px solid #c9cbcd;background: url("images/background.png") repeat-x;}
+    .right_box .head img{width: 40px;height: 40px;}
+    .right_box .head p{margin-left: 10px;margin-top: 2px;}
+    .right_box .head span{display: block;line-height: 18px}
+    .right_box .head a{background: url("images/funbutton.png") no-repeat;width: 23px;height: 22px;margin-left: 22px;margin-top: 22px;}
+    .right_box .head .yy{background-position: -44px 0}
+    .right_box .head .sp{background-position: -88px 0}
+    .right_box .head .wj{background-position: -132px 0}
+    .right_box .record{height: 393px;border-bottom: 1px solid #dadfe3;}
+    .right_box .panel{}
+    .right_box .panel a{height: 16px;width: 18px;background: url("images/funbutton.png") no-repeat;margin-left: 14px;}
+    .right_box .panel .bq{background-position: 0 -24px;}
+    .right_box .panel .jt{background-position: -30px -24px;}
+    .right_box .panel .zd{background-position: -59px -24px;}
+    .right_box .panel .tp{background-position: -87px -24px;}
+    .right_box .panel .ls{background-position: -116px -24px;}
+    .right_box .panel .yy{width: 36px;height: 16px;background: url("images/soundbutton.png") no-repeat;margin-right: 14px;}
+</style>
+</head>
+<body>
+<div class="man_box">
+    <div class="left_box fl">
+        <div class="head">
+            <div class="panel">
+                <a href="javascript:;" title="关闭" class="close fl"></a>
+                <a href="javascript:;" title="最小化" class="min fl"></a>
+                <a href="javascript:;" title="最大化" class="max fl"></a>
+            </div>
+            <div class="input">
+                <div class="input_l fl"></div>
+                <div class="input_bg fl">
+                    <input type="text">
+                </div>
+                <div class="input_r fl"></div>
+            </div>
+        </div>
+        <ul class="list">
+            <li>
+                <a  href="javascript:;" title="蔡玉玉">
+                    <img src="images/user01.jpg" alt="">
+                    <span>蔡玉玉</span>
+                </a>
+            </li>
+            <li>
+                <a  href="javascript:;" title="毛矛">
+                    <img src="images/user02.jpg" alt="">
+                    <span>毛矛</span>
+                </a>
+            </li>
+            <li></li>
+        </ul>
+        <div class="bottom">
+            <span class="user fr"></span>
+        </div>
+    </div>
+    <div class="right_box fl">
+        <div class="head">
+            <div style="margin-top: 10px;margin-left: 10px" class="fl">
+                <img src="images/user01.jpg" alt="" class="fl">
+                <p class="fl">
+                    <span>蔡玉玉</span>
+                    <span style="color: #8e959d;">本人现有3提心相印手纸,现价9.9元免费送到</span>
+                </p>
+            </div>
+            <div class="fr" style="margin-right: 20px;">
+                <a href="javascript:;" title="QQ消息" class="fl"></a>
+                <a href="javascript:;" title="QQ语音" class="fl yy"></a>
+                <a href="javascript:;" title="QQ视频" class="fl sp"></a>
+                <a href="javascript:;" title="QQ文件" class="fl wj"></a>
+            </div>
+        </div>
+        <div class="record"></div>
+        <div class="panel">
+            <div style="margin-top: 8px;">
+                <a href="javascript:;" title="QQ表情" class="fl bq"></a>
+                <a href="javascript:;" title="QQ截图" class="fl jt"></a>
+                <a href="javascript:;" title="QQ振动" class="fl zd"></a>
+                <a href="javascript:;" title="QQ图片" class="fl tp"></a>
+                <a href="javascript:;" title="历史记录" class="fl ls"></a>
+                <a href="javascript:;" title="QQ语音" class="fr yy"></a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>07</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{
+				margin: 0px;
+				padding: 0px;
+			}
+		</style>
+		<script type="text/javascript">
+		    var canvasObj = null;
+		    var canvas = null;
+		    var img = new Image();
+			window.onload = function(){
+				canvas = $('canvas');
+		        canvasObj = canvas.getContext('2d');
+				var btnList = document.getElementsByTagName('input');
+				btnList[0].onclick = fill;
+				btnList[1].onclick = beginSJ;
+				btnList[2].onclick = arcfun;		
+				btnList[3].onclick = capyimg;	
+				btnList[4].onclick = capyCanvas;	
+				btnList[5].onclick = operPixels;					
+				btnList[6].onclick = drawfont;
+				btnList[7].onclick = clear;
+			}
+			/**擦除画布内容*/
+			function clear(){
+				canvasObj.clearRect(0, 0,parseInt(canvas.width),parseInt(canvas.height));
+			}
+			/**绘制3个方框*/
+			function fill(){
+			    canvasObj.fillStyle='rgba(255,0,0,1)';/**设置背景颜色*/
+			    canvasObj.fillRect (10, 10, 50, 50); 
+			    canvasObj.fillStyle = "rgba(0, 255, 0, 0.5)";  
+			    canvasObj.fillRect (30, 30, 50, 50);  
+			    canvasObj.fillStyle = "rgba(0, 0, 255, 0.5)";  
+			    canvasObj.fillRect (50, 50, 50, 50); /**绘制填充矩形*/
+			    canvasObj.strokeRect(70,70,48,48);	/**绘制矩形框*/			
+			}
+			function beginSJ(){
+				canvasObj.beginPath();/**画路径而准备*/
+				canvasObj.moveTo(75,50);
+				canvasObj.lineTo(100,75);
+				canvasObj.lineTo(100,25);
+				canvasObj.closePath();/**画路径形成闭合*/
+				canvasObj.stroke();/**画路径形成闭合*/
+				
+			    canvasObj.beginPath();  
+			    canvasObj.moveTo(140,30);  
+			    canvasObj.lineTo(140,75);  
+			    canvasObj.lineTo(160,25);  		    
+			    canvasObj.stroke(); 
+			    
+			    canvasObj.beginPath();  
+			    canvasObj.moveTo(100,100);  
+			    canvasObj.lineTo(200,100);  
+			    canvasObj.lineTo(100,200);  
+				canvasObj.fillStyle='#f00';
+			    canvasObj.fill();    				
+			}
+			function arcfun(){
+			   canvasObj.beginPath();
+			    var x= 50; 
+			    var y= 50; 
+			    var radius= 20; /**半径*/
+			    var startAngle= 0; /**起始弧度值*/
+			   /**结束弧度值*/
+			    var endAngle=(Math.PI/180)*120; 
+			    var anticlockwise= true; // 顺时针
+			    canvasObj.arc(x,y,radius,startAngle,endAngle, anticlockwise);
+			    canvasObj.stroke();
+			    
+			    canvasObj.beginPath();
+			    var x= 150; 
+			    var y= 50; 
+			    var radius= 20; 
+			    var startAngle= 0; 
+			    var endAngle=(Math.PI/180)*120;
+			    var anticlockwise= false; 
+			    canvasObj.arc(x,y,radius,startAngle,endAngle, anticlockwise);
+			    canvasObj.stroke();
+			    
+			    canvasObj.beginPath();
+			    var x= 150; 
+			    var y= 125; 
+			    var radius= 50; 
+			    var startAngle= 0; 
+			    var endAngle=(Math.PI/180)*360;
+			    var anticlockwise= false; 
+			    canvasObj.arc(x,y,radius,startAngle,endAngle, anticlockwise);
+			    canvasObj.fillStyle='rgba(255,0,0,0.5)';
+			    canvasObj.fill();
+			    
+			    canvasObj.beginPath();
+			    var x= 125; 
+			    var y= 150; 
+			    var radius= 50; 
+			    var startAngle= 0; 
+			    var endAngle=(Math.PI/180)*360;
+			    var anticlockwise= false; 
+			    canvasObj.arc(x,y,radius,startAngle,endAngle, anticlockwise);
+			    canvasObj.fillStyle='rgba(0,255,0,0.5)';
+			    canvasObj.fill();
+			    
+			    canvasObj.beginPath();
+			    var x= 175; 
+			    var y= 150; 
+			    var radius= 50; 
+			    var startAngle= 0; 
+			    var endAngle=(Math.PI/180)*360;
+			    var anticlockwise= false;
+			    canvasObj.arc(x,y,radius,startAngle,endAngle, anticlockwise);
+			    canvasObj.fillStyle='rgba(0,0,255,0.5)';
+			    canvasObj.fill(); 				
+			}
+			/**绘制图片*/
+			function capyimg(){
+				img.src = 'img/firefox.jpg';
+				img.onload = function(){
+					/**复制img对象的x，y50点到高宽150的像素信息到canvas 的xy75 高宽150**/
+			        canvasObj.drawImage(img,-150,50);
+			        canvasObj.drawImage(img,105,125,150,50);
+					canvasObj.drawImage(img,50,50,150,150,270,75,150,150);
+				}
+			}
+			/**复制指定区域*/
+			function capyCanvas(){
+				 var imgData;	
+				 /**取得画布x30 y10 高宽120px的像素信息*/
+				 imgData = canvasObj.getImageData(30,10,120,120);
+			     canvasObj.putImageData(imgData,30,160); 
+			}
+			/**像素操作*/
+			function operPixels(){
+				var imgData1;
+				var imgData2;
+				img.src = 'img/firefox.jpg';
+				img.onload = function(){
+					/**复制img对象的x，y50点到高宽150的像素信息到canvas 的xy75 高宽150**/
+					canvasObj.drawImage(img,50,50,150,150,10,10,110,110);
+					imgData1 = canvasObj.getImageData(25,25,50,50);
+					imgData2 = canvasObj.createImageData(25,25);
+					for(var i=0;i<imgData2.data.length/4;i++){
+			            imgData2.data[i*4]=0xfff;
+			            imgData2.data[i*4+1]=0;
+			            imgData2.data[i*4+2]=0;
+			            imgData2.data[i*4+3]=255;
+					 }
+			         canvasObj.putImageData(imgData1,140,35);
+			         canvasObj.putImageData(imgData2,152,47); 					
+				}
+			}
+			/**绘制文字**/
+			function drawfont(){
+				canvasObj.font='12px sans-serif';
+				canvasObj.fillText("IE你叫我情何以堪呐！", 10, 50);   
+				m=canvasObj.measureText("IE你叫我情何以堪呐！")
+			    alert(m.width);      
+			}
+			function $(id){
+				return typeof id=='string'?document.getElementById(id):id;
+			}
+		</script>
+	</head>
+	<body>
+		<div style="margin: 40px auto;border:solid 2px #FF0000;width: 800px;">
+			<input type="button" value="绘制矩形"/>
+			<input type="button" value="绘制路径" />		
+			<input type="button" value="绘制圆弧" />	
+			<input type="button" value="绘制图片" />
+			<input type="button" value="复制Canvas" />
+			<input type="button" value="Canvas像素操作" />		
+			<input type="button" value="绘制文字" />	
+			<input type="button" value="擦除"/>
+			<div>
+				<canvas id="canvas" width="600px;"height="300px">this browser does not support canvas...</canvas>				
+			</div>
+		</div>
+	</body>
+</html>

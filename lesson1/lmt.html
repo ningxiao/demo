@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>流媒体广告类型</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript" src="js/ads.js"></script>
+		<script type="text/javascript" src="js/class.js"></script>
+		<script type="text/javascript" src="js/events.js"></script>
+		<script type="text/javascript" src="js/banner.js"></script>
+		<script type="text/javascript" src="js/sinaflash.js"></script>
+		<script type="text/javascript" src="js/lmt.js"></script>
+		<script type="text/javascript">
+		var objdata = {
+					    pdps:"PDPS000000025852",/*广告唯一标识，名字不一定叫PDPS，这个由AE决定*/
+					    position:"",/*页面位置*/
+					    params:{
+							type:"lmt",/*广告类型*/
+					        src:["swf/391053_250230blog_jx_0206.swf","swf/index2.png"],/*广告创意，第一个是大，第二个是小*/
+					        width:"200",/*大创意宽*/
+					        height:"200",/*大创意高*/
+					        mwidth:"20",/*小创意宽*/
+					        mheight:"200",/*小创意高*/
+					        mbottom:"150",
+					        mright:"5",
+					        link:"http://sina.allyes.com/main/adfclick?db=sina&bid=300265,357885,363187&cid=0,0,0&sid=359090&advid=9462&camid=56933&show=ignore&url=http://bj.house.sina.com.cn/2011-07-14/36/9674.html",/*广告链接*/
+					        floor:"1",/*层级：1为最高级*/
+					        delay:"1000",/*延迟时间：单位为毫秒*/
+					        playtime:"5"/*延迟时间：单位为毫秒*/
+					    }
+				     };
+		</script>
+	</head>
+	<body>
+		<div id="bgrdiv" style="height: 1510px;width: 1250px;background:#000000;">
+		</div>
+		<script type="text/javascript">
+			ads.lmt(objdata);
+		</script>
+	</body>
+</html>

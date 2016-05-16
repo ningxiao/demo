@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>使用iframe嵌入网页</title>
+		<meta name="author" content="leju"/>
+	</head>
+	<body>
+		<div id="result" style="width: 100%;height: 100%">
+		</div>
+		<h2>1、使用iframe嵌入路径为http://127.0.0.1:8020/MiaovJs/apple_frameset/file.html 的页面<br>
+            2、file.html页面使用frameset的frame框架集分别引入frame_noresize.html和frame_a.html页面<br>
+		</h6>
+		<input type="button" onclick="newSrc();" value="修改框架集" />
+		<script type="text/javascript">
+	   var iframe = document.createElement("script");
+		iframe.src = "http://www.soufun.com/iptocity.asp";
+		iframe.id = 'frame';
+		iframe.type = 'text/javascript';
+		if (iframe.attachEvent){
+			iframe.attachEvent("onload", function(){
+				getValue();
+			});
+		} else {
+			iframe.onload = function(){
+				getValue();
+			};
+		}
+		document.getElementsByTagName('head')[0].appendChild(iframe);
+		</script>
+	</body>
+</html>

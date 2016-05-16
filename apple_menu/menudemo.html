@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<style>
+			body {margin:0px; }
+            #div1 {text-align:center; position:absolute; bottom:0px; width:100%; cursor:pointer;}
+		</style>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>苹果菜单模仿</title>
+		<meta name="author" content="leju" />
+		<script>
+		window.onload = function(){
+			document.onmousemove=function (ev){
+					var oEvent=ev||event;
+					var oDiv=document.getElementById('div1');
+					var aImg=oDiv.getElementsByTagName('img');
+					var d=0;
+					var iMax=200;
+					var i=0;
+					var isbool=false;
+					function getDistance(obj){
+						return Math.sqrt(//返回数字的平方根
+							//返回底数的指定次幂
+							Math.pow(obj.offsetLeft+oDiv.offsetLeft-oEvent.clientX+obj.offsetWidth/2, 2)+
+							Math.pow(obj.offsetTop+oDiv.offsetTop-oEvent.clientY+obj.offsetHeight/2, 2)
+						);
+					}
+					for(i=0;i<aImg.length;i++){
+						d=getDistance(aImg[i]);
+						d=Math.min(d, iMax);
+						aImg[i].width=((iMax-d)/iMax)*64+64;
+					}
+			};
+		};
+
+		</script>
+	</head>
+	<body>
+		<div id="div1">
+			<img alt="" src="http://127.0.0.1:8020/MiaovJs/apple_menu/images/1.png" width="64" />
+			<img alt="" src="http://127.0.0.1:8020/MiaovJs/apple_menu/images/2.png" width="64" />
+			<img alt="" src="http://127.0.0.1:8020/MiaovJs/apple_menu/images/3.png" width="64" />
+			<img alt="" src="http://127.0.0.1:8020/MiaovJs/apple_menu/images/4.png" width="64" />
+			<img alt="" src="http://127.0.0.1:8020/MiaovJs/apple_menu/images/5.png" width="64" />
+		</div>
+	</body>
+</html>

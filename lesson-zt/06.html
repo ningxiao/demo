@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>模仿css3图片分块</title>
+		<meta name="author" content="eju"/>
+        <style type="text/css">
+            *{
+                margin: 0px;
+                padding: 0px;
+            }
+            #imgcanvas{
+                width: 800px;
+                height: 600px;
+                position: relative;
+                left: 250px;
+                top:100px;
+            }
+            .puz{
+                cursor: pointer;
+                float: left;
+                filter:alpha(opacity=100);
+                opacity: 1;
+            }
+        </style>
+        <script type="text/javascript" src="js/index.js"></script>
+		<script type="text/javascript">
+            function CutObject(appobj,bitmap,l,r,w,h){
+                this.appobj = appobj || document.body;
+                this.bitmap = bitmap;
+                this.userdata = {};
+                this.w = w;
+                this.h = h;
+                this.ofx = l*w;
+                this.ofy = r*h;
+                this.userobj = this.AddElement("div",{"backgroundImage":"url("+this.bitmap+")","backgroundPosition":"-"+this.ofx+"px -"+this.ofy+"px","width":this.w+"px","height":this.h+"px"},"puz");
+                this.appobj.appendChild(this.userobj);
+                this.x =   this.userobj.offsetLeft;
+                this.y =   this.userobj.offsetTop;
+
+            }
+            CutObject.prototype.AddElement = function(type,stylelist,style){
+                var objent = document.createElement(type);
+                if(style){
+                    objent.className = style;
+                }
+                for(var i in stylelist){
+                    objent.style[i] = stylelist[i];
+                };
+                return objent;
+            }
+            CutObject.prototype.CutUpUrl = function(url,before,after){
+                var uestthis = this;
+                util.startMove(this.userobj,before,1000/60,function(){
+                    uestthis.userobj.style.backgroundImage="url("+url+")";
+                    util.startMove(uestthis.userobj,after,1000/60);
+                });
+            };
+            CutObject.prototype.CutLayout = function(){
+                this.userobj.style.left = this.x + 'px';
+                this.userobj.style.top =  this.y + 'px';
+                this.userobj.style.position = 'absolute';
+                this.userobj.style.margin = 0;
+            };
+            window.onload = function(){
+                var imgcanvas = document.getElementById("imgcanvas");
+                var imgs = ["img/1.jpg","img/2.jpg","img/3.jpg","img/4.jpg","img/5.jpg"]
+                var imgl = 6,imgr = 6,sum = imgl*imgr,imgw = parseInt(800/imgl),imgh = parseInt(600/imgr),Cuts = [];
+                var times = null;imgindex = 0;
+                for(var i=0;i<sum;i++){
+                    var l = i%imgl;//列
+                    var r = Math.floor(i/imgl);//行
+                    Cuts.push(new CutObject(imgcanvas,imgs[0],l,r,imgw,imgh));
+                };
+                for(var i=0;i<sum;i++){
+                    Cuts[i].CutLayout();
+                }
+                document.onclick = function(){
+                    imgindex++;
+                    if(imgindex>=imgs.length){
+                        imgindex=0;
+                    };
+                    var index = 0;
+                    var len = Cuts.length/2;
+                    times = setInterval(function(){
+                        if(index<len){
+                            //Cuts[index].CutUpUrl("img/1.jpg");
+                            //Cuts[Cuts.length-1-index].CutUpUrl("img/1.jpg");
+                            //Cuts[index].CutUpUrl(img[imgindex]);
+                            //Cuts[len+len-1-index].CutUpUrl(img[imgindex]);
+
+                            Cuts[len-index-1].CutUpUrl(imgs[imgindex],{opacity:40},{opacity:100});
+                            Cuts[len+index].CutUpUrl(imgs[imgindex],{opacity:40},{opacity:100});
+
+                           //Cuts[len-index-1].CutUpUrl(img[imgindex],{left:0,top:0},{left: Cuts[len-index-1].x,top: Cuts[len-index-1].y});
+                           //Cuts[len+index].CutUpUrl(img[imgindex],{left:0,top:0},{left:Cuts[len+index].x,top:Cuts[len+index].y});
+                        }else{
+                            clearInterval(times);
+                        }
+                        index++;
+                    },100);
+                }
+            }
+		</script>
+	</head>
+	<body>
+    <div id="imgcanvas">
+    </div>
+	</body>
+</html>
+

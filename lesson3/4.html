@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>CSS3 字体</title>
+    <meta name="author" content="baofeng"/>
+    <style>
+        @font-face {
+            font-family: myFirstFont;
+            src: url('font/Sansation_Light.ttf'), url('font/Sansation_Light.eot'); /* IE9+ */
+        }
+
+        @font-face {
+            font-family: myFirstFont;
+            src: url('font/Sansation_Bold.ttf'), url('font/Sansation_Bold.eot'); /* IE9+ */
+            font-weight: bold;
+        }
+
+        div {
+            font-family: myFirstFont;
+        }
+    </style>
+</head>
+<body>
+<div>
+    With CSS3, websites can <b>finally</b> use fonts other than the pre-selected "web-safe" fonts.
+</div>
+<p><b>注释：</b>Internet Explorer 9+ 支持新的 @font-face 规则。Internet Explorer 8 以及更早的版本不支持新的 @font-face 规则。</p>
+</body>
+</html>

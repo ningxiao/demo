@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>javascriptdeom</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{
+				padding: 0px;
+				margin: 0px;
+				font-size: 12px;
+				font-family: "宋体","Arial Narrow",HELVETICA;
+                line-height: 22px;
+			}
+			#pradiv{
+				width:400px;
+				height:400px;
+				margin: 30px auto;
+				background-color:#E6EEF7;
+			}
+		</style>		
+		<script type="text/javascript">
+		var inputdiv;
+		window.onload = function(){
+			inputdiv = document.getElementById('pradiv');
+		}
+		   function Animal(){
+		   	this.species = "动物";
+		   //	Animal.prototype.eat = function(){alert(this.name+"--"+this.species)}; 
+		   }
+			function Cat(name,color){
+				this.name = name;
+				this.color = color;
+				if(typeof Cat.initbool == 'undefined'){
+					//指向父类空间对象减少内存开支
+					 Cat.prototype.eat = function(){alert(this.name+"--"+this.species)}; 
+					 Cat.initbool = true;
+				}
+			}
+			function extend(subClass,superClass){
+				subClass.prototype = new superClass;
+				subClass.prototype.constructor = subClass;
+			}	
+		  extend(Cat,Animal);
+		   //我们将Cat的prototype对象指向一个Animal的实例
+		//   Cat.prototype = new Animal();
+		   //prototype对象都有一个constructor属性，指向它的构造函数
+　　            //       Cat.prototype.constructor = Cat;
+			//指向父类空间对象减少内存开支
+		   Cat.prototype.type="自定义封装类";
+		   /**js实现封装类*/
+		   function voclike(){
+		   	var cat_vo=new Cat('宁肖','红色');
+	        cat_vo.eat();
+	        var cat_vos=new Cat('马晓伟','红色');
+	         cat_vos.eat();
+	        alert("cat_vos对象是否Animal类型"+(cat_vos instanceof Animal)); //true
+		   }
+		   /**js实现继承**/
+		  function applyclike(){
+		  	var cat1 = new Cat("大毛","黄色");
+		  	alert(cat1.species+"--检测cat1是否存在species:"+cat1.hasOwnProperty('species')+"--检测cat1原型是否存在species："+('species' in cat1)); // 动物
+		  }
+		  /***********js深度拷贝**************/
+		  var Chinese = {nation:'中国'};
+		  /**js对象深度拷贝*/
+		  function deepCopy(p, c) {
+		　　　　var c = c || {};
+		　　　　for (var i in p) {
+		　　　　　　if (typeof p[i] === 'object') {
+		　　　　　　　　c[i] = (p[i].constructor === Array) ? [] : {};
+		　　　　　　　　deepCopy(p[i], c[i]);
+		　　　　　　} else {
+		　　　　　　　　　c[i] = p[i];
+		　　　　　　}
+		　　　　}
+		　　　　return c;
+		　　}
+		Chinese.birthPlaces = ['北京','上海','香港',{name:'宁肖',agx:25,xb:'男'}];
+		function copyclike(){
+		var Doctor = deepCopy(Chinese);
+		Doctor.birthPlaces.push('厦门');
+		alert(Chinese.birthPlaces); //北京, 上海, 香港
+		alert(Doctor.birthPlaces); //北京, 上海, 香港, 厦门	
+		}
+		function practice(){
+			function factorial(num){
+				if(num<=1){
+					return 1;
+				}else{
+					return num * arguments.callee(num-1);/**arguments保存函数参数 callee指针指向用于该对象的函数体**/
+				}
+			}
+			var co = {color:"blue"};
+			window.color = "red";
+			function sayColor(){
+				return this.color;
+			}
+			co.sayColor = sayColor;
+			inputdiv.innerHTML ="<p>递归调用arguments.callee阶乘值："+factorial(4)+"<br>参数个数"+factorial.length
+			+"<br>引用this为window.color:"+sayColor()+"<br>引用this为co.color:"+co.sayColor()+"<\/\p>";
+			alert("动态设置函数引用的对象读取不同的域"+sayColor.apply(co,arguments));
+		}
+		</script>
+	</head>
+	<body>
+		<h1>js的封装类实现</h1>
+		<input type="button" value="js封装"  onclick="voclike()"/>
+		<input type="button" value="js构造继承"  onclick="applyclike()"/>
+		<input type="button" value="js深度拷贝" onclick="copyclike()" />
+		<input type="button" value="函数自身调用" onclick="practice()" />
+		<div id="pradiv"></div>
+	</body>
+</html>

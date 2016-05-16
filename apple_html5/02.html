@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>移除节点</title>
+		<meta name="author" content="leju" />
+	    <style type="text/css">
+	      #ddd {
+	        width:400px;
+	        height:200px;
+	        background:red;
+	      }
+	      #eee {
+	        margin:20px;
+	        width:300px;
+	        height:100px;
+	        background:blue;
+	      }
+	    </style>
+	    <script type="text/javascript">
+		    var removeNode = !+'\v1'?function(){
+		    	var d;
+		    	return function(node){
+		    		if(node && node.tagName!='BODY'){
+		    			d = d||document.createElement('DIV');
+		    			d.appendChild(node);
+		    			d.innerHTML = '';
+		    		}
+		    	}
+		    }():function(node){
+		    	if(node && node.parentNode && node.tagName!='BODY'){
+		    		node.parentNode.removeChild(node);
+		    	}
+		    };
+		   var remove = function(id){
+		        removeNode($(id));
+		    }
+		    var check = function(id){
+		    	alert($(id));
+		    }
+	    	function $(vAg){
+	    		return typeof vAg=='string'?document.getElementById(vAg):vAg;
+	    	} 
+		  window.onload = function(){
+		    var lists = document.getElementsByTagName("li");
+		    for(var i=0,l=lists.length; i < l; i++){
+		      lists[i].onclick = (function(){
+		        var t = i;
+		        return function(){
+		          alert(t+1);
+		        }
+		      })();
+		    }
+		  }	    	 	    	
+	    </script>		
+	</head>
+	<body>
+		 <div id="ddd">要去除的父元素<div id="eee">子元素</div></div>
+	     <button type="button" onClick="remove('ddd')">去除ddd元素</button><br />
+	     <button type="button" onClick="check('ddd')">检测ddd元素是否存在</button><br />
+	     <button type="button" onClick="remove('eee')">去除eee元素</button><br />
+	     <button type="button" onClick="check('eee')">检测eee元素是否存在</button><br/>
+	     <ul>
+		  <li id="a1">aa</li>
+		  <li id="a2">aa</li>
+		  <li id="a3">aa</li>
+		</ul>		
+	</body>
+</html>

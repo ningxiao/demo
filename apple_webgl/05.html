@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+        <title>级矩阵变换</title>
+        <style type="text/css">
+            *{padding: 0;margin: 0}
+            body,html{width: 100%;height: 100%}
+            canvas{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                cursor:pointer;
+                -webkit-transform:translate(-50%,-50%);
+                -moz-transform:translate(-50%,-50%);
+                -ms-transform:translate(-50%,-50%);
+                -o-transform:translate(-50%,-50%);
+                transform:translate(-50%,-50%);
+            }
+        </style>
+        <script type="text/javascript" src="./js/Utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-debug.js"></script>
+        <script type="text/javascript" src="./js/cuon-utils.js"></script>
+        <script type="text/javascript" src="./js/cuon-matrix.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas" width="800" height="600"></canvas>   
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_Position;
+            uniform mat4 u_ModelMateix;
+            void main(){
+                gl_Position = u_ModelMateix * a_Position;
+            }  
+        </script>  
+        <!-- 片段着色器 --> 
+        <script id="shader-fs" type="x-shader/x-fragment">
+            precision mediump  float;
+            uniform vec4 u_FragColor;
+            void main(){
+                gl_FragColor = u_FragColor;
+            }  
+        </script>         
+        <script type="text/javascript">
+            function getshaderstr(id){
+                var key,shader="",element = document.getElementById(id);
+                if(!element){
+                    return null;
+                }
+                key = element.firstChild;
+                while (key) {
+                    if (key.nodeType == 3) {
+                        shader += key.textContent;
+                    }
+                    key = key.nextSibling;
+                }
+                return shader;
+            }
+        </script>
+        <div id="controller">
+            <input type="button" data-type="offset" value="位移" />
+            <input type="button" data-type="zoom" value="放大" />
+            <input type="button" data-type="minangle" value="慢速旋转" />
+            <input type="button" data-type="maxangle" value="快速旋转" />
+            <input type="button" data-type="stopangle" value="停止旋转" />
+        </div>        
+        <script type="text/javascript">
+        window.onload = function(){
+            var canvas = document.getElementById("canvas"),controller = document.getElementById("controller");
+            var gl = getWebGLContext(canvas,true),ANGLE = 0,colors = new Float32Array([1.0,0.0,0.0,1.0]);
+            var VSHADER_SOURCE = getshaderstr("shader-vs"),FSHADER_SOURCE = getshaderstr("shader-fs");
+            var n,g_last,modelMateix,u_ModelMateix,u_FragColor,a_Position;
+            var requestid,ANGLE_STEP = 45.0;//每秒45度
+            function initVertexBuffers(gl){
+                var n,vertices = new Float32Array([0, 0.5,-0.5,-0.5,0.5,-0.5]);
+                //向gl申请一个缓冲区对象
+                var vertexBuffer = gl.createBuffer();
+                if(!vertexBuffer){
+                    return -1;
+                }
+                n = vertices.length/2;
+                //将缓冲区对象绑定到目标对象
+                gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer);
+                //向缓冲区对象写入顶点坐标数据
+                gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);
+                //获取到顶点着色器的全局变量a_Position
+                a_Position = gl.getAttribLocation(gl.program,'a_Position');
+                if (a_Position < 0) {
+                    console.log('获取顶点着色器变量 a_Position 错误');
+                    return -1;
+                }
+                //将缓冲区对象分配给a_Position变量
+                gl.vertexAttribPointer(a_Position,2,gl.FLOAT,false,0,0);
+                //连接a_Position变量与分配给它的缓冲区对象
+                gl.enableVertexAttribArray(a_Position);
+                return n;
+            }
+            if(!gl){
+                console.log("你的浏览器暂时不支持WEBGL");
+                return;
+            } 
+            //设置顶点着色器与片段着色器形成渲染对象
+            if(!initShaders(gl,VSHADER_SOURCE,FSHADER_SOURCE)){
+                console.log("初始化着色器错误");
+                return;                
+            }
+            n = initVertexBuffers(gl);
+            if(n<0){
+                console.log("初始化缓冲区错误");
+                return;                
+            }
+            //创建canvas的背景色颜色
+            gl.clearColor(0,0,0,1);            
+            modelMateix = new Matrix4();  
+            u_ModelMateix = gl.getUniformLocation(gl.program,'u_ModelMateix');
+            gl.uniformMatrix4fv(u_ModelMateix,false,modelMateix.elements);            
+            //获取片段着色器的颜色
+            u_FragColor = gl.getUniformLocation(gl.program,'u_FragColor');
+            //设置片段着色器u_FragColor变量  
+            gl.uniform4fv(u_FragColor,colors);  
+            function rendering(){
+                //清除canvas
+                gl.clear(gl.COLOR_BUFFER_BIT); 
+                //绘制三角形             
+                gl.drawArrays(gl.TRIANGLE_STRIP,0,n); 
+            } 
+            controller.addEventListener("click", function(event){
+                var target = event.target,type=target.getAttribute("data-type");
+                if(type){
+                    switch(type){
+                        case "offset":
+                            modelMateix.translate(0.5,0.5,0.0);
+                            gl.uniformMatrix4fv(u_ModelMateix,false,modelMateix.elements);                        
+                            rendering();
+                          break;
+                        case "zoom":
+                            modelMateix.setScale(1.0,1.5,1.0);
+                            gl.uniformMatrix4fv(u_ModelMateix,false,modelMateix.elements);                        
+                            rendering();                          
+                          break;
+                        case "minangle":
+                          g_last = Date.now(); 
+                          minframeangle();                        
+                          break; 
+                        case "maxangle":
+                          maxframeangle();                        
+                          break;
+                        case "stopangle":
+                          window.cancelAnimationFrame(requestid);                        
+                          break;                                                 
+                        default:
+                    }   
+                }
+                
+            });
+            /**
+            * 根据上次调用时刻计算当前旋转角度
+            * @param angel 当前旋转角度
+            * @return newangel 当前时刻应该旋转的角度
+            */
+            function animate(angel){
+                var newangel,now = Date.now(),elapsed = now - g_last;
+                g_last = now;
+                //根据时间差计算出当前旋转角度
+                newangel = angel + (ANGLE_STEP * elapsed)/1000;
+                return newangel%=360;
+            }
+            function maxframeangle(){
+                ANGLE += 45;
+                modelMateix.setRotate(ANGLE,0,0,1);
+                gl.uniformMatrix4fv(u_ModelMateix,false,modelMateix.elements);
+                rendering();              
+                requestid = window.requestAnimationFrame(maxframeangle);
+            }            
+            function minframeangle(){
+                ANGLE = animate(ANGLE);
+                modelMateix.setRotate(ANGLE,0,0,1);
+                gl.uniformMatrix4fv(u_ModelMateix,false,modelMateix.elements);
+                rendering();              
+                requestid = window.requestAnimationFrame(minframeangle);
+            }
+            rendering();
+        }
+        </script>
+    </body>
+</html>

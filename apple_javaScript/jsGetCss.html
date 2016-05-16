@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>jsGetCss</title>
+		<meta name="author" content="Administrator" />
+		<style type="text/css">
+			.mydiv{
+				width: 200px;
+				height: 200px;
+				border: solid 1px #00CC33;
+				margin: 40px auto ;
+				display: none;
+			}
+			.liu{
+				width: 250px;
+				height: 250px;
+			}
+		</style>
+		<style type="text/css">
+			.ning{
+				width: 350px;
+				height: 450px;
+				background: #008000;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var styeList = document.styleSheets|| document.styleSheets;
+				var cssList = null;
+				var jtlist = null;
+				var mydiv = document.getElementById('mydiv');
+				var str = "当前浏览器外调样式明细";
+				for(var i = 0; i<styeList.length;i++){
+					cssList = styeList[i].cssRules||styeList[i].rules;
+					//console.log("i--"+styeList[i]);	
+					for(var k = 0;k<cssList.length;k++){
+						jtlist = cssList[k].style;
+						for (var j =0;j<jtlist.length;j++){
+							if(jtlist[jtlist[j]]){
+								str+=jtlist[j]+"--"+jtlist[jtlist[j]]+'<br>';
+							}
+						}
+					}
+				}
+				 mydiv.innerHTML = str;	
+				cssList = document.styleSheets[0].cssRules || document.styleSheets[0].rules;
+				alert(cssList[0].style.display);
+				var divli = document.getElementById('mydiv');
+				var obj ={name:"nx",age:14};
+				delete obj.age;
+				for(var o in obj){
+					alert(o);
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="mydiv" class="mydiv"></div>
+	</body>
+</html>

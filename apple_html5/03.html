@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>相册</title>
+		<meta name="author" content="eju" />
+		<style type="text/css">
+		  #album{position:relative;border:10px solid #000;width:85px;height:120px;overflow:hidden;}
+		  #album img{position:absolute;top:0;left:0;opacity:0;filter:alpha(opacity=0);}
+		  #img1 {opacity:.99;filter:alpha(opacity=99);}
+		</style>  
+	<script type="text/javascript">
+	  var album = function(el){
+	    var node = (typeof el == "string")? document.getElementById(el):el;
+	    var images = node.getElementsByTagName("img");
+	    var length = images.length;
+	    var current = 0;
+	    for(var i=1;i<length;i++){
+	      images[i].opacity = 0;//为所有图片设置一个自定义属性opacity
+	      images[i].onclick = (function(i){
+	        return function(){
+	          current = i + 1;
+	          if(current > 3)
+	            current = 3
+	        }
+	      })(i);
+	    }
+	    images[0].opacity = 0.99;
+	    (function(){
+	      setTimeout(function(){
+	        var cOpacity = images[current].opacity,
+	        next = images[current+1]?current+1:0;//下一张图片的索引，如果没有就回到第一张
+	        var nOpacity = images[next].opacity;
+	        cOpacity-=.05;
+	        nOpacity+=.05;
+	        images[current].opacity = cOpacity;
+	        images[next].opacity = nOpacity;
+	        images[next].style.display = "block";//确保肯定有一张图片是可见的
+	        setOpacity(images[current]);
+	        setOpacity(images[next]);
+	        if(cOpacity<=0) {
+	          images[current].style.display = "none";
+	          current = next;
+	          setTimeout(arguments.callee,1000);
+	        }else{
+	          setTimeout(arguments.callee,50);
+	        }
+	      },100)
+	    })()
+	  }
+	  /**设置透明度*/
+	  var setOpacity =function(obj) {
+	    if(obj.opacity>.99) {
+	      obj.opacity = .99;
+	    }
+	    obj.style.opacity = obj.opacity;
+	    obj.style.filter = "alpha(opacity=" + (obj.opacity*100) + ")";
+	  }
+	  window.onload = function(){
+	    var el = document.getElementById("album");
+	    album(el);
+	  }
+	  var isArray = function(v){
+					  return Object.prototype.toString.apply(v) === '[object Array]';
+					}
+	</script>	
+  </head>
+  <body>
+	<div id="album" >
+	  <img id="img1" alt="图片" src="http://images.cnblogs.com/cnblogs_com/rubylouvre/202906/t_type1.jpg" />
+	  <img alt="图片" src="http://images.cnblogs.com/cnblogs_com/rubylouvre/202906/t_type2.jpg" />
+	  <img alt="图片" src="http://images.cnblogs.com/cnblogs_com/rubylouvre/202906/t_type3.jpg" />
+	  <img alt="图片" src="http://images.cnblogs.com/cnblogs_com/rubylouvre/202906/t_type4.jpg" />
+	</div>
+  </body>
+</html>

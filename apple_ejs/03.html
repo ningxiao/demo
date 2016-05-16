@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>03</title>
+		<meta name="author" content="leju" />
+    <style type="text/css">
+      table {
+        border:1px solid #a9ea00;
+        border-collapse:collapse;
+        width:80%;
+      }
+      td{
+        border:1px solid #a9ea00;
+        padding:0;
+        text-align:center;
+      }
+    </style>
+    <script>
+      (function(){
+        this.dom = {
+          quote : String.quote || function (str) {
+            str = str.replace(/[\x00-\x1f\\]/g, function (chr) {
+              var special = metaObject[chr];
+              return special ? special : '\\u' + ('0000'+chr.charCodeAt(0).toString(16)).slice(-4);
+            });
+            return '"' + str.replace(/"/g, '\\"') + '"';
+          }
+        };
+
+        if(!String.prototype.trim){
+          String.prototype.trim = function(){
+            return this.replace(/^[\s\xa0]+|[\s\xa0]+$/g, '');
+          }
+        };
+        
+        (function(w,s){
+          //http://blogs.msdn.com/xmlteam/archive/2006/10/23/using-the-right-version-of-msxml-in-internet-explorer.aspx
+          s = ["XMLHttpRequest",
+            "ActiveXObject('Msxml2.XMLHTTP.6.0')",
+            "ActiveXObject('Msxml2.XMLHTTP.3.0')",
+            "ActiveXObject('Msxml2.XMLHTTP')",
+            "ActiveXObject('Microsoft.XMLHTTP')"];
+          //IE专有的JScript方法：ScriptEngine，ScriptEngineBuildVersion，ScriptEngineMajorVersion，ScriptEngineMinorVersion，CollectGarbage，RuntimeObject和GetObject。
+          if( !-[1,] && w.ScriptEngineMinorVersion() === 7 && location.protocol === "file:"){
+            s.shift();
+          }
+          for(var i = 0 ,el;el=s[i++];){
+            try{
+              if(eval("new "+el)){
+                dom.xhr = new Function( "return new "+el);
+                break;
+              }
+            }catch(e){}
+          }
+        })(window);
+
+        var metaObject = {
+          '\b': '\\b',
+          '\t': '\\t',
+          '\n': '\\n',
+          '\f': '\\f',
+          '\r': '\\r',
+          '\\': '\\\\'
+        },
+        _startOfHTML = "\t__views.push(",
+        _endOfHTML = ");\n",
+        _rAt = /(^|[^\w\u00c0-\uFFFF_])(@)(?=\w)/g,
+        _partial = function(url){
+          var xhr = dom.xhr();
+          xhr.open("GET",url,false);
+          xhr.setRequestHeader("If-Modified-Since","0");
+          xhr.send(null);
+          return xhr.responseText|| ""
+        };
+        dom.ejs = function(obj,usePart){
+          if(!usePart){//如果普通模板，则要整理配置文件
+            obj.left = obj.left || "<&";
+            obj.right = obj.right || "&>";
+            obj.rLeft =  obj.rLeft  || new RegExp("\\s*"+ obj.left+"\\s*");
+            obj.rRight = obj.rRight  || new RegExp("\\s*"+ obj.right+"\\s*");
+          };
+          var key = obj.selector || obj.url,
+          rAt = _rAt,
+          startOfHTML = _startOfHTML,
+          endOfHTML = _endOfHTML,
+          partial = _partial,
+          self = arguments.callee,
+          buff = ["var __views = [];\n"],str,logic;
+          if(obj.selector){
+            var el = document.getElementById(key);
+            if (!el) throw "can not find the target element";
+            str = el.text;
+          }else {
+            str = partial(obj.url);
+            if (!str) throw "the target file does not exist";
+          };
+          if(!self[key]){
+            var arr = str.trim().split(obj.rLeft),temp = [],url,selector,i=0,n=arr.length,els,segment;
+            while(i<n){
+              segment = arr[i++];
+              els = segment.split(obj.rRight);
+              if(segment.indexOf(obj.right) !== -1){//这里不使用el.length === 2是为了避开IE的split bug
+                switch (els[0].charAt(0)) {
+                  case "~"://include局部模板  以URL方式引入
+                    delete obj.selector;
+                    obj.url = els[0].substring(1).trim();
+                    self[url] = self[url] || self(obj,true);
+                    temp = temp.concat(self[url] );
+                    break;
+                  case ":"://include局部模板  以元素选择符方式引入
+                    delete obj.url;
+                    selector = obj.selector = els[0].substring(1).trim();
+                    self[selector] = self[selector] || self(obj,true);
+                    temp = temp.concat(self[selector] );
+                    break;
+                  case "="://处理后台返回的变量（输出到页面的);
+                    logic = els[0].substring(1);
+                    if(logic.indexOf("@")!==-1){
+                      temp.push(startOfHTML, logic.replace(rAt,"$1data."), endOfHTML);
+                    }else{
+                      temp.push(startOfHTML, logic, endOfHTML);
+                    }
+                    break;
+                  case "#"://处理注释
+                    break;
+                  default://处理逻辑
+                    logic = els[0];
+                    if(logic.indexOf("@")!==-1){
+                      temp.push(logic.replace(rAt,"$1data."), "\n");
+                    }else{
+                      temp.push(logic, "\n");
+                    }
+                }
+                //处理静态HTML片断
+                els[1] &&  temp.push(startOfHTML, dom.quote.call(null,els[1]), endOfHTML)
+              }else{
+                //处理静态HTML片断
+                temp.push(startOfHTML, dom.quote.call(null,els[0]), endOfHTML)
+              }
+            }
+            if(usePart){//局部模板
+              return  (self[key] = temp);
+            }else{
+              self[key] = new Function("data",buff.concat(temp).join("")+';return __views.join("");');
+            };
+          };
+          return  self[key](obj.data || {});
+        }
+      })();
+    </script>
+    <script>
+      window.onload = function(){
+        var trs = [
+          {name:"隐形杀手",age:29,sex:"男"},
+          {name:"索拉",age:22,sex:"男"},
+          {name:"fesyo",age:23,sex:"女"},
+          {name:"恋妖壶",age:18,sex:"男"},
+          {name:"竜崎",age:25,sex:"男"},
+          {name:"你不懂的",age:30,sex:"女"}
+        ]
+
+        var tmpl = dom.ejs({
+          selector:"table_tmpl",//指定主模板
+          data:{trs:trs,href:"http://images.cnblogs.com/cnblogs_com/rubylouvre/202906/o_type4.jpg"}//数据源
+        });
+        document.getElementById("table_tc").innerHTML = tmpl;
+      };
+    </script>
+	</head>
+	<body>
+	    <h2>dom.ejs v6</h2>
+	    <script type="tmpl" id="table_tmpl">
+	        <table>
+	        <& for(var i=0,tl = @trs.length,tr;i<tl;i++){ &>
+	          <& tr = @trs[i]; &>
+	          <tr>
+	          <td><&= tr.name &></td> <td><&= tr.age &></td> <td><&= tr.sex || "男" &></td>
+	          <&# 导入子模板 &>
+	          <&: tds_tmpl &>
+	          </tr>
+	          <& } &>
+	        </table>
+	    <&# 怎么可能不支持图片 &>
+	    <img src="<&= @href &>">
+	    </script>
+	    <script type="tmpl" id="tds_tmpl">
+	        <td>静态的表格</d> <td>静态的表格</d> <td>静态的表格</d>
+	    </script>
+	    <div id="table_tc">
+	
+	    </div>		
+	</body>
+</html>

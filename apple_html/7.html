@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<style>
+*{ margin:0px; padding:0px;}
+a,input{outline:none;text-decoration:none;}
+li{list-style:none;}
+img,input{border:none;}
+.tl{text-align:left;}
+.tr{ text-align:right;}
+.tc{ text-align:center;}
+.fl{ float:left; display:inline;}
+.fr{ float:right; display:inline;}
+.cl{ clear:both; line-height:0px; height:1px;}
+.undis{display:none;}
+body{ font-size:12px; line-height:24px; font-family:"宋体";}
+.form{ width:675px; height:40px; line-height:40px; border:#F0580C solid 1px; margin:0 auto; margin-top:25px;}
+.menu{ width:72px; height:39px; background:#FFF;border:#CCC solid 1px; border-top:none;}
+.text{ width:505px; height:40px; border-right:#CCC solid 1px; background:url(images/jtou.jpg) no-repeat 405px center;}
+.sub{width:95px; height:40px; background:#FF4400; color:#FFFAEF; font-family:"微软雅黑"; font-size:15px; cursor:pointer;}
+.sub_hover{ background:#F52B00;}
+.first{background:#F3F7F6 url(images/jtou.jpg) no-repeat 55px center; cursor:pointer;}
+.sec{background:#F3F7F6 url(images/jtou_h.jpg) no-repeat 55px center;}
+.sec_out{background:url(images/jtou_h.jpg) no-repeat 55px center;}
+.act{background:#F3F7F6;}
+</style>
+<script src="http://www.koolearn.com/img/js/jquery-1.8.2.min.js"></script>
+<script>
+$(function(){
+	$(".sub").hover(function(){
+		$(this).addClass("sub_hover");	
+	},function(){
+		$(this).removeClass("sub_hover");	
+	});	
+	$(".menu .first").hover(function(){
+		$(this).addClass("sec");
+		$(this).removeClass("sec_out");
+	},function(){
+		$(this).removeClass("sec");	
+		$(this).addClass("sec_out");
+	});
+	$(".menu li:last").hover(function(){
+		$(this).addClass("act");	
+	},function(){
+		$(this).removeClass("act");	
+	});
+	$(".menu").hover(function(){
+		$(this).css("height","80px");
+		$(this).find("li:last").show();	
+	},function(){
+		$(this).find("li:last").hide();
+		$(this).css("height","39px");
+	})
+});
+</script>
+</head>
+
+<body class="tc">
+<form action="#" method="post" class="form">
+	<ul class="fl menu">
+    	<li class="first">宝贝</li>
+        <li class="undis">店铺</li>
+    </ul>
+    <input type="text" class="text fl" />
+    <input type="submit" class="sub fl" />
+</form>
+</body>
+</html>

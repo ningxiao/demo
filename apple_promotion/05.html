@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>new_file</title>
+		<meta name="author" content="momo" />
+		<style type="text/css">
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			.shangj{
+				background:#0000CC;
+				width: 200px;
+				height: 30px;
+				line-height: 30px;		
+				
+			}
+			#divui div{
+				float: left;
+				width: 200px;
+				margin-right: 10px;
+			}
+			#divui ul li{
+				list-style: none;
+			}
+			#divui ul{
+				margin-top: 40px;
+				margin-left: 20px;
+			}			
+			#divui li{
+				width: 100px;
+				height: 30px;
+				margin-bottom: 10px;
+				background: #FF0000;
+				line-height: 30px;
+				cursor:pointer;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var divui = document.getElementById("divui");
+				var divlist = divui.getElementsByTagName("ul");
+				var showdiv = document.getElementById("showdiv");
+				var showuls = new Array();
+				for(var i=0;i<divlist.length;i++){
+					showuls.push({x:getCoords(divlist[i]).left,y:getCoords(divlist[i]).top,w:divlist[i].offsetWidth,h:divlist[i].offsetHeight,obj:divlist[i]});
+					divlist[i].onmousedown = function(event){
+						event = event || window.event;
+		  	            var target = event.target || event.srcElement;
+		  	            var pzobj = null,targetoff = getCoords(target),this_obj = this;	
+						document.onmousemove = function(event){
+							event = event || window.event;
+							if(event.preventDefault){
+								event.preventDefault();
+							}else{
+								event.returnValue = false;
+							}							
+							showdiv.style.display ="block";
+							showdiv.style.top = event.clientY - 15+"px";
+							showdiv.style.left = event.clientX - 50+"px";
+							showdiv.innerHTML = target.innerHTML;
+							pzobj = pongz(event.clientX,event.clientY,this_obj);
+						};
+						document.onmouseup = function(){
+							document.onmousemove = null;
+							document.onmouseup = null;
+							if(pzobj){
+							   showdiv.style.display ="none";	
+							   pzobj.appendChild(target);	
+							   for(var i=0;i<divlist.length;i++){
+                                  showuls.push({x:getCoords(divlist[i]).left,y:getCoords(divlist[i]).top,w:divlist[i].offsetWidth,h:divlist[i].offsetHeight,obj:divlist[i]});								
+							   }							   							
+							}else{
+								startMove(showdiv,{"top":targetoff.top,"left":targetoff.left},null,function(){
+									showdiv.style.display ="none";	
+								});
+							}
+						}
+						return false;						
+					};
+				}
+				function pongz(x,y,obj){
+					for(var i=0;i<showuls.length;i++){
+						var rtue = showuls[i];
+						if(rtue.obj!=obj){
+							if(rtue.x>x || x>(rtue.x+rtue.w) || rtue.y>y || y>(rtue.y+rtue.h)){
+							}else{
+								return rtue.obj;
+							};							
+						};						
+					}
+					return false;					
+				}
+				function getCoords(el){
+				  var box = el.getBoundingClientRect(),
+				  doc = el.ownerDocument,
+				  body = doc.body,
+				  html = doc.documentElement,
+				  clientTop = html.clientTop || body.clientTop || 0,
+				  clientLeft = html.clientLeft || body.clientLeft || 0,
+				  top  = box.top  + (self.pageYOffset || html.scrollTop  ||  body.scrollTop) - clientTop,
+				  left = box.left + (self.pageXOffset || html.scrollLeft ||  body.scrollLeft) - clientLeft;
+				  return { 'top': top, 'left': left };
+				};
+				/**取得样式*/			
+				function getStyle(obj, name){
+					if(obj.currentStyle){
+						return obj.currentStyle[name]||obj.style[name];
+					}else{
+						return getComputedStyle(obj, document)[name]||obj.style[name];
+					}
+				}
+				/**缓动公共方法*/
+				function startMove(obj, json,tiem,fn){
+					var tiem = tiem || 30;
+					clearInterval(obj.timer);
+					obj.timer=setInterval(function (){
+						var attr='';
+						var comp=true;
+						for(attr in json){
+							var iCur=0;
+							if(attr=='opacity'){
+								iCur=Math.round(parseFloat(getStyle(obj, attr))*100);
+							}else{
+								iCur=parseInt(getStyle(obj, attr));
+							}
+							if(iCur!=json[attr]){
+								comp=false;
+							}
+							var iSpeed=(json[attr]-iCur)/8;
+							iSpeed=iSpeed>0?Math.ceil(iSpeed):Math.floor(iSpeed);
+							if(attr=='opacity'){
+								obj.style.filter='alpha(opacity:'+(iCur+iSpeed)+')';
+								obj.style.opacity=(iCur+iSpeed)/100;
+							}else{
+								obj.style[attr]=iCur+iSpeed+'px';
+							}
+						}
+						if(comp){
+							clearInterval(obj.timer);
+							if(fn){
+								fn();
+							}
+						}
+					}, tiem);
+				}								
+			};
+		</script>
+	</head>
+	<body>
+		<div id="divui" style="left: 100px;top: 100px;position: absolute">
+			<div>
+				<div class="shangj">
+					教务处
+				</div>
+				<ul>
+					<li>教务-小明</li>
+					<li>教务-小李</li>
+					<li>教务-小张</li>
+					<li>教务-小西</li>
+				</ul>
+			</div>
+			<div>
+				<div class="shangj">
+					培训处
+				</div>
+				<ul>
+					<li>培训-小明</li>
+					<li>培训-小李</li>
+					<li>培训-小张</li>
+					<li>培训-小西</li>
+				</ul>
+			</div>
+			<div>
+				<div class="shangj">
+					行政处
+				</div>
+				<ul>
+					<li>行政-小明</li>
+					<li>行政-小李</li>
+					<li>行政-小张</li>
+					<li>行政-小西</li>
+				</ul>
+			</div>						
+		</div>
+		<div id="showdiv" style="width: 100px;height: 30px;background: #FF0000;line-height: 30px;cursor:pointer;display: none;position: absolute"></div>
+	</body>
+</html>

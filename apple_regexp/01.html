@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>正则入门1</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+		window.onload = function(){
+			var lianj = document.getElementById("lianj");
+			var mybut = document.getElementsByTagName("input")[0];
+			var str = lianj.innerHTML,searchStr = "百度",reps = "<img src='http://127.0.0.1:8020/MiaovJs/image/logo_news_137_46.png' />";
+	        function example(str,search,reps){
+	          var re = /<(\w+?) .+?>(.+?)<\/\1>/g;
+	              str.match(re);
+	          var str2 = RegExp.$2;  //先取得anchor的innerHTML; 
+	          var re2 = new RegExp("("+search+")","g");//很妙的思路，用要修改内容做分割
+	          var newstrarr = str.split(str2);//然后用修改好的内容做粘合，把split后的数组元素jion起来！
+	          return  newstrarr.join(str2.replace(re2,reps));
+	        }
+	        mybut.onclick=function(){
+	        	 lianj.innerHTML =  example(str, searchStr,reps);		
+	        }	
+		}		
+		var str = '<td width="100%"> test \test1 test2\test3 test4\ <\/td>/'
+        alert(str.replace(/(<[^>]+>)([^<]+)(<\/.+>)/,"$1<nobr>$2<\/nobr>$3"));
+		function getArr(n) {
+		    var a = [],
+		        b = [],
+		        m = 0;
+		    a.length = n + 1;
+		    a.toString().replace(/,/g,function(){
+		        b.push(++m);
+		    });
+		    return b;
+		};
+		alert(getArr(5));        
+		</script>
+	</head>
+	<body>
+		<div id="lianj">
+		 <a href="www.baidu.com">百度</a>
+		</div>
+		<input type="button" value="正则替换" />
+	</body>
+</html>

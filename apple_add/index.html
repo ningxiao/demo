@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>删除对象</title>
+<style>
+div{ border:solid 1px #666; padding:1px; height: 250px;}
+#cont{ height:300px; width:600px;}
+</style>
+<link rel="stylesheet" type="text/css" href="../css/index.css">
+<script language="javascript">
+function $(id){
+	return document.getElementById(id);
+}
+function del(id){
+	var x=$(id);
+	x.parentNode.removeChild(x); 
+
+}
+function isToStopCreate(){
+	var zones = document.getElementsByTagName("tr");
+	if(typeof(zones)=="undefined"){ return true; }
+	alert(zones.length);
+	if(zones.length>6){
+		alert("你已经建了6个了");
+		return true;
+	}
+	return false;
+}
+
+var allCount=0;
+function create(){
+	 allCount++;
+	if(allCount>6){ return false; }
+	var btn = document.createElement("input");
+	btn.type="button";
+	btn.onclick=isToStopCreate;
+	btn.value="删除"+allCount;
+	btn.index = "1";
+	
+	var div = document.createElement("div");
+	div.innerHTML = "new div";
+	div.style.height="50px"
+	div.style.width="200px";
+	div.style.cssFloat="left";
+	div.style.border="solid 1px red";
+	div.style.margin="5px 5px 5px 5px";
+	div.appendChild(btn)
+	document.getElementById('cont').appendChild(div);
+	console.log(btn.hasOwnProperty('index')); // --> true
+}
+/**删除点击对象*/
+function isToStopCreate(){
+	  removeNode(this.parentNode);
+	  allCount--;
+}
+var removeNode = !+'\v1'?function(){
+	var d;
+	return function(node){
+		if(node && node.tagName!='BODY'){
+			d = d||document.createElement('DIV');
+			d.appendChild(node);
+			d.innerHTML = '';
+			d = null;
+		}
+	}
+}():function(node){
+	if(node && node.parentNode && node.tagName!='BODY'){
+		node.parentNode.removeChild(node);
+	}
+};
+function getisTo(){
+	var zones = document.getElementById("cont").getElementsByTagName('div');
+	if(zones.length>0){
+		alert(zones.length);
+	}else{
+		alert("对不起,没有创建对象。");
+	}
+}
+/**替换指定节点**/
+function getfirstChild(){
+	var btn = document.createElement("input");
+	btn.type="button";
+	btn.onclick=isToStopCreate;
+	btn.value="替换";	
+	
+	var div = document.createElement("div");
+	div.innerHTML = "替换节点";
+	div.style.height="50px"
+	div.style.width="200px";
+	div.style.cssFloat="left";
+	div.style.border="solid 1px red";
+	div.style.margin="5px 5px 5px 5px";
+	div.appendChild(btn);
+
+	var oOldP = document.getElementById('cont').childNodes[0];
+    document.getElementById('cont').replaceChild(div,oOldP);/**替换节点*/
+}
+/**修改背景颜色**/
+function changeColor(){
+	document.body.bgColor==''?document.body.bgColor='yellow':document.body.bgColor='';
+}
+/**利用文档碎片【批量添加对象实现效率**/
+function addbutton(){
+	var oFragment = document.createDocumentFragment();
+	for(var i=0;i<5;i++){
+		var div = document.createElement('div');
+		div.className = 'adddiv';
+		oFragment.appendChild(div);
+	}
+	document.getElementById('cont').appendChild(oFragment);/***/
+	
+}
+function insert(){
+	allCount++;
+	if(allCount>6){ return false; }
+	var btn = document.createElement("input");
+	btn.type="button";
+	btn.onclick=isToStopCreate;
+	btn.value="插入"+allCount;
+	
+	var div = document.createElement("div");
+	div.innerHTML = "new div";
+	div.style.height="50px"
+	div.style.width="200px";
+	div.style.cssFloat="left";
+	div.style.border="solid 1px red";
+	div.style.margin="5px 5px 5px 5px";
+	div.appendChild(btn)
+	var oOldP = document.getElementById('cont').childNodes[1];
+	document.getElementById('cont').insertBefore(div,oOldP);
+	console.log(btn.hasOwnProperty('onclick')); // --> true	
+}
+function insertAfter(newElement,targetElement){
+	var parent = targetElement.parentNode;/**取得父级元素*/
+	if(parent.lastChild==targetElement){
+		parent.appendChild(newElement);
+	}else{
+		parent.insertBefore(newElement,targetElement.nextSibling);
+	}
+}
+function fter(){
+	var btn = document.createElement("input");
+	var targetElement = document.getElementById('cont').getElementsByTagName('div')[1];
+	btn.type="button";
+	btn.onclick=isToStopCreate;
+	btn.value="后面插入"+allCount;
+	
+	var div = document.createElement("div");
+	div.innerHTML = "new div";
+	div.style.height="50px"
+	div.style.width="200px";
+	div.style.cssFloat="left";
+	div.style.border="solid 1px red";
+	div.style.margin="5px 5px 5px 5px";
+	div.appendChild(btn);
+	insertAfter(div,targetElement);		
+}
+</script>
+</head>
+<body>
+<input type="button" value="根据标签计算"  onclick="getisTo()"/>
+<table>
+   		<tr><th>ID</th><th>描述</th><th>操作</th></tr>
+   		<tr id="001"><td>001</td><td>fdslkfjwooo</td><td><a href="#" onclick="del('001')">删除</a></td></tr>
+   		<tr id="002"><td>002</td><td>fdslkfjwooo</td><td><a href="#" onclick="del('002')">删除</a></td></tr>
+   		<tr id="003"><td>003</td><td>fdslkfjwooo</td><td><a href="#" onclick="del('003')">删除</a></td></tr>
+   		<tr id="004"><td>004</td><td>fdslkfjwooo</td><td><a href="#" onclick="del('004')">删除</a></td></tr>
+   </table>
+<hr/>
+<input type="button"  value="修改颜色"  onclick="changeColor()"/>
+<input type="button"  value="新建"  onclick="create()"/>
+<input type="button" value="指定位置插入" onclick="insert();" />
+<input type="button" value="指定位置后插入" onclick="fter();" />
+<input type="button"  value="替换节点"  onclick="getfirstChild()"/>
+<input type="button" value="利用文档碎片批量添加" onclick="addbutton()"/>
+<br/>
+  <div id="cont"></div>
+</body>
+</html>
+

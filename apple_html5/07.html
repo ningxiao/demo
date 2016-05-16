@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>模仿自由落体运动</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript"> 
+		    var h = 0, v = 1;  
+		    window.setTimeout(aa, 2000);  
+		    function aa() {  
+		        var i = self.setInterval("bb()", 25);  
+		    }  
+		    function bb() {  
+		        var f = document.getElementById('fall');  
+		        var r = parseInt(f.style.right) + h;  
+		        var b = parseInt(f.style.bottom) - v;  
+		        f.style.right = r + 'px';  
+		        f.style.bottom = b + 'px';  
+		        if (b > -210) {  
+		            v += 2;  
+		        } else {  
+		            h = (v > 9) ? v * 0.1 : 0;  
+		            v *= (v > 9) ? -0.3 : 0;  
+		        }  
+		    }  
+		</script> 
+	</head>
+	<body>
+		<div id="fall" style="position: relative; right: -300px; bottom: -46px">apple</div> 
+	</body>
+</html>

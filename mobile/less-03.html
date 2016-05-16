@@ -1,0 +1,117 @@
+<html>
+    <head>
+        <title>ios safari 音频解决</title>
+        <link rel="stylesheet" type="text/css" href="./css/style.css" />
+        <script type="text/javascript" src="./js/libs/jquery-1.8.3.min.js"></script>
+        <script type="text/javascript" src="./js/bind.js"></script>
+        <script type="text/javascript" src="./js/events.js"></script>
+        <script type="text/javascript" src="./js/sprite.js"></script>
+        <script type="text/javascript">
+        $(document).ready(function() {
+            var $button = $('.button.play'),$progress = $('.progress'),$handle = $('.handle'),$bar = $('.bar'),$buffer = $('.buffer'),$sprite = $('.sprite');
+            var audio = document.getElementById('audio');
+            var spriteData = {
+                meow1: {
+                    start: 0,
+                    length: 1.1
+                },
+                meow2: {
+                    start: 1.3,
+                    length: 1.1
+                },
+                whine: {
+                    start: 2.7,
+                    length: .8
+                },
+                purr: {
+                    start: 5,
+                    length: 5
+                }
+            };
+            
+            var spriteObject = new AudioSprite(audio, spriteData);
+            
+            spriteObject
+                .on('meow2:complete', function() {
+                    this.play('purr');
+                })
+                .on('purr:complete', function() {
+                    this.play('meow1');
+                })
+                .on('meow1:complete', function() {
+                    this.play('whine');
+                })
+                .on('whine:complete', function() {
+                    this.play('meow2');
+                })
+            ;
+            
+            spriteObject
+                .on('progress', function(time) {
+                    // round time!
+                    var currentTime = ~~(time * 100) / 100;
+                    var percent = ~~((time / this.el.duration) * 100);
+            
+                    $progress.text(currentTime);
+                    $bar.css('width', percent + '%');
+                    $handle.css('left', percent + '%');
+                })
+                .on('play', function() {
+                    $button.text('Pause');
+                    if (this._current) {
+                        $sprite.text('Sprite ID: ' + this._current);
+                    }
+                })
+                .on('stop', function() {
+                    $button.text('Play');
+                })
+                .on('onload', function(percent) {
+                    $progress.text('Loading: ' + percent + '%');
+                    $buffer.css('width', percent + '%');
+                })
+                .on('onloaded', function() {
+                    $progress.text('Loaded: 100%');
+                })
+                .on('loadstart', function() {
+                    $progress.text('Initializing');
+                })
+            ;
+            
+            $button.on('click', function(e) {
+                e.preventDefault();
+                if (audio.ended || audio.paused) {
+                    spriteObject.play();
+                } else {
+                    spriteObject.stop();
+                }
+            });
+            
+            $button
+                .on('touchstart', function () {
+                    $(this).addClass('active');
+                })
+                .on('touchend touchcancel touchmove', function() {
+                    $(this).removeClass('active');
+                })
+            ;
+        })
+        </script>        
+    </head>
+    <body>
+    <h1>Audio Sprite</h1>
+    <div class="wrapper">
+        <a href="javascript:void(0);" class="button play">Play</a>
+        <div class="progressbar">
+            <div class="bar"></div>
+            <div class="buffer"></div>
+            <div class="handle"></div>
+        </div>
+        <span class="progress"></span>
+        <span class="sprite"></span>
+        <audio id="audio" preload="none">
+            <source src="./audio/cat.m4a" type="audio/mpeg" />
+            <source src="./audio/cat.ogg" type="audio/ogg" />
+        </audio>
+    </div>
+    </body>
+</html>

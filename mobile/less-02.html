@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!--
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+    -->
+    <title>media查询判断</title>
+    <style type="text/css">
+      *{
+        padding: 0;
+        margin: 0;
+      }
+      html,body{
+        width: 100%;
+        height: 100%;
+      }
+      body:after {
+        display: none;
+        content: '1180';
+      }
+      .query{
+        height: 200px;
+        width: 1180px;
+        border:1px solid #FF0825;
+        overflow: hidden;
+      }
+      .block{
+        width: 200px;
+        height: 200px;
+        margin-left: 2px;
+        background: #000;
+        font-size: 36px;
+        color: #FFF;
+        text-align:center;
+        line-height: 200px;        
+        float: left;
+      }
+      .body-980 .query{
+        width: 980px;
+      }
+      .body-1180 .query{
+        width: 1180px;
+      }
+      .body-1380 .query{
+        width: 1382px;
+      }            
+      @media screen and (max-width: 1180px) {
+        body:after {
+          display: none;
+          content: '980';
+        }
+      }                
+      @media screen and (min-width: 1180px) {
+        body:after {
+          display: none;
+          content: '1180';
+        }
+      }
+      @media screen and (min-width: 1380px) {
+        body:after {
+          display: none;
+          content: '1380';
+        }
+      }                   
+    </style>
+  </head> 
+  <body>  
+    <script type="text/javascript">
+    var querycallback,screensum,query = ["980","1180","1380"],body = document.getElementsByTagName("body")[0];
+    function isIE() {
+        if (!!window.ActiveXObject || "ActiveXObject" in window){
+          return true;  
+        }else{
+          return false;
+        }
+    }    
+    if(window.getComputedStyle){
+      querycallback = function() {
+        var content = window.getComputedStyle(body,":after").getPropertyValue("content");
+        for(var i=0,l= query.length;i<l;i++){
+          if(new RegExp(query[i]).test(content)){
+            if(screensum !== content){
+              body.className = "body-"+query[i];
+              screensum = content;
+            }          
+            break;
+          }
+        }
+      }
+    }else{
+      querycallback = function() {
+        var winwclass = "body-"+query[1],winw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        if(winw<1180){
+          winwclass = "body-"+query[0];
+        }else if(winw>=1380){
+          winwclass = "body-"+query[2];
+        }
+        body.className = winwclass;
+      }      
+    }
+    querycallback();
+    if(isIE()){
+      window.attachEvent("onresize", querycallback);
+    }else{
+      window.addEventListener("resize", querycallback);
+    }
+    </script>
+    <div class="query">
+      <div class="block" style="width: 164px;">1</div>
+      <div class="block">2</div>
+      <div class="block">3</div>
+      <div class="block">4</div>
+      <div class="block">5</div>
+      <div class="block">6</div>
+      <div class="block">7</div>
+    </div>   
+  </body>
+</html>

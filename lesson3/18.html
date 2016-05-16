@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<title>Css3 折抵展示</title>
+<style type="text/css">
+  * {
+    margin: 0; 
+    padding: 0;
+  }
+  body {
+    background: #ccc; 
+    font-family: arial, verdana, tahoma;
+  }
+  .accordian {
+    width: 805px; height: 320px;
+    overflow: hidden;
+    margin: 100px auto;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+    -webkit-box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+    -moz-box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+  }
+  .accordian ul {
+    width: 2000px;
+  }
+  .accordian li {
+    position: relative;
+    display: block;
+    width: 160px;
+    float: left;
+    border-left: 1px solid #888;
+    box-shadow: 0 0 25px 10px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 0 25px 10px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 0 25px 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+  }
+  .accordian ul:hover li {
+    width: 40px;
+  }
+  .accordian ul li:hover {
+    width: 640px;
+  }
+  .accordian li img {
+    display: block;
+  }
+  .image_title {
+    background: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    left: 0; bottom: 0; 
+    width: 640px; 
+  }
+  .image_title a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 20px;
+    font-size: 16px;
+  }
+</style>
+</head>
+<body>
+  <div class="accordian">
+    <ul>
+      <li>
+        <div class="image_title">
+          <a href="#">KungFu Panda</a>
+        </div>
+        <a href="#">
+          <img src="image/3yiC6Yq.jpg"/>
+        </a>
+      </li>
+      <li>
+        <div class="image_title">
+          <a href="#">Toy Story 2</a>
+        </div>
+        <a href="#">
+          <img src="image/40Ly3VB.jpg"/>
+        </a>
+      </li>
+      <li>
+        <div class="image_title">
+          <a href="#">Wall-E</a>
+        </div>
+        <a href="#">
+          <img src="image/00kih8g.jpg"/>
+        </a>
+      </li>
+      <li>
+        <div class="image_title">
+          <a href="#">Up</a>
+        </div>
+        <a href="#">
+          <img src="image/2rT2vdx.jpg"/>
+        </a>
+      </li>
+      <li>
+        <div class="image_title">
+          <a href="#">Cars 2</a>
+        </div>
+        <a href="#">
+          <img src="image/8k3N3EL.jpg"/>
+        </a>
+      </li>
+    </ul>
+  </div>
+</body>
+</html>

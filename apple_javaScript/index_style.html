@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>js高效修改styl样式</title>
+		<meta name="author" content="leju"/>
+		<style type="text/css">
+			#mydiv{
+				border: solid 1px #FF0000;
+				width: 50px;
+				height: 50px;
+				position: absolute;
+				left: 20px;
+				top: 40px;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var documentobj = document;
+				var mydiv = documentobj.getElementById('mydiv');
+				var mybtn = documentobj.getElementsByTagName('input')[0];
+                var time =null;
+                var current =0;
+				mybtn.onclick = function(){
+					  mydiv.style.cssText="border: solid 2px #0099FF;width:80px;height:80px;background: #6699CC";
+					  current = 20;
+					  time = setInterval(offestleft,300);	
+				}
+				function offestleft(){
+					current+=5;
+					mydiv.style.left = current+"px";
+					if(current>500){
+						window.clearInterval(time);
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="mydiv">
+		</div>
+		<input type="button" value="点击修改样式"/>
+	</body>
+</html>

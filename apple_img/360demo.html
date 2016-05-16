@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<style>
+		html,body {height:100%;}
+		body {margin:0;}
+		img {width:640px; height:378px; position:absolute; left:50%; top:50%; margin-top:-189px; margin-left:-320px;}
+		#bg {width:100%; height:100%; position:absolute; left:0; top:0; filter:'alpha(opacity:60)'; opacity:0.6; background:black; z-index:1;}
+		
+		#prog {width:324px; height:40px; background:url(http://www.miaov.com/miaov_demo/apple_img/img/bar.png) no-repeat 0 20px; position:absolute; z-index:2; top:50%; left:50%; margin:-20px 0 0 -162px; font-family:arial; font-size:12px; color:#fff; text-align:center;}
+		#prog span {font-family:"宋体";}
+		#bar {width:0%; height:16px; background:url(http://www.miaov.com/miaov_demo/apple_img/img/bar_line.gif) repeat-x; overflow:hidden; position:absolute; bottom:2px; left:2px;}
+		</style>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>360度全景展示</title>
+		<meta name="author" content="leju" />
+		<!--[if IE 6]>
+			<script src="DD_belatedPNG_0.0.8a.js" type="text/javascript"></script>
+			<script type="text/javascript">DD_belatedPNG.fix('div');</script>
+		<![endif]-->
+		<script>
+			window.onload=function (){
+				var SCALE=10;//移动10像素切换一张图
+				var oImg=document.getElementById('img1');
+				var oTxt=document.getElementById('prog').getElementsByTagName('span')[0];
+				var oBar=document.getElementById('bar');
+				var aImg=[];
+				var iImgCount=77;
+				var iLoaded=0;
+				var iNow=0;
+				var i=0;
+				//加载所有资源
+				for(i=0;i<iImgCount;i++){
+					(function (i){//闭包函数
+						var oNewImg=new Image();//创建一个图片缓存对象
+						oNewImg.onload=function (){//给他注册加载事件
+							oTxt.innerHTML=oBar.style.width=Math.ceil(100*iLoaded/iImgCount)+'%'; 
+							oNewImg.onload=null;//只要加载过一个取消加载事件从缓存读取
+							
+							var oImg=document.createElement('img');//创建一个img的对象
+							oImg.src=this.src;
+							oImg.style.display='none';
+							document.body.appendChild(oImg);
+							aImg[i]=oImg;//将图片序列放入数组
+							
+							if(++iLoaded==iImgCount)onLoad();//当所有图片加载完成结束循环调用onLoad()方法
+						};
+						oNewImg.src='http://www.miaov.com/miaov_demo/apple_img/img/miaov ('+i+').jpg';//设置src值
+					})(i);
+				}
+				
+				//效果
+				function onLoad(){
+					for(i=0;i<iImgCount;i++)if(!aImg[i])alert('资源加载失败，请刷新重试');//循环检查是否加载所有图片完成
+					var lastImg=null;
+					//加载完成将加载进度条隐藏掉
+					document.getElementById('prog').style.display=document.getElementById('bg').style.display='none';
+					//删除默认的图片显示对象
+					document.body.removeChild(oImg);
+					//取得body对象
+					var body=document.body;
+					//将当前显示图片对象致空
+					oImg=null;
+					var timer=null;
+					var num=iNow;
+					var speed=0;
+					//默认显示第一张显示图
+					aImg[0].style.display='block';
+					//记录当前显示对象
+					lastImg=aImg[0];
+					//给document对象注册按下事件
+					document.onmousedown=function (ev){
+						var oEvent=ev||event;
+						//取得当前鼠标的x坐标
+						var startX=oEvent.clientX;
+						//记录按下的鼠标x坐标以形成对比
+						var lastX=startX;
+						
+						
+						//检查是否给body是否支持拖动
+						if(body.setCapture){
+							body.onmousemove=onMove;//注册移动事件
+							body.onmouseup=onUp;//注册弹起事件
+							body.setCapture();//给body设置拖动事件
+						}else{//如果body没有设置拖得事件
+							document.onmousemove=onMove;
+							document.onmouseup=onUp;
+						}
+						
+						function onMove(ev){
+							var oEvent=ev||event;
+							//计算现在鼠标点击初始位置减去鼠标移动现在为止
+							var i=-(oEvent.clientX-startX)/SCALE;
+							
+							num=(iNow+i+Math.abs(Math.floor(i/iImgCount))*iImgCount)%iImgCount;
+							console.log(i,num);
+							if(lastImg!=aImg[parseInt(num)]){
+								lastImg.style.display='none';
+								aImg[parseInt(num)].style.display='block';
+								lastImg=aImg[parseInt(num)];
+							}
+							
+							speed=-(oEvent.clientX-lastX)/SCALE;
+							lastX=oEvent.clientX;
+							
+							return false;
+						}
+						
+						function onUp(){
+							this.onmousemove=null;
+							this.onmouseup=null;
+							
+							if(body.releaseCapture)body.releaseCapture();
+							
+							iNow=num;
+							
+							startMove();
+						}
+						
+						stopMove();
+						
+						return false;
+					};
+					
+					function startMove()	{
+						timer=setInterval(function (){
+							iNow=(iNow+speed+Math.abs(Math.floor(i/iImgCount))*iImgCount)%iImgCount;
+							lastImg.style.display='none';
+							aImg[parseInt(iNow)].style.display='block';
+							lastImg=aImg[parseInt(iNow)];
+							
+							speed*=0.884;
+							
+							if(Math.abs(speed)<=1)
+							{
+								clearInterval(timer);
+								speed=0;
+							}
+						}, 30);
+					}
+					
+					function stopMove()	{
+						clearInterval(timer);
+					}
+				}
+			};
+</script>
+	</head>
+	<body>
+		<img id="img1" src="http://www.miaov.com/miaov_demo/apple_img/img/miaov%20(0).jpg" />
+	<div id="bg"></div>
+	<div id="prog">
+		360度全景展示 载入中......<span>0%</span>
+		<div id="bar"></div>
+	</div>
+	</body>
+</html>

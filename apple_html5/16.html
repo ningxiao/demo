@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+<meta name="format-detection" content="telephone=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>为梦想加速--汽车之家2015校园招聘</title>
+<link rel="stylesheet" href="css/track.css">
+<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="js/utils.js"></script>
+</head>
+<body>  
+    <!-- 竖屏提示 -->
+    <div class="lock-wrap">
+        <div class="lock">
+            <i></i>
+            <br/>
+            为了更好的体验，请使用横屏浏览
+        </div>
+    </div>
+    <!-- 横屏显示 -->
+    <div class="wrapper">
+    </div>
+    <script type="text/javascript">
+        var wrapper,stageWidth,stageHeight,isscreen=false,track = {},tpl='<div style="position: absolute;width:{width}px;height: {height}px;left:{left}px;top:{top}px;"><canvas style="position: absolute;" id="canvas" width="{width}" height="{height}"><p>对不起,该浏览器不支持Html5</p></canvas><img width="{width}px" height="{height}px" src="images/map.jpg"></div>';
+        var rotate,routes,bitmap,worker,canvas,context,guide,airship,bitmaps = [],imgw = 960,imgh = 640;
+        var urls = [{"airship":"images/airship.png"},{"guide":"images/guide.png"}];
+        var iswork = true,buslist = ["积水潭","安定门","雍和宫","东直门","朝阳门","崇文门","和平门","阜成门","车公庄"];
+        $(document).ready(function(){
+            $(document).bind('touchmove', function (event) {
+                event.preventDefault();
+            });
+            track.goldenRatio = function(w1,h1,w2,h2,zoom){
+                var rect = {};
+                rect.width = w2;
+                rect.height = h2;
+                rect.left = parseInt((w1 - w2) / 2);
+                rect.top = parseInt((h1 - h2) / 2);
+                return rect;
+            }
+            track.analyzetpl = function (str, data) {
+                if(data){
+                    return str.replace(/\{(.*?)\}/ig, function() {
+                        return data[arguments[1]] || "";
+                    });
+                }
+                return str;
+            }
+            track.worker = function(data) {
+                worker = new Worker("js/worker.js");
+                worker.addEventListener("message", function (event) {
+                    routes = event.data;
+                    airship.rotate=90;
+                    worker.terminate();           
+                    requestAnimationFrame(track.frame);
+                }, false);
+                worker.addEventListener("error", function (event) {
+                    console.log('异常结果：' + event.message, event.filename);
+                }, false);
+                worker.postMessage(data);
+            }           
+            track.frame = function(){
+                var data;
+                if(routes.length && iswork){
+                    data = routes.shift();
+                    airship.offX = data.x - airship.centerX;
+                    airship.offY = data.y - airship.centerY;
+                    if(rotate!=data.rotate){
+                        rotate = data.rotate;
+                        airship.rotate = data.rotate;
+                    }
+                    airship.rotate = 90+rotate;                     
+                    if("pause" in data){
+                        console.log("------------------------------");
+                        console.log("列车到达"+buslist.shift()+"站");
+                        iswork = false; 
+                        setTimeout(function(){
+                            console.log("列车启动下一站"+(buslist[0]||"终点站")+"站");
+                            iswork = true;
+                        }, 2000);                   
+                    }
+                }
+                context.clearRect(0, 0, stageWidth, stageHeight);
+                //context.drawImage(guide, 0, 0, guide.width, guide.height, 0, 0, guide.width, guide.height);
+                context.save();//保存画笔状态
+                context.translate(airship.centerX + airship.offX,airship.centerY + airship.offY);
+                context.rotate(airship.rotate * Math.PI / 180);
+                context.drawImage(airship, 0, 0, airship.width, airship.height, -airship.centerX,-airship.centerY, airship.swidth, airship.sheight);                    
+                context.restore();//绘制结束以后，恢复画笔状态
+                requestAnimationFrame(track.frame);
+            }           
+            track.rendering = function(){
+                var rect,bitmapdata;
+                wrapper = $('.wrapper');
+                stageWidth = wrapper.width();
+                stageHeight = wrapper.height();
+                rect = track.goldenRatio(stageWidth,stageHeight,imgw, imgh);
+                wrapper.html(track.analyzetpl(tpl,rect));
+                stageWidth = rect.width;
+                stageHeight = rect.height;  
+                canvas =  document.getElementById('canvas');
+                context = canvas.getContext('2d');
+                guide = bitmaps["guide"];
+                airship = bitmaps["airship"];
+                airship.swidth = airship.width / 2;
+                airship.sheight = airship.height / 2;               
+                airship.rotate = -90;
+                airship.centerX = airship.swidth / 2;
+                airship.centerY = airship.sheight / 2;
+                context.drawImage(guide, 0, 0, guide.width, guide.height, 0, 0, guide.width, guide.height);                     
+                bitmap = context.getImageData(0, 0, stageWidth, stageHeight);
+                bitmapdata = bitmap.data;   
+                context.clearRect(0, 0, stageWidth, stageHeight);       
+                track.worker({"stageWidth":stageWidth,"stageHeight":stageHeight,"bitmapdata":bitmapdata});
+            }
+            track.lockwrap = function(){
+                var hasHorient = 'onorientationchange' in window;
+                function viewResize (){
+                    var iHeight = $(window).height(),iWidth = $(window).width();
+                    if(iHeight < iWidth){
+                        $('.wrapper').show();
+                        $('.lock-wrap').hide();
+                        wrapper || track.rendering();
+                    }else{
+                        $('.wrapper').hide();
+                        $('.lock-wrap').show();
+                    }           
+                }
+                function vieworientation (){
+                    if(window.orientation == 180||window.orientation == 0){
+                        $('.wrapper').hide();
+                        $('.lock-wrap').show();
+                    }else{
+                        $('.lock-wrap').hide();
+                        $('.wrapper').show();
+                        wrapper || track.rendering();
+                    }       
+                }           
+                if(!hasHorient){//监测屏幕发生改变
+                    viewResize();
+                    $(window).on('resize',viewResize);
+                }else{//监测手机横竖切换
+                    vieworientation();
+                    $(window).on('orientationchange',vieworientation);
+                }               
+            }
+            flash.utils.queueImg(urls, bitmaps,track.lockwrap);
+        }); 
+    </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    font-family: Arial;
+    font-size: 16px;
+}
+
+h1 {
+    font-size: 24px;
+    width: 820px;
+    margin: 20px auto;
+}
+h2 {
+    margin: 10px 0 5px;
+}
+
+.wrapper {
+    margin: 20px auto;
+    width: 800px;
+    background: #CCC;
+    padding: 20px;
+}
+
+.wrapper audio {
+    width: 800px;
+}
+
+.button {
+    width: 50px;
+    text-align: center;
+}
+
+.progress {
+    display: inline-block;
+    font-family: monospace;
+    margin: 0 5px;
+    min-width: 50px;
+}
+
+.sprite {
+    display: inline-block;
+    font-family: monospace;
+    margin: 0 5px;
+}
+
+.progressbar {
+    position: relative;
+    width: 350px;
+    height: 20px;
+    margin: 0 5px;
+    border: 1px solid #BBB;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.progressbar .handle {
+    position: absolute;
+    width: 10px;
+    height: 24px;
+    top: -2px;
+    margin-left: -5px;
+    background: #FFF;
+    box-shadow: 0 0 5px rgba(0,0,0,0.4);
+    z-index: 3;
+}
+
+.progressbar .buffer {
+    position: absolute;
+    left: 0;
+    width: 0;
+    height: 20px;
+    background: #AAA;
+    z-index: 1;
+}
+
+.progressbar .bar {
+    position: absolute;
+    left: 0;
+    width: 0;
+    height: 20px;
+    background: #777;
+    z-index: 2;
+}
+
+.button {
+    display: inline-block;
+    white-space: nowrap;
+    background-color: #ccc;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#ccc));
+    background-image: -webkit-linear-gradient(top, #eee, #ccc);
+    background-image: -moz-linear-gradient(top, #eee, #ccc);
+    background-image: -ms-linear-gradient(top, #eee, #ccc);
+    background-image: -o-linear-gradient(top, #eee, #ccc);
+    background-image: linear-gradient(top, #eee, #ccc);
+    border: 1px solid #777;
+    padding: 6px 16px;
+    margin: 0 5px;
+    font-family: Arial, Helvetica;
+    text-decoration: none;
+    color: #333;
+
+    text-shadow: 0 1px 0 rgba(255,255,255,.8);
+    -moz-border-radius: .2em;
+    -webkit-border-radius: .2em;
+    border-radius: .2em;
+
+    -moz-box-shadow: 0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+    -webkit-box-shadow: 0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+    box-shadow: 0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+}
+
+.button:hover {
+    background-color: #ddd;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#fafafa), to(#ddd));
+    background-image: -webkit-linear-gradient(top, #fafafa, #ddd);
+    background-image: -moz-linear-gradient(top, #fafafa, #ddd);
+    background-image: -ms-linear-gradient(top, #fafafa, #ddd);
+    background-image: -o-linear-gradient(top, #fafafa, #ddd);
+    background-image: linear-gradient(top, #fafafa, #ddd);
+}
+
+.button:active,
+.button.active {
+    -moz-box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
+    -webkit-box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
+    box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
+    position: relative;
+    top: 1px;
+}
+
+.button:focus {
+    outline: 0;
+    background: #fafafa;
+}
+
+.button:before {
+    background: #ccc;
+    background: rgba(0,0,0,.1);
+    float: left;
+    width: 1em;
+    text-align: center;
+    font-size: 1.5em;
+    margin: 0 1em 0 -1em;
+    padding: 0 .2em;
+    -moz-box-shadow: 1px 0 0 rgba(0,0,0,.5), 2px 0 0 rgba(255,255,255,.5);
+    -webkit-box-shadow: 1px 0 0 rgba(0,0,0,.5), 2px 0 0 rgba(255,255,255,.5);
+    box-shadow: 1px 0 0 rgba(0,0,0,.5), 2px 0 0 rgba(255,255,255,.5);
+    -moz-border-radius: .15em 0 0 .15em;
+    -webkit-border-radius: .15em 0 0 .15em;
+    border-radius: .15em 0 0 .15em;
+    pointer-events: none;
+}​

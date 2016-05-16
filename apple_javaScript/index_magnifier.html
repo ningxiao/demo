@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ZOOM</title>
+<style>
+*{margin:0px; padding:0px;}
+#zoom{width:200px;height:200px;padding:5px;border:1px solid #ccc; margin:30px auto;position:relative;}
+#zoom .small_pic{position:relative;width:200px;height:200px; background:#eee;}
+#zoom .small_pic .float_layer{width:50px;height:50px;background:#fff;border:1px solid #000;opacity:0.3;filter:Alpha(opacity=30);position:absolute;left:0px;top:0px;display:none;}
+#zoom .small_pic .mask{width:100%;height:100%;background:#ff0000;opacity:0;filter:Alpha(opacity=0);position:absolute;left:0px;top:0px;cursor:move;}
+#zoom .big_pic{width:100px;height:100px;overflow:hidden;position:absolute; border:1px solid #646464; top:-1px;left:220px;display: none}
+#zoom .big_pic img{position:absolute;left:0px;top:0px;}
+</style>
+<script>
+window.onload=function(){
+	var mask=getByClass(document.getElementById("zoom"),"mask")[0];
+	var float_layer=getByClass(document.getElementById("zoom"),"float_layer")[0];
+	var bigImg=document.getElementById("zoom").getElementsByTagName("img")[1];
+	var oldW;
+	var oldH;
+	
+	var big_divW = bigImg.parentNode.clientWidth;
+	var big_divH = bigImg.parentNode.clientHeight;
+	
+	var big_imgW = bigImg.clientWidth;
+	var big_imgH = bigImg.clientHeight;
+	
+	var limitW=mask.offsetWidth;
+	var limitH=mask.offsetHeight;
+	
+	var scaleX;
+	var scaleY;
+	mask.onmouseover=function(){
+		bigImg.parentNode.style.display=float_layer.style.display="block";
+		
+		oldW = float_layer.offsetWidth;
+		oldH = float_layer.offsetHeight; //offsetHeight 取得包括边框高宽 clientWidth 是内高宽
+		big_divW = bigImg.parentNode.clientWidth;
+        big_divH = bigImg.parentNode.clientHeight;
+        big_imgW = bigImg.clientWidth;
+        big_imgH = bigImg.clientHeight;
+        
+		scaleX=(limitW-oldW)/(big_imgW-big_divW);
+		scaleY=(limitH-oldW)/(big_imgH-big_divH);
+	}
+	mask.onmouseout=function(){
+		bigImg.parentNode.style.display=float_layer.style.display="none";
+	}
+	mask.onmousemove=function(ev){
+		var oEvent=ev || window.event;
+		///oEvent.layerX获得火狐下坐标---顺序必须
+		var mouseX=oEvent.offsetX || oEvent.layerX;
+		var mouseY=oEvent.offsetY || oEvent.layerY;
+		var tempX=mouseX-oldW/2;
+		var tempY=mouseY-oldH/2;
+		if(oldW){
+			if(tempX<=0){
+				tempX=0;
+			}else if(tempX>limitW-oldW){
+				tempX=limitW-oldW;
+			}
+			if(tempY<=0){
+				tempY=0;
+			}else if(tempY>limitH-oldH){
+				tempY=limitH-oldH;
+			}
+			float_layer.style.left=tempX+"px";
+			float_layer.style.top=tempY+"px";
+			bigImg.style.left=-(float_layer.offsetLeft)/scaleX+"px";
+			bigImg.style.top=-(float_layer.offsetTop)/scaleY+"px";
+		}
+	}
+}
+////通过class获取元素
+function getByClass(oParent,sClass){
+	////选取所有标签的元素
+	var aEle=oParent.getElementsByTagName("*");
+	var aTmp=[];
+	for(var i=0;i<aEle.length;i++){
+		if(aEle[i].className.indexOf(sClass)!=-1){
+			aTmp.push(aEle[i]);
+		}
+	}
+	return aTmp;
+}
+</script>
+</head>
+<body>
+    <div id="zoom">
+    	<div class="small_pic">
+            <img src="image/2.jpg" align="小图片" />
+        	<span class="float_layer"></span>
+            <span class="mask"></span>
+        </div>
+    	<div class="big_pic">
+        	<img src="image/1.jpg" align="大图片" />
+        </div>        
+    </div>
+</body>
+</html>

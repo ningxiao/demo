@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>苹果菜单</title>
+    <style>
+        html {
+            height: 100%;
+            background: #000;
+        }
+
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #wrap {
+            height: 500px;
+            width: 1024px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin: -250px 0 0 -512px;
+        }
+
+        #imgList {
+            position: absolute;
+        }
+
+        h1, p {
+            text-align: center;
+            color: #f1f1f1;
+            word-spacing: 15px;
+            position: relative;
+            top: 10px;
+            z-index: 2;
+        }
+
+        h1 a, p a {
+            color: #f1f1f1;
+            text-decoration: none;
+        }
+
+        h1 a:hover, p a:hover {
+            color: #fff;
+            border-bottom: 1px dotted #fff;
+        }
+    </style>
+    <script src="js/style.js"></script>
+    <script>
+        window.onload = function () {
+            var oBox = document.getElementById("wrap");
+            var oList = document.getElementById("imgList");
+            var aImg = oList.getElementsByTagName("img");
+            var aDiv = [];
+            var iImgWidth = 300;
+            var iInterval = 100;
+            var iStarWidth = 1024;
+            var iStarHeight = 500;
+            var iHeight = 0;
+            var iLeft = -20;
+            var iZindex = 0;
+            var iStarNow = 0;
+            var iDeg = 45;
+            var iNow = 0;
+            var iGap = 200;
+            var sHtml = "";
+            setCss(oBox, {$Perspective: "800px"});
+            for (var i = 0; i < aImg.length; i++) {
+                setCss(aImg[i], {width: iImgWidth});
+                sHtml += "<div style='width:" + aImg[i].offsetWidth + "px;height:"
+                        + aImg[i].offsetHeight + "px;background:url(" + aImg[i].src + ") no-repeat; background-size:100% 100%;display:none; position:absolute;bottom:0;'><span style='width:" + aImg[i].offsetWidth + "px;height:"
+                        + aImg[i].offsetHeight + "px;background:-webkit-linear-gradient(top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.3)),url(" + aImg[i].src + ") no-repeat;background:-moz-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url(" + aImg[i].src + ") no-repeat;background:-o-linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url(" + aImg[i].src + ") no-repeat;background:linear-gradient(top, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6)),url(" + aImg[i].src + ") no-repeat;background-size:100% 100%,100% 100%;position:absolute;'></span></div>";
+            }
+            oList.innerHTML = sHtml;
+            aDiv = oList.getElementsByTagName("div");
+            aSpan = oList.getElementsByTagName("span");
+            for (i = 0; i < aDiv.length; i++) {
+                iLeft += iInterval;
+                if (i < Math.floor(aDiv.length / 2)) {
+                    iZindex = i;
+                    setCss(aDiv[i], {$Transform: "translateZ(-200px) rotateY(" + iDeg + "deg)", left: iLeft, zIndex: iZindex, display: "block", $TransformStyle: "preserve-3d"});
+                }
+                else if (i > Math.floor(aDiv.length / 2)) {
+                    iZindex = aImg.length - i;
+                    setCss(aDiv[i], {$Transform: "translateZ(-200px) rotateY(" + -iDeg + "deg)", left: iLeft, zIndex: iZindex, display: "block", $TransformStyle: "preserve-3d"});
+                }
+                else {
+                    iZindex = i;
+                    iLeft += iGap;
+                    setCss(aDiv[i], {$Transform: "translateZ(200px)", left: iLeft, zIndex: iZindex, display: "block", $TransformStyle: "preserve-3d"});
+                    setCss(oList, {left: (oBox.offsetWidth / 2 - (iLeft + iImgWidth / 2))});
+                    iStarNow = iNow = i;
+                    iLeft += iGap;
+                }
+                setCss(aSpan[i], {$TransformOrigin: "bottom", $Transform: "rotateX(180deg)"})
+                iHeight = Math.max(iHeight, aDiv[i].offsetHeight);
+                aDiv[i].index = i;
+                aDiv[i].onclick = function () {
+                    if (this.index == iNow) {
+                        return;
+                    }
+                    iLeft = (iStarNow - this.index) * iInterval;
+                    iNow = this.index;
+                    tab(aDiv, iNow, iLeft, iInterval, iGap);
+                }
+
+            }
+            setCss(oList, {height: iHeight, top: oBox.offsetHeight / 2 - iHeight / 2, $TransformStyle: "preserve-3d"});
+            window.onresize = resize;
+            function resize() {
+                var iWidth = document.documentElement.clientWidth;
+                var iHeight = document.documentElement.clientHeight;
+                setCss(oBox, {$Transform: "scale(" + Math.min(iWidth / iStarWidth, iHeight / iStarHeight) + ")"});
+            };
+            resize();
+        };
+        function tab(aImg, iNow, iLeft, iInterval, iGap) {
+            var iImgWidth = 300;
+            var iInterval = 100;
+            var iZindex = 0;
+            var iDeg = 45;
+            for (var i = 0; i < aImg.length; i++) {
+                setCss(aImg[i], {$Transition: "0.7s all ease"});
+                iLeft += iInterval;
+                if (i < iNow) {
+                    iZindex = i;
+                    setCss(aImg[i], {$Transform: "translateZ(-200px) rotateY(" + iDeg + "deg)", left: iLeft, zIndex: iZindex});
+                }
+                else if (i > iNow) {
+                    iZindex = aImg.length - i;
+                    setCss(aImg[i], {left: iLeft, $Transform: "translateZ(-200px) rotateY(" + -iDeg + "deg)", zIndex: iZindex});
+                }
+                else {
+                    iZindex = i;
+                    iLeft += iGap;
+                    setCss(aImg[i], {width: iImgWidth, $Transform: "translateZ(200px) rotateY(0deg)", left: iLeft, zIndex: iZindex});
+                    iLeft += iGap;
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<div id="wrap">
+    <div id="imgList">
+        <img src="img/1.jpg" alt=""/>
+        <img src="img/2.jpg" alt=""/>
+        <img src="img/3.jpg" alt=""/>
+        <img src="img/4.jpg" alt=""/>
+        <img src="img/5.jpg" alt=""/>
+        <img src="img/6.jpg" alt=""/>
+        <img src="img/7.jpg" alt=""/>
+        <img src="img/8.jpg" alt=""/>
+        <img src="img/9.jpg" alt=""/>
+        <img src="img/10.jpg" alt=""/>
+        <img src="img/11.jpg" alt=""/>
+        <img src="img/1.jpg" alt=""/>
+        <img src="img/2.jpg" alt=""/>
+        <img src="img/3.jpg" alt=""/>
+        <img src="img/4.jpg" alt=""/>
+        <img src="img/5.jpg" alt=""/>
+        <img src="img/6.jpg" alt=""/>
+        <img src="img/7.jpg" alt=""/>
+        <img src="img/8.jpg" alt=""/>
+        <img src="img/9.jpg" alt=""/>
+        <img src="img/10.jpg" alt=""/>
+        <img src="img/11.jpg" alt=""/>
+    </div>
+</div>
+</body>
+<script>
+    if (getBroswerType().ie || getBroswerType().opera || parseFloat(getBroswerType().chrome) < 12 || parseFloat(getBroswerType().firefox) < 12 || parseFloat(getBroswerType().safari) < 4) {
+        toIndex();
+    }
+    function toIndex() {
+        document.body.innerHTML = "对不起，您的浏览器版本过低请升级，建议使用chrome 12.0(或firefox 12.0 、safari 4.0)以上浏览器浏览本效果";
+        with (document.body.style) {
+            textAlign = "center";
+            padding = "0 100px"
+            font = "bold 50px/150px '微软雅黑'";
+            color = "#fff";
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>视屏抠图</title>
+    <style>
+        body {
+            background: black;
+            color:#CCCCCC;
+        }
+        #c2 {
+            background-image: url(image/foo.png);
+            background-repeat: no-repeat;
+        }
+        div {
+            float: left;
+            border :1px solid #444444;
+            padding:10px;
+            margin: 10px;
+            background:#3B3B3B;
+        }
+    </style>
+    <script type="text/javascript">
+        var processor = {
+            timerCallback: function() {
+                if (this.video.paused || this.video.ended) {
+                    return;
+                }
+                this.computeFrame();
+                var self = this;
+                setTimeout(function () {
+                    self.timerCallback();
+                }, 1000/60);
+            },
+            doLoad: function() {
+                this.video = document.getElementById("video");
+                this.c1 = document.getElementById("c1");
+                this.ctx1 = this.c1.getContext("2d");
+                this.c2 = document.getElementById("c2");
+                this.ctx2 = this.c2.getContext("2d");
+                var self = this;
+                this.video.addEventListener("play", function() {
+                    self.width = self.video.videoWidth / 2;
+                    self.height = self.video.videoHeight / 2;
+                    self.timerCallback();
+                }, false);
+                this.video.play();
+            },
+            computeFrame: function(){
+                this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
+                //读取画布图像信息
+                var frame = this.ctx1.getImageData(0, 0, this.width, this.height);
+                var l = frame.data.length / 4;
+                //讲画布里面为黄色变为透明
+                for (var i = 0; i < l; i++) {
+                    var r = frame.data[i * 4 + 0];
+                    var g = frame.data[i * 4 + 1];
+                    var b = frame.data[i * 4 + 2];
+                    if (g > 100 && r > 100 && b < 43){
+                        frame.data[i * 4 + 3] = 0;
+                    }
+                }
+                this.ctx2.putImageData(frame, 0, 0);
+                return;
+            }
+        };
+    </script>
+</head>
+<body onload="processor.doLoad()">
+<div>
+    <video id="video"  tabindex="0">
+        <source src="http://127.0.0.1/videos/video.ogv">
+    </video>
+</div>
+<div>
+    <canvas id="c1" width="160" height="96"></canvas>
+    <canvas id="c2" width="160" height="96"></canvas>
+</div>
+</body>
+</body>
+</html>

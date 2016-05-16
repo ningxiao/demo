@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>面向对象的JavaScript</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+		    /**将指定对象指向原型继承*/
+			function extend(subClass,superClass){
+				subClass.prototype = new superClass;
+				subClass.prototype.constructor = subClass;
+			}
+			function Worker(){
+				this.getMethods = function(properties, scope){
+					/**将类范围存储到名为$this的变量中*/
+					var $this = scope;
+					var i ;
+					for(i in properties){/**迭代处理对象的属性 */
+						(function(i){/**利用闭包传递*/
+							/**动态创建访问器方法 */
+							$this["get" + i] = function(){
+								return properties[i];
+							}
+							/**动态地创建一个分析整数，并确保是正值的更改器方法 */
+							$this["set" + i] = function(val){
+								if(isNaN(val)){
+									properties[i] = val;
+								}else{
+									properties[i] = Math.abs(val);
+								}
+							}
+						})(i);
+					}	
+				}
+                Worker.prototype.getfun=function(){alert("返回姓名:"+this.getName())};				
+			}
+			// CommissionWorker "子类"和WageWorker "子类" 
+			//继承Worker的属性和方法。 	
+			extend(CommissionWorker,Worker);
+			extend(WageWorker,Worker);			
+			function CommissionWorker(properties){
+				this.getMethods(properties,this);
+			    this.getIncome = function(){ /**计算收入 */
+			        return properties.Sales * properties.Commission; 
+			    } 				
+			}
+			/**要求有下列属性：薪水、每周小时数、每年周数 */
+			function WageWorker(properties){
+			    this.getMethods(properties, this); 
+			    this.getIncome = function(){ /**计算收入 */
+			        return properties.Wage * properties.HoursPerWeek * properties.WeeksPerYear; 
+			    } 				
+			}
+		var worker = new WageWorker({ 
+		    Name: "Bob", 
+		    Wage: 10, 
+		    HoursPerWeek: 40, 
+		    WeeksPerYear: 48 
+		}); 
+		worker.getfun();
+		alert(worker.wage); //未定义。薪水是私有属性。 
+		worker.setWage(20); 
+		alert(worker.getName());   //输出 "Bob" 
+		alert(worker.getIncome()); //输出 38,400 (20*40*48) 
+	    
+	    var worker2 = new CommissionWorker({ 
+		    Name: "Sue", 
+		    Commission: 0.2, 
+		    Sales: 40000 
+		}); 
+		worker2.getfun();
+		alert(worker2.getName());   //输出 "Sue" 
+		alert(worker2.getIncome());					
+		</script>
+	</head>
+	<body></body>
+</html>

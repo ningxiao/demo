@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="../css/index.css">
+		<title>index</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+		function unloade(event){
+			alert('离开页面');
+		}
+		function message(){
+			var x = 12;
+			try{
+				if(x>10)
+				throw "Err1";
+				else if(x<0)
+				throw "Err2";
+			}catch(error){
+				var txt="是否处理异常。\n\n";
+				txt+="错误描述: " + error+ "\n\n";
+				if(confirm(txt)){
+					if(error == "Err2"){alert("Error! The value is too low");};
+					if(error == "Err1"){alert("Error! The value is too high");};
+			   }
+			}
+		}
+		function messageb(){
+			adddlert("Welcome guest!");
+		}
+		onerror = handleErr;
+		function handleErr(msg,url,l){
+			txt="There was an error on this page.\n\n";
+			txt+="Error: " + msg + "\n";
+			txt+="URL: " + url + "\n";
+			txt+="Line: " + l + "\n\n";
+			txt+="Click OK to continue.\n\n";
+			alert(txt);
+			return true;
+		}
+		</script>
+	</head>
+	<body onunload="unloade(event)">
+		<a href="http://www.w3school.com.cn" onmouseover="alert('An onMouseOver event');return false">
+			<img src="../image/bottle.jpg" alt="" width="100" height="30"/>
+		</a>
+		<h6>方法体内部异常测试<input type="button" value="方法内异常测试" onclick="message();"/></h6>
+	    <h6>通用异常测试<input type="button" value="通用异常测试" onclick="messageb();"/></h6>
+	    <div class="shape" id="hexagon">六边形</div>
+	</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<title>Css3 导航菜单</title>
+<style type="text/css">
+  *{padding: 0;margin: 0;}
+  #menu {
+  margin:100px auto;
+  width:300px;
+  }
+  #menu nav {
+  height:300px;
+  overflow:visible !important;
+  position:relative;
+  }
+
+  #menu nav ul {
+  margin:0 0;
+  padding:0 0;
+  list-style:none;
+  }
+
+  #menu nav li {
+  margin:0 0;
+  padding:0 0;
+  float:left;
+  display:inline;
+  -webkit-box-shadow:-650px 500px 0 #BC0036,200px -100px 0 #6CBC00,300px 100px 0 #0A40EA, 700px -500px 0 #EAC60A;
+  -moz-box-shadow:-650px 500px 0 #BC0036,200px -100px 0 #6CBC00,300px 100px 0 #0A40EA, 700px -500px 0 #EAC60A;
+  box-shadow:-650px 500px 0 #BC0036,200px -100px 0 #6CBC00,300px 100px 0 #0A40EA, 700px -500px 0 #EAC60A;
+  }
+
+  #menu nav a {
+  display:block;
+  background-color:#D7460D;
+  color:gold;
+  text-decoration:none;
+  width:100px;
+  height:100px;
+  font:bold 16px/100px 'Arial Narrow',Arial,Sans-Serif;
+  text-align:center;
+  }
+
+  #menu nav {
+  -webkit-transition:all 2s ease-out;
+  -moz-transition:all 2s ease-out;
+  -ms-transition:all 2s ease-out;
+  -o-transition:all 2s ease-out;
+  transition:all 2s ease-out;
+  }
+
+  #menu nav ul {
+  -webkit-transform:scale(0.2);
+  -moz-transform:scale(0.2);
+  -ms-transform:scale(0.2);
+  -o-transform:scale(0.2);
+  transform:scale(0.2);
+  -webkit-transition:all 10s ease-in-out;
+  -moz-transition:all 10s ease-in-out;
+  -ms-transition:all 10s ease-in-out;
+  -o-transition:all 10s ease-in-out;
+  transition:all 10s ease-in-out;
+  }
+
+  /* Set the default item transition */
+  #menu nav li {
+  -webkit-transition:all 10s ease-in-out;
+  -moz-transition:all 10s ease-in-out;
+  -ms-transition:all 10s ease-in-out;
+  -o-transition:all 10s ease-in-out;
+  transition:all 10s ease-in-out;
+  opacity:0.4;
+  }
+
+  #menu nav a {
+  -webkit-transition:all 0.4s ease-out;
+  -moz-transition:all 0.4s ease-out;
+  -ms-transition:all 0.4s ease-out;
+  -o-transition:all 0.4s ease-out;
+  transition:all 0.4s ease-out;
+  }
+
+  /* Make some random position */
+  #menu nav li:nth-child(1) {
+  -webkit-transform:rotate(-370deg) translate(400px,200px);
+  -moz-transform:rotate(-370deg) translate(400px,200px);
+  -ms-transform:rotate(-370deg) translate(400px,200px);
+  -o-transform:rotate(-370deg) translate(400px,200px);
+  transform:rotate(-370deg) translate(400px,200px);
+  }
+
+  #menu nav li:nth-child(2) {
+  -webkit-transform:rotate(-70deg) translate(200px,200px);
+  -moz-transform:rotate(-70deg) translate(200px,200px);
+  -ms-transform:rotate(-70deg) translate(200px,200px);
+  -o-transform:rotate(-70deg) translate(200px,200px);
+  transform:rotate(-70deg) translate(200px,200px);
+  }
+
+  #menu nav li:nth-child(3) {
+  -webkit-transform:rotate(-400deg) translate(100px,-200px);
+  -moz-transform:rotate(-400deg) translate(100px,-200px);
+  -ms-transform:rotate(-400deg) translate(100px,-200px);
+  -o-transform:rotate(-400deg) translate(100px,-200px);
+  transform:rotate(-400deg) translate(100px,-200px);
+  }
+
+  #menu nav li:nth-child(4) {
+  -webkit-transform:rotate(-300deg) translate(400px,700px);
+  -moz-transform:rotate(-300deg) translate(400px,700px);
+  -ms-transform:rotate(-300deg) translate(400px,700px);
+  -o-transform:rotate(-300deg) translate(400px,700px);
+  transform:rotate(-300deg) translate(400px,700px);
+  }
+
+  #menu nav li:nth-child(5) {
+  -webkit-transform:rotate(300deg) translate(-400px,100px);
+  -moz-transform:rotate(300deg) translate(-400px,100px);
+  -ms-transform:rotate(300deg) translate(-400px,100px);
+  -o-transform:rotate(300deg) translate(-400px,100px);
+  transform:rotate(300deg) translate(-400px,100px);
+  }
+
+  #menu nav li:nth-child(6) {
+  -webkit-transform:rotate(700deg) translate(200px,-100px);
+  -moz-transform:rotate(700deg) translate(200px,-100px);
+  -ms-transform:rotate(700deg) translate(200px,-100px);
+  -o-transform:rotate(700deg) translate(200px,-100px);
+  transform:rotate(700deg) translate(200px,-100px);
+  }
+
+  #menu nav li:nth-child(7) {
+  -webkit-transform:rotate(1400deg) translate(250px,70px);
+  -moz-transform:rotate(1400deg) translate(250px,70px);
+  -ms-transform:rotate(1400deg) translate(250px,70px);
+  -o-transform:rotate(1400deg) translate(250px,70px);
+  transform:rotate(1400deg) translate(250px,70px);
+  }
+
+  #menu nav li:nth-child(8) {
+  -webkit-transform:rotate(700deg) translate(-150px,700px);
+  -moz-transform:rotate(700deg) translate(-150px,700px);
+  -ms-transform:rotate(700deg) translate(-150px,700px);
+  -o-transform:rotate(700deg) translate(-150px,700px);
+  transform:rotate(700deg) translate(-150px,700px);
+  }
+
+  #menu nav li:nth-child(9) {
+  -webkit-transform:rotate(800deg) translate(210px,-850px);
+  -moz-transform:rotate(800deg) translate(210px,-850px);
+  -ms-transform:rotate(800deg) translate(210px,-850px);
+  -o-transform:rotate(800deg) translate(210px,-850px);
+  transform:rotate(800deg) translate(210px,-850px);
+  }
+
+  #menu nav li:nth-child(10) {
+  -webkit-transform:rotate(-700deg) translate(140px,-300px);
+  -moz-transform:rotate(-700deg) translate(140px,-300px);
+  -ms-transform:rotate(-700deg) translate(140px,-300px);
+  -o-transform:rotate(-700deg) translate(140px,-300px);
+  transform:rotate(-700deg) translate(140px,-300px);
+  }
+
+  #menu nav li:nth-child(11) {
+  -webkit-transform:rotate(-300deg) translate(1140px,300px);
+  -moz-transform:rotate(-300deg) translate(1140px,300px);
+  -ms-transform:rotate(-300deg) translate(1140px,300px);
+  -o-transform:rotate(-300deg) translate(1140px,300px);
+  transform:rotate(-300deg) translate(1140px,300px);
+  }
+
+  #menu nav li:nth-child(12) {
+  -webkit-transform:rotate(400deg) translate(300px,440px);
+  -moz-transform:rotate(400deg) translate(300px,440px);
+  -ms-transform:rotate(400deg) translate(300px,440px);
+  -o-transform:rotate(400deg) translate(300px,440px);
+  transform:rotate(400deg) translate(300px,440px);
+  }
+  /* End random */
+
+  /* Hide the checkbox */
+  #open {
+  display:none;
+  }
+
+  #open + label {
+  background-color:#666269;
+  background-image:-webkit-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,0.1));
+  background-image:-moz-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,0.1));
+  background-image:-ms-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,0.1));
+  background-image:-o-linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,0.1));
+  background-image:linear-gradient(top,rgba(0,0,0,0),rgba(0,0,0,0.1));
+  font:bold 12px Arial,Sans-Serif;
+  color:white;
+  padding:7px 0;
+  display:block;
+  cursor:pointer;
+  text-align:center;
+  text-shadow:0 1px 3px black;
+  position:absolute;
+  top:0;
+  right:0;
+  left:0;
+  z-index:999;
+  }
+
+  #open + label:hover,
+  #open:checked + label {
+  background-color:#C5040B;
+  }
+
+  #open + label:active {
+  background-color:white;
+  color:black;
+  text-shadow:none;
+  }
+
+  /* Make a toggle text with CSS Pseudo Element */
+  #open + label:before {
+  content:"Bring Together All the Pieces!";
+  }
+
+  #open:checked + label:before {
+  content:"Explode the Menu"
+  }
+
+  #open:checked ~ nav ul {
+  -webkit-transform:scale(1) translate(0px,0px);
+  -moz-transform:scale(1) translate(0px,0px);
+  -ms-transform:scale(1) translate(0px,0px);
+  -o-transform:scale(1) translate(0px,0px);
+  transform:scale(1) translate(0px,0px);
+  }
+
+  #open:checked ~ nav li {
+  opacity:1;
+  -webkit-box-shadow:0 0 0 #BC0036,0 0 0 #6CBC00,0 0 0 #0A40EA, 0 0 0 #EAC60A;
+  -moz-box-shadow:0 0 0 #BC0036,0 0 0 #6CBC00,0 0 0 #0A40EA, 0 0 0 #EAC60A;
+  box-shadow:0 0 0 #BC0036,0 0 0 #6CBC00,0 0 0 #0A40EA, 0 0 0 #EAC60A;
+  -webkit-transform:rotate(0deg) translate(0px,0px);
+  -moz-transform:rotate(0deg) translate(0px,0px);
+  -ms-transform:rotate(0deg) translate(0px,0px);
+  -o-transform:rotate(0deg) translate(0px,0px);
+  transform:rotate(0deg) translate(0px,0px);
+  }
+
+  #open:checked ~ nav a {
+  width:98px; /* 98px + border = 100px */
+  height:98px; /* 98px + border = 100px */
+  background-color:white;
+  background-image:-webkit-linear-gradient(top,#ccc,white);
+  background-image:-moz-linear-gradient(top,#ccc,white);
+  background-image:-ms-linear-gradient(top,#ccc,white);
+  background-image:-o-linear-gradient(top,#ccc,white);
+  background-image:linear-gradient(top,#ccc,white);
+  text-shadow:0 1px 0 rgba(255,255,255,0.2);
+  border:1px solid transparent;
+  border-color:rgba(255,255,255,0.2) rgba(0,0,0,0.2) rgba(0,0,0,0.2) rgba(255,255,255,0.2);
+  color:#D7460D;
+  }
+
+  #open:checked ~ nav:hover a {
+  -webkit-transform:scale(0.8);
+  -moz-transform:scale(0.5) rotate(260deg);
+  -ms-transform:scale(0.5) rotate(260deg);
+  -o-transform:scale(0.5) rotate(260deg);
+  transform:scale(0.5) rotate(260deg);
+  }
+
+  #open:checked ~ nav:hover a:hover {
+  background-color:#D7460D;
+  background-image:-webkit-linear-gradient(top,#D7460D,#AF390D);
+  background-image:-moz-linear-gradient(top,#D7460D,#AF390D);
+  background-image:-ms-linear-gradient(top,#D7460D,#AF390D);
+  background-image:-o-linear-gradient(top,#D7460D,#AF390D);
+  background-image:linear-gradient(top,#D7460D,#AF390D);
+  color:gold;
+  text-shadow:0 -1px 0 rgba(0,0,0,0.4);
+  position:relative;
+  z-index:77;
+  -webkit-transform:scale(1.1) rotate(360deg);
+  -moz-transform:scale(1.1) rotate(360deg);
+  -ms-transform:scale(1.1) rotate(360deg);
+  -o-transform:scale(1.1) rotate(360deg);
+  transform:scale(1.1) rotate(360deg);  
+  }
+</style>
+</head>
+<body>
+  <div id="menu">
+    <input id="open" type="checkbox" />
+    <label for="open"></label> 
+    <nav>
+      <ul>
+        <li><a href="#">Coding</a></li>
+        <li><a href="#">WordPress</a></li>
+        <li><a href="#">Apps</a></li>
+        <li><a href="#">Archive</a></li>
+        <li><a href="#">Designzzz</a></li>
+        <li><a href="#">Family</a></li>
+        <li><a href="#">Tools</a></li>
+        <li><a href="#">Photography</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</body>
+</html>

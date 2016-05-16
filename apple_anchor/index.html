@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>练习对超链接js开发</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+			function changeLink(){//动态修改a标签连接地址和现实内容
+				var obj = document.getElementById('myAnchor');
+				obj.innerHTML="访问 W3School";
+				obj.href="http://www.w3school.com.cn";
+				obj.target="_blank";
+				alert(obj.innerHTML+"<--->"+obj.href);
+			}
+			//设置a标签的焦点
+			function getfocus(){
+				document.getElementById('myAnchor').focus();
+			}
+			//取消a标签的焦点
+			function losefocus(){
+				document.getElementById('myAnchor').blur();
+			}
+			function myinput(){
+				var obj = document.getElementById('inputdiv');
+				var pobj = document.getElementsByName("myp");//返回name为myp的对象数组集合
+				var str = "文档标题:  "+document.title
+				        +"<br>当前URL：  "+document.URL
+				        +"<br>当前域名：   "+document.domain
+				        +"<br>当前p标签内容：    "+pobj[0].innerHTML
+				        +"<br>当前锚点总数:   "+document.anchors.length;
+				obj.innerHTML=str+"<h1>Hello World!</h1>";
+			}
+		</script>
+	</head>
+	<body>
+		<a id="myAnchor" href="http://www.microsoft.com">访问 Microsoft</a>
+		<input type="button" onclick="changeLink()" value="改变链接">
+		<p>在本例中，我们改变超链接的文本和 URL。我们也改变 target 属性。target 属性的默认设置是 "_self"，这意味着会在相同的窗口中打开链接。通过把 target 属性设置为 "_blank"，链接将在新窗口中打开。</p>
+		<br>
+		<input type="button" onclick="getfocus()" value="获得焦点">
+		<input type="button" onclick="losefocus()" value="失去焦点"><br>
+		<p name="myp">输出页面文档相关信息</p><input type="button" value="输出" onclick="myinput()"/><br>
+		<div id="inputdiv"></div>
+		<div id="adiv">
+			<a name="first">第一个锚</a>
+			<a name="second">第二个锚</a>
+			<a name="third">第三个锚</a>		
+		</div>
+	</body>
+</html>

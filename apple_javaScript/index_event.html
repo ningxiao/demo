@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>js事件练习</title>
+		<meta name="author" content="leju" />
+		<style>
+			div{ border:solid 1px #666; padding:1px; height: 1000px;}
+			#cont{ height:1000px; width:600px;}
+		</style>
+		<script type="text/javascript">
+			var isIE=top.execScript?1:0;//判断浏览器是否为IE
+			var addbutton;
+			var EventUtil=new Object;
+			(function(){
+				var iebool = top.execScript?1:0;
+				EventUtil.addEventHandler=function(oTarget,sEventType,fhHandler){
+					if(oTarget.attachEvent){/**IE下面的注册事件*/
+						oTarget.attachEvent('on'+sEventType,function(){
+							fnHandler.apply(oTarget, arguments);
+						});
+					}else if(oTarget.addEventListener){/**非IE下面的注册事件*/
+						oTarget.addEventListener(sEventType,fhHandler,false);
+					}else{
+						oTarget['on'+sEventType] = fhHandler;
+					}
+				};
+				EventUtil.removeEventHandler=function(oTarget,sEventType,fhHandler){
+					if(oTarget.detachEvent){
+						oTarget.detachEvent('on'+sEventType,fhHandler);
+					}else if(oTarget.removeEventListener){
+						oTarget.removeEventListener(sEventType,fhHandler,false);
+					}else{
+						oTarget['on'+sEventType] = null;
+					}
+				};
+				EventUtil.getTarget = function(event){/**取得事件源对象*/
+					event = event || window.event;
+					return event.target || event.srcElement;
+				};
+				EventUtil.getEvent = function(event){/**取得事件event对象*/
+					return event || window.event;
+				};
+				EventUtil.preventDefault = function(event){/**取消默认事件*/
+					event = event || window.event;
+					if(event.preventDefault){
+						event.preventDefault();
+					}else{
+						event.returnValue = false;
+					}
+				};
+				EventUtil.stopPropagation = function(event){/**阻止事件冒泡*/
+					event = event || window.event;
+					if(event.stopPropagation){
+						event.stopPropagation();
+					}else{
+						event.cancelBubble = true;
+					}
+				};
+				EventUtil.getRelatedTarget = function(event){/**取得鼠标移动**/
+					event = event || window.event;
+					if(event.relatedTarget){
+						return event.relatedTarget;
+					}else if(event.toElement){
+						return event.toElement;
+					}else if(event.fromElement){
+						return event.fromElement;
+					}else{
+						return null;
+					}
+				};
+				EventUtil.getbutton = function(event){//检测鼠标单,左,中,右击键
+					var event = event || window.event;
+					if(document.implementation.hasFeature('MouseEvents','2.0')){
+						return event.button;
+					}else{
+						switch(event.button){
+							case 0:
+							case 1:
+							case 3:
+							case 5:
+							case 7:
+							return 0;
+							case 2:
+							case 6:
+							return 2;
+							case 4:
+							return 1;				
+						}
+					}
+				};
+				EventUtil.getCharCode = function(event){/**取得当前键盘的值*/
+					event = event || window.event;
+					if(typeof event.charCode =='number'){
+						return event.charCode;
+					}else{
+						return event.keyCode;
+					}
+				};
+				EventUtil.getWheelData = function(event){/**取得鼠标滚轮值**/
+					event = event || window.event;
+					if(event.wheelDelta){
+						return event.wheelDelta;
+					}else{
+						return -event.detail * 40;
+					}
+				};
+				EventUtil.dispatchEvent = function(obj,type){/**主动派发事件*/
+					try{
+						if(iebool){
+							obj.fireEvent('on'+type);  
+						}else{
+			                var evt = document.createEvent('Event');  
+			                evt.initEvent(type,true,true);  
+			                el.dispatchEvent(evt); 							
+						}
+					}catch(error){
+						
+					}  					
+				};
+				EventUtil.getCoords = function(el){
+				  var box = el.getBoundingClientRect(),
+				  doc = el.ownerDocument,
+				  body = doc.body,
+				  html = doc.documentElement,
+				  clientTop = html.clientTop || body.clientTop || 0,
+				  clientLeft = html.clientLeft || body.clientLeft || 0,
+				  top  = box.top  + (self.pageYOffset || html.scrollTop  ||  body.scrollTop) - clientTop,
+				  left = box.left + (self.pageXOffset || html.scrollLeft ||  body.scrollLeft) - clientLeft;
+				  return { 'top': top, 'left': left };
+				};
+				EventUtil.getText = function(nodelist){
+			      var result = "",node;
+			      var nodes = nodelist.length?nodelist:[nodelist];
+			      for(var i=0,n=nodes.length;i<n;i++){
+			        node = nodes[i];
+			        if(node.nodeType === 3||node.nodeType === 4){//如果是文本节点或者CDATA节点
+			          if(!/^\s+$/.test(node.nodeValue)){//忽略空白节点与换行符
+			             result += node.nodeValue;	            	
+			          }
+			        }else if(node.nodeType === 1){ //如果是元素节点
+			          result += EventUtil.getText(node.childNodes);
+			        }
+			      }
+			     return result;
+			    };
+			    EventUtil.getLeft = function(){
+				   var t=e.offsetLeft;
+				    while(e=e.offsetParent)
+				        t+=e.offsetLeft;
+				    return t;			    	
+			    };
+			    EventUtil.getByClass = function(){
+					var aResult=[];
+					var re=new RegExp('\\b'+sClass+'\\b', 'i');
+					var i=0;
+					for(i=0;i<aEle.length;i++){
+						if(aEle[i].className.search(re)!=-1){
+							aResult.push(aEle[i]);
+						}
+					}
+					return aResult;			    	
+			    };
+			    EventUtil.setCookie = function(){
+					var today = new Date();
+					today.setTime(today.getTime());
+					if(expires){
+						expires = expires * 24*60*60*1000;
+					}
+					var expires_date = new Date(today.getTime() + (expires));
+					document.cookie = name + "=" + escape(value) + ((expires) ? ";expires=" + expires_date.toGMTString() : "") + ((path) ? ";path=" + path : "") + ((domain) ? ";domain=" + domain : "") + ((secure) ? ";secure" : "");			    	
+			    };
+			    EventUtil.getCookie = function(){
+					var re = new RegExp(name + '=([^;]+)');
+					var val = re.exec(document.cookie);
+					return val == null || val == NaN ? null : val[1];			    	
+			    };
+                EventUtil.selectText = function(){//取得鼠标选择文字
+                    if(document.selection){
+                        return document.selection.createRange().text;
+                    }else{
+                        return window.getSelection().toString();
+                    };
+                };
+                EventUtil.contains = function(p,c){
+                    return p.contains?p!=c&&p.contains(c):!!(p.compareDocumentPosition(c)&16);
+                };
+                EventUtil.fixedMouse = function(e,target){
+                    var related,type=e.type.toLowerCase();//这里获取事件名字
+                    if(type=='mouseover'){
+                        related=e.relatedTarget||e.fromElement
+                    }else if(type='mouseout'){
+                        related=e.relatedTarget||e.toElement
+                    }else return true;
+                    return related && related.prefix!='xul' && !EventUtil.contains(target,related) && related!==target;
+                };
+			})();		
+			function init(){
+				addbutton = document.getElementById('eventui');
+				document.oncontextmenu = function(event){
+					var  event = event || window.event;//取得不同浏览器下的事件对象
+					alert('自定义右键');
+					isIE?event.returnValue=false:event.preventDefault();//阻止浏览器的默认行为
+				}
+			}
+			function addEvent(event){
+			var event = event || window.event;//判断是否为IE浏览器
+        	 var  targ = event.target || event.srcElement;
+				if(!addbutton.is){
+					EventUtil.addEventHandler(addbutton,'click',onclickfun);
+					addbutton.is=true;
+					targ.value='删除事件';
+				}else{
+					EventUtil.removeEventHandler(addbutton,'click',onclickfun);
+					addbutton.is=false;
+					targ.value='注册事件';
+				}
+				isIE?event.cancelBubble = true:event.stopPropagation();//阻止事件冒泡机制
+			}
+			function onclickfun(event){
+				var event = event || window.event;
+				var targ = event.target || event.srcElement;
+				
+				alert('动态注册事件'+targ.value);
+				isIE?event.cancelBubble = true:event.stopPropagation();//阻止事件冒泡机制
+			}
+			function onclickdiv(event){
+				alert('事件冒泡');
+				isIE?event.cancelBubble = true:event.stopPropagation();//阻止事件冒泡机制
+			}
+			var isplaye = true;
+			var leng = document.documentElement.scrollTop;
+			var stop;
+			var isint =20;
+			var idTime;
+			var istop = true;
+			window.onscroll = function(){
+				stop = document.documentElement.scrollTop;
+				if(isplaye){
+					leng>stop?istop=false:istop=true;
+					window.setTimeout(timefun,600)
+				}
+				isplaye = false;
+			}
+			function timefun(){
+					 idTime = window.setInterval(function(){
+								if(leng==stop){
+									isplaye =true;	
+									window.clearInterval(idTime);
+									idTime = null;
+								}else{
+									istop?(leng+isint>stop?leng=stop:leng+=isint):(leng-isint<stop?leng=stop:leng-=isint);
+									var vbox = document.getElementById('divwatermark');
+									vbox.style.top=leng+'px';								
+								}
+					},100);
+			}
+			
+		</script>
+	</head>
+	<body onload="init()">
+		<div id="cont" onclick="onclickdiv(event)">
+		<input type="button" id="eventui" value="单击事件"/>
+		<input type="button" id="addevent" value="注册事件" onclick="addEvent(event);" />
+		</div>
+		<div id="divwatermark" style=" position: absolute;top: 0px;right: 0px;color: #cccccc; width: 300px; height: 150px;background-color: navy">
+		</div>
+		<h1>22222222222222222222222</h1>
+	</body>
+</html>

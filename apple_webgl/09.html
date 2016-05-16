@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+        <title>绘制多个纹理</title>
+        <style type="text/css">
+            *{padding: 0;margin: 0}
+            body,html{width: 100%;height: 100%}
+            canvas{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                cursor:pointer;
+                -webkit-transform:translate(-50%,-50%);
+                -moz-transform:translate(-50%,-50%);
+                -ms-transform:translate(-50%,-50%);
+                -o-transform:translate(-50%,-50%);
+                transform:translate(-50%,-50%);
+            }
+        </style>
+        <script type="text/javascript" src="./js/Utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-debug.js"></script>
+        <script type="text/javascript" src="./js/cuon-utils.js"></script>
+        <script type="text/javascript" src="./js/cuon-matrix.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas" width="800" height="600"></canvas>   
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_Position;
+            uniform mat4 u_ModelMateix;
+            attribute vec2 a_TexCoord;
+            varying vec2 v_TexCoord;
+            void main(){
+                gl_Position = u_ModelMateix * a_Position;
+                v_TexCoord = a_TexCoord;
+            }  
+        </script>  
+        <!-- 片段着色器 --> 
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision mediump float;
+            #endif
+            uniform sampler2D u_Sampler0;
+            uniform sampler2D u_Sampler1;
+            varying vec2 v_TexCoord;
+            void main() {
+                vec4 color0 = texture2D(u_Sampler0, v_TexCoord);
+                vec4 color1 = texture2D(u_Sampler1, v_TexCoord);
+                gl_FragColor = color0 * color1;
+            }
+        </script>  
+        <script type="text/javascript">
+            function getshaderstr(id){
+                var list,key,shader="",element = document.getElementById(id);
+                if(!element){
+                    return null;
+                }
+                key = element.firstChild;
+                while (key) {
+                    if (key.nodeType == 3) {
+                        shader += key.textContent;
+                    }
+                    key = key.nextSibling;
+                }
+                return shader.toString();
+            }
+        </script>     
+        <script type="text/javascript">
+        window.onload = function(){
+            var canvas = document.getElementById("canvas");
+            var ANGLE = 0,gl = getWebGLContext(canvas,true);
+            var VSHADER_SOURCE = getshaderstr("shader-vs");
+            var FSHADER_SOURCE = getshaderstr("shader-fs");
+            var bitmaps = {},imgs = [{"texture0":"img/sky.jpg"},{"texture1":"img/circle.gif"},{"luf":"img/luf.png"}];
+            var n,requestid,modelMateix,u_ModelMateix,a_Position,a_TexCoord;
+            var g_texUnit0 = false, g_texUnit1 = false; 
+            function initVertexBuffers(gl){
+                var n,FSIZE,verticesTexCoords = new Float32Array([
+                    //  X     Y     t     s
+                       -0.5,  0.5,  0.0,  1.0,
+                       -0.5, -0.5,  0.0,  0.0,
+                        0.5,  0.5,  1.0,  1.0,
+                        0.5, -0.5,  1.0,  0.0
+                    ]);
+                //向gl申请一个缓冲区对象 存放顶点坐标与纹理数据
+                var vertexTexCoordBuffer = gl.createBuffer();
+                if(!vertexTexCoordBuffer) {
+                    return -1;
+                }
+                n = verticesTexCoords.length/4;
+                //将缓冲区对象绑定到目标对象
+                gl.bindBuffer(gl.ARRAY_BUFFER,vertexTexCoordBuffer);
+                //向缓冲区对象写入顶点坐标与大小数据
+                gl.bufferData(gl.ARRAY_BUFFER,verticesTexCoords,gl.STATIC_DRAW);
+                //获取单元字节数大小即 数组索引里面字节大小
+                FSIZE = verticesTexCoords.BYTES_PER_ELEMENT;
+                //获取到顶点着色器的全局变量a_Position
+                a_Position = gl.getAttribLocation(gl.program,'a_Position');
+                if (a_Position < 0) {
+                    console.log('获取顶点着色器变量 a_Position 错误');
+                    return -1;
+                }
+                //获取到纹理的全局变量a_TexCoord
+                a_TexCoord = gl.getAttribLocation(gl.program, 'a_TexCoord');
+                if(a_TexCoord < 0) {
+                    console.log('获取纹理变量 a_TexCoord 错误');
+                    return -1;
+                }              
+                /*
+                 * 将缓冲区对象分配给a_Position变量
+                 * 每次读取4个数据大小为16偏移量为0 但是只使用前两个数据x y(x,y,t,s)
+                 */
+                gl.vertexAttribPointer(a_Position,2,gl.FLOAT,false,FSIZE*4,0);
+                //连接a_Position变量与分配给它的缓冲区对象
+                gl.enableVertexAttribArray(a_Position);
+                /* 
+                 * 将缓冲区对象分配给a_TexCoord
+                 * 每次读取4个数据大小为16偏移量为两个数字大小(t,s) 但是只使用两个数据t,s(x,y,t,s)
+                 */
+                gl.vertexAttribPointer(a_TexCoord,2,gl.FLOAT, false, FSIZE*4, FSIZE*2);
+                //连接a_PointSize变量与分配给它的缓冲区对象
+                gl.enableVertexAttribArray(a_TexCoord);
+
+                //取消绑定的缓冲区对象
+                gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                return n;
+            }
+            function loadTexture(gl, n, texture, u_Sampler, image, texUnit) {
+                //对纹理图像进行Y轴翻转
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+                if(texUnit == 0) {
+                    //开启0号纹理单元
+                    gl.activeTexture(gl.TEXTURE0);
+                    g_texUnit0 = true;
+                }else {
+                    //开启1号纹理单元
+                    gl.activeTexture(gl.TEXTURE1);
+                    g_texUnit1 = true;
+                }
+                //将纹理对象绑定到gl
+                gl.bindTexture(gl.TEXTURE_2D, texture); 
+                //配置纹理参数  
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+                //配置纹理对应图像
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+                //将对应的纹理对象传递给着色器
+                gl.uniform1i(u_Sampler, texUnit);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                if(g_texUnit0 && g_texUnit1){
+                    //绘制一个矩形
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+                }
+            }
+            /**
+             * 配置和加载纹理
+            */           
+            function initTextures(gl, n) {
+                var texture0,texture1,u_Sampler0,u_Sampler1;
+                //创建一个纹理对象
+                texture0 = gl.createTexture(); 
+                //创建一个纹理对象
+                texture1 = gl.createTexture();
+                if (!texture0 || !texture1) {
+                    console.log('创建webgl纹理失败');
+                    return false;
+                }
+                //获取着色器片全局变量u_Sampler0
+                u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
+                 //获取着色器片全局变量u_Sampler1
+                u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+                if (!u_Sampler0 || !u_Sampler1) {
+                    console.log('获取纹理全局变量失败');
+                    return false;
+                }
+                //队列加载图片完成渲染对应纹理
+                flash.utils.queueImg(imgs,bitmaps, function () {
+                    loadTexture(gl, n, texture0, u_Sampler0, bitmaps.texture0, 0);
+                    loadTexture(gl, n, texture1, u_Sampler1, bitmaps.texture1, 1);
+                },null);  
+                return true;
+            }
+            function maxframeangle(){
+                ANGLE += 45;
+                modelMateix.setRotate(ANGLE,0,0,1);
+                gl.uniformMatrix4fv(u_ModelMateix,false,modelMateix.elements);
+                //清除canvas
+                gl.clear(gl.COLOR_BUFFER_BIT); 
+                //绘制三角形             
+                gl.drawArrays(gl.TRIANGLE_STRIP,0,n);             
+                requestid = window.requestAnimationFrame(maxframeangle);
+            }                        
+            if(!gl){
+                console.log("你的浏览器暂时不支持WEBGL");
+                return;
+            } 
+            //设置顶点着色器与片段着色器形成渲染对象
+            if(!initShaders(gl,VSHADER_SOURCE,FSHADER_SOURCE)){
+                console.log("初始化着色器错误");
+                return;                
+            }
+            n = initVertexBuffers(gl);
+            if(n<0){
+                console.log("初始化缓冲区错误");
+                return;                
+            }
+            //创建canvas的背景色颜色
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);  
+            modelMateix = new Matrix4();  
+            //获取矩阵u_ModelMateix变量
+            u_ModelMateix = gl.getUniformLocation(gl.program,'u_ModelMateix');
+            //设置矩阵u_ModelMateix变量 
+            gl.uniformMatrix4fv(u_ModelMateix,false,modelMateix.elements);                              
+            if (!initTextures(gl, n)) {
+                console.log('未能初始化纹理。');
+                return;
+            }                      
+            canvas.addEventListener("click", function(event){
+                if(requestid){
+                    window.cancelAnimationFrame(requestid);
+                    requestid = null;
+                }else{
+                    maxframeangle();                 
+                }
+            });                         
+        }
+        </script>
+    </body>
+</html>

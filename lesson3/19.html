@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<title>Css3 折抵展示</title>
+<style type="text/css">
+  @font-face {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Montserrat-Regular'), url(http://fonts.gstatic.com/s/montserrat/v6/zhcz-_WihjSQC0oHJ9TCYPk_vArhqVIZ0nv9q090hN8.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+  }
+  * {margin: 0; padding: 0;}
+  html, body {min-height: 100%;}
+  body {
+    background: #544;
+    background: linear-gradient(#544, #565);
+  }
+  .thumb {
+    width: 400px; height: 300px; margin: 70px auto;
+    perspective: 1000px;
+  }
+  .thumb a {
+    display: block; width: 100%; height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("./image/i1.png");
+    background-size: 0, cover;
+    transform-style: preserve-3d;
+    transition: all 0.5s;
+  }
+  .thumb:hover a {transform: rotateX(80deg); transform-origin: bottom;}
+  .thumb a:after {
+    content: ''; position: absolute; left: 0; bottom: 0; 
+    width: 100%; height: 36px;
+    background: inherit; background-size: cover, cover;
+    background-position: bottom;
+    transform: rotateX(90deg); transform-origin: bottom;
+  }
+  .thumb a span {
+    color: white; text-transform: uppercase;
+    position: absolute; top: 100%; left: 0; width: 100%;
+    font: bold 12px/36px Montserrat; text-align: center;
+    transform: rotateX(-89.99deg); transform-origin: top;
+    z-index: 1;
+  }
+  .thumb a:before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); 
+    box-shadow: 0 0 100px 50px rgba(0, 0, 0, 0.5);
+    transition: all 0.5s; 
+    opacity: 0.15;
+    transform: rotateX(95deg) translateZ(-80px) scale(0.75);
+    transform-origin: bottom;
+  }
+  .thumb:hover a:before {
+    opacity: 1;
+    box-shadow: 0 0 25px 25px rgba(0, 0, 0, 0.5);
+    transform: rotateX(0) translateZ(-60px) scale(0.85);
+  }
+</style>
+</head>
+<body>
+<div class="thumb">
+  <a href="#">
+    <span>Three-eyed Robot</span>
+  </a>
+</div>
+</body>
+</html>

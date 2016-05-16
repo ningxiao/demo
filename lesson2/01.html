@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>百度输入法</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{
+				margin: 0px;
+				padding: 0px;
+				font: "宋体";
+				font-size: 12px;
+			}
+			#outer{
+				width: 70px;
+				margin: 10px auto;
+			}
+			#outer ul{
+				list-style: none;
+				margin-top: 5px;
+				background: #FFFFFF;
+				border: solid 1px #9a99ff;
+				display: none;
+				
+			}
+			#outer ul li{
+				width:100%;
+				line-height:24px;
+				display:inline-block;
+				vertical-align:top;
+			}
+			a{
+				color:#00c;
+				padding:0 5px;
+				display:block;
+				text-decoration:none;
+			}
+			a:hover{
+				background:#d9e1f6;
+			}
+			#close{
+				border-top: solid 1px #9a99ff;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var btn = document.getElementsByTagName('input')[0];
+				var ullist = document.getElementsByTagName('ul')[0];
+				var ulchli = document.getElementById('close');
+				btn.onclick = function(){
+					ullist.style.display ='block';
+				}
+				ulchli.onclick = function(){
+					ullist.style.display ='none';
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="outer">
+			<input type="button" value="输入法"/>
+			<ul>
+		        <li><a href="javascript:;">手写</a></li>
+		        <li><a href="javascript:;">拼音</a></li>
+		        <li id="close"><a href="javascript:;">关闭</a></li>
+			</ul>
+		</div>
+	</body>
+</html>

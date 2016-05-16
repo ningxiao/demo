@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>js正则表达式</title>
+		<meta name="author" content="leju"/>
+		<script type="text/javascript">
+			var patt=new RegExp("e");
+            var inputobj;
+            function init(event){
+            	inputobj = document.getElementById('inputdiv');
+            }
+            function regexp_text(){
+            	inputobj.innerHTML ='The best 是否存在k字母:'+ patt.test("The best");
+            }
+            function regexp_exec(){
+                inputobj.innerHTML ='The best 返回e字母:'+ patt.exec("The best");	
+            }
+            function regexp_compile(){
+				patt.compile(/\.swf$/i);
+				inputobj.innerHTML ='Thed bestd key date 是否存在d字母:'+ patt.test("http://d3.sina.com.cn/201108/24/337397.swf");	
+            }
+            /**
+             * 正则表达式过滤
+             */
+            function regexp_replace(type){
+                var str = 'Thee best';
+                var exp ;	
+                
+            	switch(type){
+            		case 1:
+            		exp = /e{2}/;/**过滤连续两个e*/
+            		break;
+            		case 2:
+            		exp = /e/g;/**过滤全部e*/
+            		break;
+            		exp = /e{1,}/;/**过滤一个以上e*/
+            		default:
+            	}
+            	inputobj.innerHTML =str+'过滤所以e为*:'+ str.replace(exp,'*');		
+            }
+		</script>
+	</head>
+	<body onload="init(event);">
+		<input type="button" value="检测是否存在" onclick="regexp_text();" />
+		<input type="button" value="取得指定字符" onclick="regexp_exec();" />
+		<input type="button" value="修改表达式判断是否为swf" onclick="regexp_compile();" />
+		<input type="button" value="替换连续2个e" onclick="regexp_replace(1);"/>
+		<input type="button" value="替换所有e" onclick="regexp_replace(2);"/>
+		<div id="inputdiv"></div>
+	</body>
+</html>

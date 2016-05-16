@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>javascript的dom操作</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+			#imgdiv{
+				width: 310px;
+				height: 310px;
+				position:relative;
+				margin:20px auto 0px auto;
+				border:solid 3px #00CC33;
+				padding-left:3px;
+				padding-top:3px;
+				overflow:hidden;
+			}
+			#imgdiv img{
+				float: left;
+				margin-right:3px;
+				margin-bottom:3px;
+				cursor: pointer;
+			}
+			#lodimg{
+				width: 152px;
+				height: 152px;
+				border:solid 2px #FF0000;
+				overflow: hidden;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var lilist =document.getElementsByTagName('li');
+				/**将取得的集合对象转为数组保存的公共方法**/
+				function convertToArray(nodes){
+					var array = null;
+					try{
+						array = Array.prototype.slice.call(nodes,0);
+					}catch(error){
+						array = new Array();
+						for(var i=0;i<nodes.length;i++){
+							array.push(nodes[i]);
+						}
+					}
+					return array;
+				}
+				lilist[0].innerHTML="网页标题(title)："+document.title;
+				lilist[1].innerHTML="网页地址(url)："+document.URL;
+				lilist[2].innerHTML="网页域名："+document.domain;
+				lilist[3].innerHTML="大写转小写："+"ASSSS".toLowerCase();
+				var imgdiv = document.getElementById('imgdiv').getElementsByTagName('img');
+				var lodimg = document.getElementById('lodimg').getElementsByTagName('img')[0];
+				for(var i in imgdiv){
+					imgdiv[i].onmousemove = function(event){
+			        	var  event = event || window.event;//取得不同浏览器下的事件对象
+			        	var  targ = event.target || event.srcElement;
+			            var sy = event.clientY - targ.getBoundingClientRect().top;
+			            var sx =event.clientX - targ.getBoundingClientRect().left;
+						lodimg.style.marginLeft = -sx+"px";
+						lodimg.style.marginTop =  -sy+"px";			
+						console.log(targ.clientHeight+"--"+event.layerX);		
+					}
+					imgdiv[i].onmouseover=function(event){
+						var  event = event || window.event;//取得不同浏览器下的事件对象
+			        	var  targ = event.target || event.srcElement;
+						lodimg.src = targ.src;
+						document.getElementById('imgname').innerHTML = targ.getAttribute('alt');
+					}
+				}
+				var ullist = document.getElementById('listul').childNodes;
+				for(var k in ullist){
+					if(ullist[k].nodeType == 1){/**节点类型 1代表元素节点 2代表属性节点 3代表文本节点*/
+					//	alert(ullist[k].innerHTML);
+					//	alert(getInnerText(ullist[k]));
+					}
+				}
+				/**公用取得指定对象的文本**/
+				function getInnerText(obj){
+					return (typeof obj.textContent == "string")?obj.textContent:obj.innerText;
+				}
+				/**公用设置指定对象的文本**/
+				function setInnerText(obj,text){
+					if(typeof obj.textContent == "string"){
+						obj.textContent = text;
+					}else{
+						obj.innerText = text;
+					}
+				}
+				function loadStyle(url){
+					var link = document.createElement("link");
+					link.rel="stylesheet";
+					link.type="text/css";
+					link.href =url;
+					var head = document.getElementsByTagName('head')[0];
+					head.appendChild(link);
+				}
+				var obj={};
+			//	alert(typeof(obj));
+				
+				
+				//loadStyle('css/index.css');
+			}
+		</script>
+	</head>
+	<body>
+		<ul id="listul">
+			<li>图片1</li>
+			<li>图片2</li>
+			<li>图片3</li>
+			<li>图片4</li>
+			<li>图片5</li>
+		</ul>
+			<div id="imgdiv">
+				<img alt="杨幂" src="image/big_1.jpg"/>
+				<img alt="不认识" src="image/big_2.jpg" />
+				<img alt="林志玲" src="image/big_3.jpg" />
+				<img alt="张柏芝" src="image/big_4.jpg" />
+			</div>
+			<div style="width: 152px;height: 162px;margin: 20px auto;">
+			<label id="imgname">桂纶镁</label>
+			<div id="lodimg">
+				<img alt="桂纶镁" style="margin-top: -152px;margin-left: -152px" width="304" height="304" src="image/big_1.jpg" />
+			</div>
+			</div>
+	</body>
+</html>

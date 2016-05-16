@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>拖拽换行</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+		  .table{
+	        width:60%;
+	        border: 1px solid red;
+	        border-collapse: collapse;
+	      }
+	      .table td{
+	        border: 1px solid red;
+	        height: 20px;
+	      }
+		</style>
+		<!--
+		<script type="text/javascript" src="http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"></script>
+		-->
+		<script type="text/javascript">
+           window.onload = function(){
+	        //绑定事件
+	        var addEvent = function(oTarget,sEventType,fhHandler){
+				if(oTarget.attachEvent){/**IE下面的注册事件*/
+					oTarget.attachEvent('on'+sEventType,function(){
+						fhHandler.apply(oTarget, arguments);
+					});
+				}else if(oTarget.addEventListener){/**非IE下面的注册事件*/
+					oTarget.addEventListener(sEventType,fhHandler,false);
+				}else{
+					oTarget['on'+sEventType] = fhHandler;
+				}
+			};
+			var removeEvent = function(oTarget,sEventType,fhHandler){
+				if(oTarget.detachEvent){
+					oTarget.detachEvent('on'+sEventType,fhHandler);
+				}else if(oTarget.removeEventListener){
+					oTarget.removeEventListener(sEventType,fhHandler,false);
+				}else{
+					oTarget['on'+sEventType] = null;
+				}
+			};	   
+			 //精确获取样式     
+	       var getStyle = function(obj, name){
+				if(obj.currentStyle){
+					return obj.currentStyle[name]||obj.style[name];
+				}else{
+					return getComputedStyle(obj, document)[name]||obj.style[name];
+				}
+			}
+	        var dragManager = {
+	          y:0,
+	          handler:null,
+	          draging:function(e){//mousemove时拖动行
+	            var handler = dragManager.handler;//移动的行根据列取到
+	            if(handler){
+	              e = e || event;
+	              if(window.getSelection){//w3c
+	                window.getSelection().removeAllRanges();
+	              }else  if(document.selection){
+	                document.selection.empty();//IE
+	              }
+	              var y = e.clientY;
+	              var down = y > dragManager.y;//是否向下或者向下移动
+	              var td = document.elementFromPoint(e.clientX,e.clientY);
+	              if(td && td.nodeName == "TD"){
+	                td = td.parentNode;
+	                dragManager.y = y;//刷新y值以便于判断是向上移动还是向下
+	                if(handler !== td){//判断是否在当前对象移动
+	                  td.parentNode.insertBefore(handler, (down ? td.nextSibling : td));//交换上下的值
+	                }
+	              };
+	            }
+	          },
+	          dragStart:function(e){//点击对象开始执行
+	            e = e || event;
+	            var handler = e.target || e.srcElement;
+	            if(handler.nodeName === "TD"){//如果是点击列取得父节点行
+	              handler = handler.parentNode;
+	              dragManager.handler = handler;
+	              if(!handler.getAttribute("data-background")){//点击之前记录原始颜色到自定义属性里面
+	                handler.setAttribute("data-background",getStyle(handler,"backgroundColor"))
+	              }
+	              //显示为可移动的状态
+	              handler.style.cssText = "background-color:#ccc;cursor:move;";
+	              dragManager.y = e.clientY;
+	            };
+	            addEvent(document,"mousemove",dragManager.draging);
+	            addEvent(document,"mouseup",dragManager.dragEnd);
+	          },
+	          dragEnd:function(){//拖动结束
+	            var handler = dragManager.handler;
+	            if (handler) {//还原之前默认样式
+	              handler.style.cssText = "background-color:"+handler.getAttribute("data-background")+";cursor:default;";
+	              dragManager.handler = null;
+	            }
+	            removeEvent(document,"mousemove",dragManager.draging);
+	            removeEvent(document,"mouseup",dragManager.dragEnd);
+	          },
+	          main:function(el){//函数初始化入口
+	            addEvent(el,"mousedown",dragManager.dragStart);
+	          }
+	        }
+	        var el = document.getElementById("table");
+	        dragManager.main(el);
+	      }			
+		</script>
+	</head>
+	<body>
+	 <h1>行拖动 </h1>
+	    <table  id="table" class="table">
+	      <tbody>
+	        <tr>
+	          <td>1</td>
+	          <td>One</td>
+	          <td>dom.require</td>
+	        </tr>
+	        <tr id="2" >
+	          <td class="2">2</td>
+	          <td>Two</td>
+	          <td>ControlJS </td>
+	        </tr>
+	        <tr id="3" >
+	          <td class="3">3</td>
+	          <td>Three</td>
+	          <td>HeadJS</td>
+	        </tr>
+	        <tr id="4" >
+	          <td class="4">4</td>
+	          <td>Four</td>
+	          <td>LAB.js</td>
+	        </tr>
+	        <tr id="5" >
+	          <td class="5">5</td>
+	          <td>Five</td>
+	          <td>$script.js</td>
+	        </tr>
+	        <tr id="6" >
+	          <td class="6">6</td>
+	          <td>Six</td>
+	          <td>NBL.js</td>
+	        </tr>
+	        <tr>
+	          <td>7</td>
+	          <td>One</td>
+	          <td>dom.require</td>
+	        </tr>
+	        <tr id="2" >
+	          <td class="2">8</td>
+	          <td>Two</td>
+	          <td>ControlJS </td>
+	        </tr>
+	        <tr id="3" >
+	          <td class="3">9</td>
+	          <td>Three</td>
+	          <td>HeadJS</td>
+	        </tr>
+	        <tr id="4" >
+	          <td class="4">10</td>
+	          <td>Four</td>
+	          <td>LAB.js</td>
+	        </tr>
+	        <tr id="5" >
+	          <td class="5">11</td>
+	          <td>Five</td>
+	          <td>$script.js</td>
+	        </tr>
+	        <tr id="6" >
+	          <td class="6">12</td>
+	          <td>Six</td>
+	          <td>NBL.js</td>
+	        </tr>	        
+	      </tbody>
+	    </table>		
+	</body>
+</html>

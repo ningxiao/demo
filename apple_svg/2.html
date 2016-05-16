@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>js操作SVG鼠标事件</title>
+    <meta name="author" content="ningxiao" />
+    <!-- Date: 2014-03-05 -->
+</head>
+<script type="text/javascript">
+    function $(id){
+        return document.getElementById(id) || null;
+    }
+</script>
+<body>
+<svg width="400" height="400" id="canvas">
+    <g id="view">
+        <rect x="20" y="10" rx="20" ry="20" width="250" height="100" id="rect"
+              style="fill:red;stroke:black;stroke-width:5;opacity:0.5"/>
+    </g>
+    <rect id="rect1" x="100" y="70" width="100" height="50" fill="red"/>
+    <rect id="rect2" x="100" y="200" width="100" height="50" fill="red"/>
+    <rect id="rect3" x="100" y="300" width="100" height="50" fill="red"/>
+</svg>
+<input type="button" value="替换方形" id="replaceCircle"/>
+<input type="button" value="插入方形" id="addCircle"/>
+<input type="button" value="修改圆颜色" id="upCircle"/>
+<input type="button" value="修改方颜色" id="upRect"/>
+<input type="button" value="获取节点" id="getSVG"/>
+<script type="text/javascript">
+    window.onload=function(){
+        var canvas = $("canvas"),addButton=$("addCircle"),upRect=$("upRect"),upCircle=$("upCircle"),rect=$("rect"),circle;
+        var getSVG = $("getSVG"),replaceCircle = $("replaceCircle"),view=$("view");
+        replaceCircle.onclick = addButton.onclick = function(event){
+            //创建svg对象
+            circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+            circle.id = "circle";//设置ID
+            circle.setAttribute('r',"40");
+            //设置内联样式
+            circle.setAttribute('style',"fill:rgb(255,5,12);stroke-width:1;stroke:rgb(0,0,0);fill-opacity:0.5;stroke-opacity:0.6");
+            //canvas.appendChild(circle);
+            //替换原有对象
+            console.log(event.target.id);
+            if(event.target.id=="addCircle"){
+                circle.setAttribute('cx',"135");//设置属性
+                circle.setAttribute('cy',"60");
+                view.appendChild(circle);
+            }else{
+                circle.setAttribute('cx',"180");//设置属性
+                circle.setAttribute('cy',"180");
+                rect.parentNode.replaceChild(circle,rect);
+            }
+            //添加单击事件
+            circle.addEventListener("click",function(event){
+                console.log(event.offsetX);
+                this.setAttribute("r",20);
+            },false);
+            circle.addEventListener("mouseout",function(event){
+                this.style.fill = 'rgb(255,5,12)';
+            },false);
+            circle.addEventListener("mouseover",function(event){
+                this.style.fill = 'black';
+            },false);
+        }
+        upCircle.addEventListener("click",function(event){
+            circle && (circle.style.fill = 'black');
+        },false);
+        getSVG.addEventListener("click",function(event){
+            var list = canvas.childNodes;
+            for( var i= 0,l=list.length;i<l;i++){
+                console.log(list.item(i).nodeName);
+            }
+        },false);
+        upRect.addEventListener("click",function(event){
+            var list = canvas.getElementsByTagName("rect");
+            for(var i= 0,l=list.length;i<l;i++){
+                list[i].style.fill = 'black';
+            }
+        },false);
+    }
+</script>
+</body>
+</html>
+

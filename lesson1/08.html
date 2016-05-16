@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>下拉选择图片</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{padding:0; margin:0;}
+			body{ font-size:12px; font-family:Arial, Helvetica, sans-serif; }
+			.section { width:500px; margin:auto; padding:100px;}
+			.nav { }
+			.article {height:30px; position:relative;}
+			#text{ width:100px; border:solid 1px #c3cde7; border-right:none; float:left;height:14px; line-height:14px; overflow:hidden;}
+			#arr{ float:left;height:16px; width:16px;}
+			.arrtop{ background:url(img/arrdown.gif) no-repeat 0 0;}
+			.arrdown{ background:url(img/arrdown.gif) no-repeat 0 0;}
+			#imgText{ display:block; overflow:hidden; padding:4px; line-height:16px; position:absolute; left:0; top:15px; width:91px; border:solid 1px #c3cde7; cursor:pointer; background:#fff;}
+			#imgdiv{border:solid 1px #00aeff; width:128px; height:128px; padding:2px; background:#fff;}
+			#imgMsg{ text-indent:2em; line-height:33px;border:solid 1px #00aeff; width:124px;padding:4px; background:#fff; margin:6px 0 0 0;}
+		</style>
+		<script type="text/javascript">
+			var Fimg=[1,2,3,4,5]
+			window.onload=function(){
+				var btn=document.getElementById('arr');
+				var Oul=document.getElementById('imgText');
+				var Oli=Oul.getElementsByTagName('li');
+				var Otext=document.getElementById('text');
+				var Osure=document.getElementById('sure');
+				var Oimg=document.getElementsByTagName('img')[0];
+				var OimgMsg=document.getElementById('imgMsg');
+				btn.onclick=function(){
+					if(Oul.style.display=='block'){
+						Oul.style.display='none';
+						btn.className='arrdown';
+					}else{
+						Oul.style.display='block';
+						btn.className='arrtop';
+					}
+				}
+				for(var i=0;i<Oli.length;i++){
+						Oli[i].innerHTML="图片"+Fimg[i];
+						Oli[i].index = i;
+						Oli[i].onclick=function(){
+							Otext.innerHTML=this.innerHTML;
+							Oul.style.display='none';
+							Oimg.src="img/"+this.index+".png";
+							OimgMsg.innerHTML="你选择"+this.index+".png";
+						}
+				}	
+			}
+		</script>		
+	</head>
+	<body>
+	<div class="section">
+	  <div class="article">
+	    <div id="text"></div>
+	    <div id="arr" class="arrdown"></div>
+	    <input type="button" value="确定" id="sure" />
+	    <ul id="imgText" style="display:none;">
+	      <li>图片一</li>
+	      <li>图片二</li>
+	      <li>图片三</li>
+	      <li>图片四</li>
+	      <li>图片五</li>
+	    </ul>
+	  </div>
+	  <div id="imgdiv"><img src="img/1.png" alt=""  /></div>
+	  <div id="imgMsg">11</div>
+	</div>	
+</body>
+</html>

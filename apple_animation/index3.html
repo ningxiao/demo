@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>index3</title>
+		<meta name="author" content="leju" />
+		<!-- Date: 2012-02-01 -->
+		<style type="text/css">
+			#mydivTwo { position: relative; left:20px; width:100px; height:100px; border:2px solid #000; background:#96F; }
+		</style>
+	</head>
+	<body>
+<div id="mydivTwo" style="left: 320px;">moveTwo</div>
+  <script type="text/javascript">
+		function $(mydivTwo) {
+				return document.getElementById('mydivTwo');
+		}
+		var movestyle = {
+		//其实说白了这里就是一个存公式的地方，你可以任意的放公式...
+				line : function (n, p, a, b) {
+						return n / a * p + b;
+				}
+		}
+		var move = {
+				moveType : function (style) {
+				//利用这个方法来存储移动方式.这个函数是我在别的网站上copy的...
+						return style && typeof(style) == "string" && movestyle[style] ? style : "line";
+				},
+				
+				changeStyle : function (elem, n, p, a, b, style) {
+						//下面几个参数分别表示动画的默认值：从第一帧开始，持续20帧，移动的距离为300px，开始的位置为0
+						n ? t : n = 0;
+						b ? b : b = 0;
+						p ? p : p = 300;
+						a ? a : a = 20;
+						run = setInterval(function () {
+										//当未执行时，利用move.moveType(style)取到移动方式，之后利用movestyle来返回坐标
+										//利用这种结构来改写if/else
+										n <= a ? function () {
+												$(elem).style.left = parseInt(movestyle[move.moveType(style)](n, p, a, b)) + "px";
+												n++;
+										}
+										() //执行此循环函数
+										 : clearInterval(run); //执行完毕，打断，停止移动
+								}, 25) //40帧/秒
+				}
+		}
+		move.changeStyle("mydiv",0,300,20,20,"line");
+</script>
+	</body>
+</html>

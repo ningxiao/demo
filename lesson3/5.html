@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>CSS3 2D转换</title>
+    <meta name="author" content="baofeng"/>
+    <style type="text/css">
+        html,body{
+            height: 100%;
+
+        }
+        #trans-inner1{
+            background-color:#2980b9;
+            width:350px;
+            height:100px;
+        }
+        #trans-inner2{
+            background-color:#d35400;
+            width:350px;
+            height:100px;
+            transform:rotate(30deg) translate(40px,-40px);
+            -webkit-transform:rotate(30deg) translate(40px,-40px);
+            -moz-transform:rotate(30deg) translate(40px,-40px);
+            -o-transform:rotate(30deg) translate(40px,-40px);
+            transition:all ease 0.4s;
+            -webkit-transition:all ease 0.4s;
+            -moz-transition:all ease 0.4s;
+            -o-transition:all ease 0.4s;
+        }
+        #trans-inner2:hover{
+            transform:rotate(0) translate(30px,-30px);
+            -webkit-transform:rotate(0) translate(30px,-30px);
+            -moz-transform:rotate(0) translate(30px,-30px);
+            -o-transform:rotate(0) translate(30px,-30px);
+        }
+    </style>
+</head>
+<body>
+<div id="trans-inner1">Normal Div</div>
+<div id="trans-inner2">transform:tranlated(40px, 40px)</div>
+</body>
+</html>

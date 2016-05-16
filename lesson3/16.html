@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<title>Css3 导航菜单</title>
+<style type="text/css">
+  *{padding: 0;margin: 0;}
+  body {
+    padding-top: 100px;
+    text-align: center;
+    font-family:'noto serif',verdana,Arial;
+  }
+  .menu {
+    display: inline-block;
+    box-shadow: 0 0 10px 1px rgba(0,0,0,0.6);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .menu a {
+    padding: 0 20px 0 30px;
+    position: relative;
+    text-decoration: none;
+    line-height: 36px;
+    background: -webkit-linear-gradient(#5DA6E1, #185282);
+    background: -moz-linear-gradient(#5DA6E1, #185282);
+    background: -o-linear-gradient(#5DA6E1, #185282);
+    background: linear-gradient(#5DA6E1, #185282);
+    color: white;
+    display: block;
+    float: left;
+  }
+  .menu a#active, .menu a:hover {
+    background: -webkit-linear-gradient(#64D86A, #1D7521);
+    background: -moz-linear-gradient(#64D86A, #1D7521);
+    background: -o-linear-gradient(#64D86A, #1D7521);
+    background: linear-gradient(#64D86A, #1D7521);
+  }
+  .menu a#active:after, .menu a:hover:after {
+    background: linear-gradient(135deg,#64D86A, #1D7521);
+  }
+  .menu a:after {
+    content:'';
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg,#5DA6E1, #185282);
+    position:absolute;
+    top: 0px;
+    z-index: 1;
+    right: -18px;
+    transform: scale(0.707) rotate(45deg);
+    border-radius: 0 0 0 30px;
+    box-shadow: 2px -2px 1px 1px rgba(0,0,0,0.5),
+          3px -2px 1px 1px rgba(255,255,255,0.6);
+  }
+  .menu a:last-child:after {
+    content:none;
+  }
+  .menu a:last-child {
+    padding-right: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="menu">
+    <a href="#menu1" id="active"> Menu 1</a>
+    <a href="#menu1"> Menu 2</a>
+    <a href="#menu1"> Menu 3</a>
+    <a href="#menu1"> Menu 4</a>
+  </div>
+</body>
+</html>

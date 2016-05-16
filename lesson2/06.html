@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>修改透明度</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			ul li{margin: 0px; padding: 0px; list-style: none}
+			#imgList{
+				width: 700px;
+				overflow: hidden;
+				zoom: 1;
+				border: solid 1px #333333;
+				margin: 0px auto;
+				padding:0 0 10px 10px;
+			}
+			#imgList li{
+				float: left;
+				width:128px;
+				height:128px;
+				border: solid 1px #CCCCCC;
+				margin: 10px 10px 0 0;
+			}
+			#imgList li img{
+				float: left;
+				opacity: 0.3;
+				cursor: pointer;
+				filter: alpha(opacity=30);
+			}
+			#imgList li .current{
+				opacity: 1;
+				filter: alpha(opacity=100);
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var imgList = document.getElementById('imgList').getElementsByTagName('img');
+				for (var i=0,len = imgList.length; i < len; i++) {
+					imgList[i].onmouseover = function(){
+						this.className = 'current';
+					};
+					imgList[i].onmouseout = function(){
+						this.className = "";
+					}
+				};
+			}
+		</script>
+	</head>
+	<body>
+		<ul id="imgList">
+			<li><img src="images/1.jpg" /></li>
+			<li><img src="images/2.jpg" /></li>
+			<li><img src="images/3.jpg" /></li>
+			<li><img src="images/4.jpg" /></li>
+			<li><img src="images/5.jpg" /></li>
+			<li><img src="images/6.jpg" /></li>
+			<li><img src="images/7.jpg" /></li>
+			<li><img src="images/8.jpg" /></li>
+			<li><img src="images/9.jpg" /></li>
+			<li><img src="images/10.jpg" /></li>
+		</ul>
+	</body>
+</html>

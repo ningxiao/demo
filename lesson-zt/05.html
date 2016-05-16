@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>js小型模板</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">	
+	      var Template = function(template, pattern){
+	        this.template = String(template);
+	        this.pattern = pattern || Template.Pattern;
+	      }
+	      Template.Pattern = /#\{([^}]*)\}/mg;
+	      Template.trim = String.trim || function(str){
+	        return str.replace(/^\s+|\s+$/g, '');
+	      }
+	      Template.prototype ={
+	        constructor:Template,
+	        compile: function(object) {
+	          return this.template.replace(this.pattern, function(displace,variable){
+	            variable = Template.trim(variable);
+	            return displace = object[variable];
+	          });
+	        }
+	      }
+	      window.onload = function(){
+	        var data = "<div>Name: <b>#{name}<\/b>  Blog: <a href='#{href}'>#{blog }<\/a><\/div>";
+	        var t = new Template(data);
+	        var objs = {name:"司徒正美",
+	          blog:"RubyLouvre",
+	          href:"http://www.cnblogs.com/rubylouvre/"}
+	        var result = t.compile(objs);
+	        document.body.innerHTML = result
+	      }
+		</script>
+	</head>
+	<body></body>
+</html>

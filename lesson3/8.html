@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>CSS3 动画</title>
+    <meta name="author" content="baofeng"/>
+    <style type="text/css">
+        @keyframes colorchange {
+            0%   { background-color: #00F; /* from: blue */ }
+            25%  { background-color: #F00; /* red        */ }
+            50%  { background-color: #0F0; /* green      */ }
+            75%  { background-color: #F0F; /* purple     */ }
+            100% { background-color: #00F; /* to: blue   */ }
+        }
+        @-webkit-keyframes colorchange {
+            0%   { background-color: #00F; /* from: blue */ }
+            25%  { background-color: #F00; /* red        */ }
+            50%  { background-color: #0F0; /* green      */ }
+            75%  { background-color: #F0F; /* purple     */ }
+            100% { background-color: #00F; /* to: blue   */ }
+        }
+        @-moz-keyframes colorchange {
+            0%   { background-color: #00F; /* from: blue */ }
+            25%  { background-color: #F00; /* red        */ }
+            50%  { background-color: #0F0; /* green      */ }
+            75%  { background-color: #F0F; /* purple     */ }
+            100% { background-color: #00F; /* to: blue   */ }
+        }
+        @-o-keyframes colorchange {
+            0%   { background-color: #00F; /* from: blue */ }
+            25%  { background-color: #F00; /* red        */ }
+            50%  { background-color: #0F0; /* green      */ }
+            75%  { background-color: #F0F; /* purple     */ }
+            100% { background-color: #00F; /* to: blue   */ }
+        }
+        #ani1 {
+            width: 10em;
+            font-size: 2em;
+            font-weight: bold;
+            text-align:center;
+            padding: 1em;
+            margin: 50px auto 80px;
+            border-radius: 5px;
+            /**
+            animation:colorchange 5s linear 1s infinite alternate;
+            -webkit-animation:colorchange 5s linear 1s infinite alternate;
+            -moz-animation:colorchange 5s linear 1s infinite alternate;
+            -o-animation:colorchange 5s linear 1s infinite alternate;
+            */
+        }
+    </style>
+    <script type="text/javascript" src="js/utils.js"></script>
+</head>
+<body>
+<div id="ani1">Animate color</div>
+<script type="text/javascript">
+    var animation = document.getElementById("ani1"),t1;
+    function animationEventFun(event){
+        console.log(event.type);
+    }
+    utils.prefixedEvent(animation, "AnimationStart", function (event) {
+        console.log('动画开始了，当前经历的时间:' + event.elapsedTime + 's , 经历时间不包括延迟时间：' + (event.timeStamp - t1) / 1000 + 's');
+    });
+    utils.prefixedEvent(animation, "AnimationIteration", function (event) {
+        console.log('动画重复了一次，当前经历的时间:' + event.elapsedTime + 's')
+    });
+    utils.prefixedEvent(animation, "AnimationEnd", function (event) {
+        console.log('动画结束了当前经历的时间:' + event.elapsedTime + 's');
+    });
+    t1 = +new Date();
+    utils.setStyle(animation, {"animation": "colorchange 5s linear 1s 2 alternate"});
+</script>
+</body>
+</html>

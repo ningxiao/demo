@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>eval实现服务器传输js方法</title>
+		<meta name="author" content="leju" />
+		<link rel="stylesheet" type="text/css" href="../css/index.css">
+		<script type="text/javascript">
+			var IE=top.execScript?1:0;//判断浏览器是否为IE
+			var obj = new Object();
+			var objfunction;
+			var btn = document.createElement('input');
+			function getfunction(){
+				var str = showSelectTextarea('inputtext');
+				eval(str);
+			}
+			/**取得文本编辑域执行*/
+			function showSelectTextarea(id){
+				var selectedText;
+				var obj = document.getElementById(id);
+				if(IE){
+					if(document.selection&&(document.selection.type == "Text")){
+						 selectedText=document.selection.createRange().text;
+					}else{
+						selectedText = obj.value;
+					}
+				}else{
+					if(obj.selectionStart && obj.selectionEnd && obj.selectionStart!=obj.selectionEnd){
+						selectedText=obj.value.substring(obj.selectionStart, obj.selectionEnd);
+					}else{
+						selectedText = obj.value;
+					}
+				}
+				return selectedText;
+             }
+           function geteval(index){
+		          alert(obj[index]);
+		         
+           }
+		</script>
+	</head>
+	<body>
+		<label>1、默认执行全部代码<br/>2、可以选择执行代码</label><br/>
+		<textarea id="inputtext" >
+function create(){
+btn.type='button';
+btn.onclick=isToStopCreate;
+btn.value='删除';
+var div = document.createElement('div');
+div.innerHTML = 'new div';
+div.style.height='50px';
+div.style.width='200px';
+div.style.cssFloat='left';
+div.style.border='solid 1px red';
+div.style.margin='5px 5px 5px 5px';
+div.appendChild(btn);
+document.getElementById('cont').appendChild(div);
+}
+function isToStopCreate(){
+document.getElementById('cont').removeChild(this.parentNode);
+}
+create();
+
+	    </textarea>
+		<input type="button" value="执行" onclick="getfunction();" />
+		<input type="button" value="静态调用" onclick=geteval('age'); />
+		 <div id="cont"></div>
+	</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>控制Div属性</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			#outer{width:500px;margin:0 auto;padding:0;text-align:center;}
+			#div1{width:100px;height:100px;background:black;margin:10px auto;display:block;}
+			.style1{ 
+				width: 110px; 
+				height: 150px; 
+				background-image:url('http://img.baidu.com/img/iknow/images/r1s1g4.gif'); 
+				margin:10px auto;display:block;
+			} 
+			.style2 { 
+				width: 110px; 
+				height: 150px; 
+				background-image:url('http://img.baidu.com/img/iknow/images/r1s1g5.gif'); 
+				margin:10px auto;display:block;
+			} 
+		</style>
+		<script language="javascript">
+		    /**动态设置对象样式公共方法**/
+			var changeStyle = function(elem, attr, value){
+				    elem.style[attr] = value;
+				};
+			window.onload = function(){
+				var oBtn = document.getElementsByTagName('input');/**取得按钮数据*/
+				var oDiv = document.getElementById("div1");/**取得效果div对象*/
+				var oAtt = ["width","height","background","display","display"];/**执行样式名称数组**/
+				var oVal = ["200px","200px","red","none","block"];/**样式对应的value值*/
+				for(var i=0;i<oBtn.length;i++){
+					oBtn[i].index = i;
+					oBtn[i].onclick = function(){
+						if(this.index == oBtn.length - 1){
+							oDiv.style.cssText = ""/**清除当前对象所以样式*/
+						}else{/**调用添加样式公共方法*/
+							changeStyle(oDiv, oAtt[this.index], oVal[this.index]);
+						}
+					}
+				}
+			}
+			function setDivBG(s){
+				document.getElementById("div2").className=s;
+			}; 
+		</script>
+	</head>
+	<body>
+		<div id="outer">
+			<input type="button" value="变宽" />
+			<input type="button" value="变高" />
+			<input type="button" value="变色" />
+			<input type="button" value="隐藏" />
+			<input type="button" value="重置" />
+			<label>切换样式</label>
+			<select onchange="setDivBG(this.value);"> 
+			<option value="style1">学童</option> 
+			<option value="style2">巫师</option> 
+		</select> 
+			<div id="div1"></div>
+			<div id="div2" class="style1"></div> 
+		</div>
+	</body>
+</html>

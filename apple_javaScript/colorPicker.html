@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>colorPicker</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+		*{
+			margin: 0px;
+			padding: 0px;
+		}
+		.back{
+			width: 255px;
+			height: 10px;
+			background: #CCCCCC;
+			margin-top: 5px;
+		}
+		.block{
+			height: 10px;
+			width: 10px;
+			background: #000000;
+			position:absolute;
+			cursor: pointer;
+		}
+		</style>
+		<script type="text/javascript">
+		    var show;
+		    var rgbv;
+			window.onload = function(){
+				show = document.getElementById('show');
+				rgbv = document.getElementById('rgbv');
+				var blocks = getByClass('.block');
+				for(var i =0;i<blocks.length;i++){
+						drag(blocks[i]);
+				}
+			}
+			function drag(obj){
+				var disX = obj.clientWidth/2;
+				var PW = obj.parentNode.clientWidth;
+				var PL = obj.parentNode.offsetLeft;
+				var PR = PW+PL;
+				var offL =0;
+				var max = obj.parentNode.getAttribute("max");
+				obj.onmousedown = function(event){
+					event = event ||window.event;
+					
+					if(obj.setCapture){
+						obj.setCapture();
+					}
+					document.onmousemove = function(event){
+						event = event ||window.event;
+						var offh = event.offsetX || event.layerX;
+						if(PL>offh){
+							offh = PL+disX;
+						}
+						if(offh>(PL+PW)){
+							offh = PR-disX;
+						}
+						offL = offh - disX;
+						obj.style.left = offL + 'px';	
+					};
+					document.onmouseup = function(){
+						var prop = parseInt(((offL-PL)/PW)*max);
+						document.onmousemove = null;
+						document.onmouseup = null;
+						getProportion(obj.id,prop);
+						if(obj.releaseCapture){
+							obj.releaseCapture();
+						}
+					};
+					return false;
+				};
+			}	
+			var colors=[255,255,255]
+			var alpha = 100;
+			function getProportion(index,value){
+				if(index=='a'){
+					alpha = value;
+					show.style.opacity = value/100;
+				}else{
+					colors[index]=value;
+					show.style.background="rgb("+colors+")";	
+				}
+				rgbv.innerHTML ='RGB('+colors+')alpha:'+alpha+'%';
+			}		
+			function getByClass(sClass,oParent){
+				oParent = oParent||document;
+				if(arguments.length==1){
+					sClass = sClass.substring(1);
+					var aEle=oParent.getElementsByTagName('*');
+					var aResult=[];
+					var i=0;
+					for(i=0;i<aEle.length;i++){
+						if(aEle[i].className==sClass){
+							aResult.push(aEle[i]);
+						}
+					}
+					return aResult;					
+				}else{
+					alert('请输入你要选择的class！');
+				}
+			}
+						///调试
+			function trace(str){
+				console.log(str);
+			}			
+		</script>
+	</head>
+	<body>
+		<div  style="width: 255px;height: 400px;margin: 40px auto;position: absolute">
+			<div id="show" style="width: 40px;height: 40px;border:solid 1px #000000;margin: 5px 5px"></div>
+			<label id="rgbv" style="position:absolute;width: 200px;height: 20px;margin-left: 70px;margin-top: -30px;font-size: 12px"></label>
+			<div class="back" max = "255">
+				<div id="0" class="block"></div>
+			</div>
+			<div class="back" max = "255">
+				<div  id="1" class="block"></div>
+			</div>
+			<div class="back" max = "255">
+				<div id="2" class="block"></div>
+			</div>
+			<div class="back" max = "100">
+				<div id="a" class="block"></div>
+			</div>
+		</div>						
+	</body>
+</html>

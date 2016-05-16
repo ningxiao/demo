@@ -1,0 +1,365 @@
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta property="qc:admins" content="2440032737651176637572013"/>
+<title>js 调用监听CSS3 动画</title>
+<style type="text/css">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    html, body {
+        height: 100%;
+    }
+
+    div {
+        width: 100px;
+        height: 100px;
+        background: red;
+        position: relative;
+        /**
+         animation: animation 5s linear 1s 2 alternate;
+         -moz-animation: animation 5s linear 1s 2 alternate;
+         -webkit-animation: animation 5s linear 1s 2 alternate;
+         -o-animation: animation 5s linear 1s 2 alternate;
+         **/
+    }
+
+    @keyframes animation {
+        0% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+        25% {
+            background: yellow;
+            left: 200px;
+            top: 0px;
+        }
+        50% {
+            background: blue;
+            left: 200px;
+            top: 200px;
+        }
+        75% {
+            background: green;
+            left: 0px;
+            top: 200px;
+        }
+        100% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+    }
+
+    @-moz-keyframes animation {
+        0% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+        25% {
+            background: yellow;
+            left: 200px;
+            top: 0px;
+        }
+        50% {
+            background: blue;
+            left: 200px;
+            top: 200px;
+        }
+        75% {
+            background: green;
+            left: 0px;
+            top: 200px;
+        }
+        100% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+    }
+
+    @-webkit-keyframes animation {
+        0% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+        25% {
+            background: yellow;
+            left: 200px;
+            top: 0px;
+        }
+        50% {
+            background: blue;
+            left: 200px;
+            top: 200px;
+        }
+        75% {
+            background: green;
+            left: 0px;
+            top: 200px;
+        }
+        100% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+    }
+
+    @-o-keyframes animation {
+        0% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+        25% {
+            background: yellow;
+            left: 200px;
+            top: 0px;
+        }
+        50% {
+            background: blue;
+            left: 200px;
+            top: 200px;
+        }
+        75% {
+            background: green;
+            left: 0px;
+            top: 200px;
+        }
+        100% {
+            background: red;
+            left: 0px;
+            top: 0px;
+        }
+    }
+
+    @-webkit-keyframes animationA {
+        0% {
+            top: 0px;
+            left: 0px;
+        }
+        25% {
+            top: 0px;
+            left: 800px;
+        }
+        50% {
+            left: 800px;
+            top: 600px;
+        }
+        75% {
+            top: 600px;
+            left: 0px;
+        }
+        100% {
+            left: 0px;
+            top: 0px;
+        }
+    }
+</style>
+<style type="text/css">
+    #animated_div {
+        width: 60px;
+        height: 40px;
+        background: #92B901;
+        color: #ffffff;
+        position: relative;
+        font-weight: bold;
+        font: bold 12px '微软雅黑', Verdana, Arial, Helvetica, sans-serif;
+        padding: 20px 10px 0px 10px;
+        border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        -o-border-radius: 5px;
+    }
+
+    @keyframes animated_div {
+        0% {
+            transform: rotate(0deg);
+            left: 0px;
+        }
+        25% {
+            transform: rotate(20deg);
+            left: 0px;
+        }
+        50% {
+            transform: rotate(0deg);
+            left: 500px;
+        }
+        55% {
+            transform: rotate(0deg);
+            left: 500px;
+        }
+        70% {
+            transform: rotate(0deg);
+            left: 500px;
+            background: #1ec7e6;
+        }
+        100% {
+            transform: rotate(-360deg);
+            left: 0px;
+        }
+    }
+
+    @-webkit-keyframes animated_div {
+        0% {
+            -webkit-transform: rotate(0deg);
+            left: 0px;
+        }
+        25% {
+            -webkit-transform: rotate(20deg);
+            left: 0px;
+        }
+        50% {
+            -webkit-transform: rotate(0deg);
+            left: 500px;
+        }
+        55% {
+            -webkit-transform: rotate(0deg);
+            left: 500px;
+        }
+        70% {
+            -webkit-transform: rotate(0deg);
+            left: 500px;
+            background: #1ec7e6;
+        }
+        100% {
+            -webkit-transform: rotate(-360deg);
+            left: 0px;
+        }
+    }
+
+    @-moz-keyframes animated_div {
+        0% {
+            -moz-transform: rotate(0deg);
+            left: 0px;
+        }
+        25% {
+            -moz-transform: rotate(20deg);
+            left: 0px;
+        }
+        50% {
+            -moz-transform: rotate(0deg);
+            left: 500px;
+        }
+        55% {
+            -moz-transform: rotate(0deg);
+            left: 500px;
+        }
+        70% {
+            -moz-transform: rotate(0deg);
+            left: 500px;
+            background: #1ec7e6;
+        }
+        100% {
+            -moz-transform: rotate(-360deg);
+            left: 0px;
+        }
+    }
+
+    @-o-keyframes animated_div {
+        0% {
+            -o-transform: rotate(0deg);
+            left: 0px;
+        }
+        25% {
+            -o-transform: rotate(20deg);
+            left: 0px;
+        }
+        50% {
+            -o-transform: rotate(0deg);
+            left: 500px;
+        }
+        55% {
+            -o-transform: rotate(0deg);
+            left: 500px;
+        }
+        70% {
+            -o-transform: rotate(0deg);
+            left: 500px;
+            background: #1ec7e6;
+        }
+        100% {
+            -o-transform: rotate(-360deg);
+            left: 0px;
+        }
+    }
+</style>
+<script type="text/javascript" src="js/utils.js"></script>
+</head>
+<body>
+<input type="button" value="开始动画" id="StartButton">
+
+<div id="animation"></div>
+<p id="animated_div">CSS3 动画</p>
+<script type="text/javascript">
+    var animation = document.getElementById("animation");
+    var animated_div = document.getElementById("animated_div");
+    var StartButton = document.getElementById("StartButton"), t1;
+    var num = 0;
+    StartButton.addEventListener("click", function () {
+        t1 = +new Date();
+        utils.setStyle(animation, {"animation": "animation 5s ease-in-out 1s 2 alternate"});
+        utils.setStyle(animated_div, {"animation": "animated_div 5s 1"});
+    })
+    utils.prefixedEvent(animation, "AnimationStart", function (event) {
+        console.log('动画开始了，当前经历的时间:' + event.elapsedTime + 's , 经历时间不包括延迟时间：' + (event.timeStamp - t1) / 1000 + 's');
+    });
+    utils.prefixedEvent(animation, "AnimationIteration", function (event) {
+        console.log('动画重复了一次，当前经历的时间:' + event.elapsedTime + 's')
+    });
+    utils.prefixedEvent(animation, "AnimationEnd", function (event) {
+        num++;
+        if (num == 1) {
+            utils.setStyle(animation, {"animation-name": "animationA"});
+        }
+        console.log('动画结束了当前经历的时间:' + event.elapsedTime + 's');
+    });
+</script>
+<!-- 动态创建动画
+<script>
+    window.onload = function () {
+        var token, style, sheet, rule, test;
+        //创建style对象，并获取关联的sheet对象
+        style = document.createElement("style");
+        document.head.appendChild(style);
+        sheet = style.sheet;
+        //创建一个名为test的keyframe（webkit需要前缀）
+        var token = window.WebKitCSSKeyframesRule ? "-webkit-" : "";
+        sheet.insertRule("@" + token + "keyframes test {}", 0);
+        test = sheet.cssRules[0];
+        //循环生成每一帧，并添加进test中
+        for (var i = 0; i <= 100; i++) {
+            //计算玫瑰曲线路径 r=sin(5θ)
+            var θ = Math.PI * 2 * i / 100, r = Math.sin(5 * θ) * 100, x = Math.sin(θ) * r | 0, y = Math.cos(θ) * r | 0;
+            //创建帧（方法有浏览器差异）
+            (test.insertRule || test.appendRule).call(test, i + "% {}");
+            //设置帧样式
+            test.cssRules[i].style.transform = test.cssRules[i].style.WebkitTransform = "translateX(" + x + "px) translateY(" + y + "px)";
+        }
+        ;
+        //生成一组元素，每个间隔20ms
+        for (var l = 50, i = 0; i < l; i++)setTimeout(function () {
+            //创建div并添加基本样式
+            var div = document.createElement("div");
+            document.body.appendChild(div);
+            div.style.width = "20px";
+            div.style.height = "20px"
+            div.style.position = "absolute";
+            div.style.top = "120px";
+            div.style.left = "120px";
+            div.style.background = "#000";
+            div.style.opacity = (1 - this / l) * 0.3; //透明度逐渐降低
+            div.style.borderRadius = "10px";
+            //让div播放test这个动画
+            div.style.animation = div.style.WebkitAnimation = "test 10s linear infinite";
+        }.bind(i), i * 20);
+    };
+</script>
+-->
+</body>
+</html>

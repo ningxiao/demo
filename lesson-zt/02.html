@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>重力与加速度</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			#div1 {width:100px; height:100px; background:red; position:absolute;}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var iSpeedX=2;
+				var iSpeedY=6;
+	            var oDiv=document.getElementById('div1');
+	            var lenl=0;
+	            var lent=0;
+	            var itme = null;
+				setInterval(startMove,30);
+				function startMove(){
+					iSpeedY+=3;
+					lenl = oDiv.offsetLeft+iSpeedX;
+					lent = oDiv.offsetTop+iSpeedY;					
+					if(lent>=document.documentElement.clientHeight -oDiv.offsetHeight){
+						iSpeedY*=-0.8;
+						iSpeedX*=0.8;
+						lent = document.documentElement.clientHeight-oDiv.offsetHeight;
+					}else if(lent<=0){
+						iSpeedY*=-0.8;
+						iSpeedX*=0.8;
+						lent = 0;						
+					}
+					if(lenl>=document.documentElement.clientWidth-oDiv.offsetWidth){
+						iSpeedX*=-0.8;
+						lenl =document.documentElement.clientWidth-oDiv.offsetWidth;
+					}else if(lenl<=0){
+						iSpeedX*=-0.8;
+						lenl = 0;
+					}
+					oDiv.style.left = lenl+'px';
+					oDiv.style.top = lent+'px';
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="div1">
+	</body>
+</html>

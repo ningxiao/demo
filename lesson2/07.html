@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>简易选项卡</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{
+				padding: 0px;
+				margin: 0px;
+				font-size: 12px;
+				font-family: "宋体","Arial Narrow",HELVETICA;
+                line-height: 22px;
+			}
+			#tab{
+				width: 200px;
+				margin: 50px auto;
+			}
+			#menu{ 
+				width:189px; 
+				height:26px;  
+				overflow:hidden; 
+				border-left:1px solid #B1C8D7; 
+				background-color:	#E6EEF7;
+				background-image:	url("images/theme_blue.png");
+				background-repeat:	no-repeat;
+				background-position:	100% -29px;
+			}
+			#menu span{ 
+				width:46px; 
+				height:26px;  
+				border-top:1px solid #B1C8D7; 
+				border-right:1px solid #B1C8D7; 
+				float:left; 
+				display:inline;  
+				text-align:center; 
+				line-height:26px;
+				cursor:pointer;
+			}
+			#menu .active{
+				width:47px; 
+				background:#fff;
+			}			
+			.content{
+				width:170px; 
+				height:138px; 
+				border:1px solid #B1C8D7; 
+				border-top:0;
+				background:#fff;
+				padding: 12px 9px 0;				
+			}
+			.content ul{
+				list-style:none;
+				display: none;
+			}
+			.content ul li{
+				padding-left:12px;
+				line-height:21px;
+				height:21px;
+				background-image:url(images/iconv0.0.7.png);
+				background-repeat:no-repeat;
+				background-position:-124px -82px;
+				overflow:hidden;
+			}
+			.content ul li a,.content ul li a:visited{
+				color:#585858;
+				text-decoration:none;	
+			}
+			.content ul li a:hover{
+				color:#F90;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="tab">
+		  <div id="menu">
+		  	<span class="active">娱乐</span>
+		  	<span>体育</span>
+		  	<span>财经</span>
+		  	<span>历史</span>    
+		  </div>
+		<div class="content" id="panl">
+			<ul style="display:block">
+				<li><a href="javascript:;">张杰"倒立"献唱湖南元宵晚会</a></li>
+				<li><a href="javascript:;">钱学森夫人蒋英病逝 享年92岁</a></li>
+				<li><a href="javascript:;">7岁女孩模仿"小燕子"上吊死亡</a></li>
+				<li><a href="javascript:;">奥巴马夫人穿冠希设计潮鞋(图)</a></li>
+				<li><a href="javascript:;">韩寒父子再向法院递起诉状</a></li>
+				<li><a href="javascript:;">房祖名《宝岛双雄》首拍打戏</a></li>                
+			</ul>
+			<ul>
+				<li><a href="javascript:;">科比28分遭"里程悲" 湖人吞两连败</a></li>
+				<li><a href="javascript:;">霍华德33分14板 魔术加时惜败快船</a></li>
+				<li><a href="javascript:;">法媒曝申花世界第一高薪签德罗巴</a></li>
+				<li><a href="javascript:;">林书豪28+8单节7助攻 尼克斯获胜</a></li>
+				<li><a href="javascript:;">科比生涯总得分超大鲨鱼</a></li>
+				<li><a href="javascript:;">艾弗森或选择加盟波多黎各联赛</a></li>
+			</ul>
+			<ul>
+				<li><a href="javascript:;">重啤罢免董事长议案未通过 97%反对</a></li>
+				<li><a href="javascript:;">沃尔玛集团高管高福澜调任中国CEO</a></li>
+				<li><a href="javascript:;">郭树清履新百日 施政报告大检阅</a></li>
+				<li><a href="javascript:;">中国燃气收购战陷入僵局</a></li>
+				<li><a href="javascript:;">黑龙江完达山乳业厂房被强拆</a></li>
+				<li><a href="javascript:;">财政部4措施解保障房资金压力</a></li>
+			</ul>            
+			<ul>
+				<li><a href="javascript:;">葬谜：水晶棺中冰虫钻入体内</a></li>
+				<li><a href="javascript:;">云贵高原诡事录：食人洞遇险</a></li>
+				<li><a href="javascript:;">诡事辑录:与人打赌喂死人吃饭</a></li>
+				<li><a href="javascript:;">无处可逃：末日危机 丧尸横行</a></li>
+				<li><a href="javascript:;">霸上大律师 江山若卿</a></li>
+				<li><a href="javascript:;">中原第一盗：风水相师觉醒</a></li>
+			</ul>            
+		</div> 
+      </div>
+      <script type="text/javascript" charset="utf-8">
+      window.onload = function(){
+      	var spanlist = document.getElementById('menu').getElementsByTagName('span');
+      	var ullist = document.getElementById('panl').getElementsByTagName('ul');
+      	var clickindex;
+      	for(var i in spanlist){
+      		spanlist[i].className=="active"?clickindex=i:null;
+      		spanlist[i].index = i;
+      		spanlist[i].onmouseover = function(){
+      			spanlist[clickindex].className="";
+      			this.className="active";
+      			ullist[clickindex].style.display="none";
+      			ullist[this.index].style.display="block";
+      			clickindex = this.index;
+      		}
+      	}
+      }
+      </script>
+	</body>
+</html>

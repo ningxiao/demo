@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>index_appendChild</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			#cont{ 
+				height:300px;
+				width:999px;
+				border: solid 1px #00CC33;
+			}
+			ul{
+				display:inline-block;
+				width: 200px;
+				border: solid 1px #FF0000;
+				height: 50px;
+				list-style: none;
+				margin: 5px;
+			}
+			li{
+				margin: 15px auto;
+				padding: 0px;
+				float: left;
+			}
+		</style>
+		<script type="text/javascript">
+		function insertimg(){
+			var imgdiv = document.getElementById('KinSlideshow').getElementsByTagName('a')[1];
+			var imgs = document.createElement("img");
+			imgs.src="http://i3.sinaimg.cn/hs/liumin/bgy/bgy1213/images/f4.jpg";
+			imgs.alt="插入图片";
+			imgs.height = 145;
+			imgs.width = 247;
+			imgs.style.border = 0;
+			
+			var adiv = document.createElement("a");
+			adiv.target="_blank";
+			adiv.href = "http://www.baidu.com";
+			adiv.appendChild(imgs);
+	        document.getElementById('KinSlideshow').insertBefore(adiv,imgdiv);	
+		}
+		function insertdiv(){
+			var btn = document.createElement("input");
+			btn.type="button";
+			btn.value="插入";
+			var div = document.createElement("div");
+			div.innerHTML = "new div";
+			div.style.height="50px"
+			div.style.width="200px";
+			div.style.cssFloat="left";
+			div.style.border="solid 1px red";
+			div.style.margin="5px 5px 5px 5px";
+			div.style.cursor="url(http://mat1.gtimg.com/news/2009hd/arr_right.cur), auto";
+			div.appendChild(btn)
+		    document.getElementById('cont').appendChild(div);	
+		}
+		function deepcopy(){
+			var deeplist = document.getElementById('ullist').cloneNode(true);
+			document.getElementById('cont').appendChild(deeplist);	
+		}
+		function shallowcopy(){
+			var deeplist = document.getElementById('ullist').cloneNode(false);
+			document.getElementById('cont').appendChild(deeplist);	
+		}
+		</script>
+	</head>
+	<body>
+		<input type="button" value="插入图" onclick="insertimg();"/>
+		<input type="button" value="插入div" onclick="insertdiv();"/>
+		<input type="button" value="深复制ul" onclick="deepcopy();"/>
+		<input type="button" value="浅复制ul" onclick="shallowcopy();"/>
+	    <div id="KinSlideshow">
+			<a  href="http://www.lanrentuku.com" target="_blank"><img style="border: 0px" src="http://i3.sinaimg.cn/hs/2011/1215/U6785P62DT20111215133856.jpg " alt="碧桂园十年社区十年情" width="247" height="145" /></a>
+			<a href="http://www.lanrentuku.com" target="_blank"><img style="border: 0px" src="http://i1.sinaimg.cn/hs/liumin/bgy/bgy1213/images/f2.jpg" alt="仲明助学金道义契约" width="247" height="145" /></a>
+			<a href="http://www.lanrentuku.com" target="_blank"><img style="border: 0px" src="http://i2.sinaimg.cn/hs/liumin/bgy/bgy1213/images/f3.jpg" alt="碧桂园寻找国华的孩子" width="247" height="145" /></a>
+			<a href="http://www.lanrentuku.com" target="_blank"><img style="border: 0px" src="http://i3.sinaimg.cn/hs/liumin/bgy/bgy1213/images/f4.jpg" alt="幸福广东研讨峰会" width="247" height="145" /></a>
+		</div>
+		  <div id="cont">
+		  	<div style="float:left; height: 50px; width: 200px; border: 1px solid red; margin: 5px;">new div<input type="button" value="按钮"></div>
+		  	<div style="float:left; height: 50px; width: 200px; border: 1px solid red; margin: 5px;">new div<input type="button" value="按钮"></div>
+		  	<div style="float:left; height: 50px; width: 200px; border: 1px solid red; margin: 5px;">new div<input type="button" value="按钮"></div>
+		  </div>	
+		 <ul id="ullist">
+		 	<li>对象1</li>
+		 	<li>对象2</li>
+		 </ul>
+	</body>
+</html>

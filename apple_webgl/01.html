@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>显示图像</title>
+    <meta name="author" content="Administrator" />
+    <style type="text/css">
+        *{padding: 0;margin: 0}
+        canvas {border: none;}
+        body,html{width: 100%;height: 100%}
+    </style>
+    <script type="text/javascript" src="js/Utils.js"></script>
+    <script type="text/javascript" src="js/matrix4x4.js"></script>
+    <script id="shader-vs" type="x-shader/x-vertex">
+        //定义一个顶点属性,因为我们是2D游戏,所以只有XY,所以我们定义了vec2,后面是2,
+        //的这样一个寄存器,当然你也可以定义vec3，vec4，等等,aVertexPosition是这个寄存器的名称和外部的JS对应的，
+        //一会你会看到代码
+        attribute vec2 aVertexPosition;
+
+        //原理同上定一个2维的UV信息的寄存器，这里也是外部JS传递过来的数据
+        attribute vec2 aTextureUv;
+
+        //插值共享寄存器寄存器，看到前面的定义的类型了吗varying这和上面的attribute不同,attribute一般用于本地数据传递,
+        //varying用于顶点着色器像像素着色器传值,一般就是传UV的插值信息
+        varying vec2 vTextureCoord;
+
+        //正交矩阵,注意了,类型不同了,这里是mat4,也就是4*4的矩阵意思
+        uniform mat4 oRMatrix;
+
+        //执行的代码片段放这里
+        void main(void) {
+        //gl_Position是内置寄存器，它是一个4维的寄存器,但实际上我们的2D游戏只用到了2维,所以我们可以强制转换类型,
+        //把前面2维的寄存器丢进去,因为还有剩下的2维,所以你可以填入默认值,1,1
+        //把矩阵和坐标向量相乘得出了最终的坐标
+        gl_Position =  oRMatrix*vec4(aVertexPosition,1.0,1.0);
+        //这是一个神奇的过程,你看不到插值计算你只要把UV信息给这个寄存去,它传递到像素着色器时再获取就是插值后的坐标了
+        vTextureCoord = aTextureUv;
+        }
+    </script>
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+        //先声明一下寄存去可以使用浮点数
+        precision mediump float;
+
+        //就是这里接受插值计算坐标,和顶点着色器定义一模一样的寄存器
+        varying vec2 vTextureCoord;
+
+        //这里是JS传递过来的纹理数据,也就是原始数据,也就是采样数据
+        uniform sampler2D uSampler;
+
+        //执行的代码片段放这里
+        void main(void) {
+        //我们不是用传递过来的纹理数据直接显示,而是把纹理数据当作采样参数,和UV插值坐标来采样,最终输出到gl_FragColor
+        //这个内置的寄存器,这样像素就最终显示到了我们的画面上
+        gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        }
+    </script>
+</head>
+<body>
+<canvas id="WebGl" width="1024" height="768">
+</canvas>
+<script type="text/javascript">
+    /**
+     * 定义全局的GL句柄
+     */
+    var gl;
+    /**
+     *  定义顶点坐标缓存数组
+     */
+    var vertexPositionBuffer;
+    /**
+     * 定义纹理UV信息缓存
+     */
+    var vertexTextureUvdBuffer;
+    /**
+     *  定义顶点索引缓存
+     */
+    var vertexIndexBuffer;
+    /**
+     * 定义纹理
+     */
+    var newTexture;
+    var list=[{"texture":"img/texture.jpg"},{"luf":"img/luf.png"}],bitmaps={};
+    //正交矩阵
+    var oRMatrixList=[];
+    var ratio=1024/768;
+    /**
+     * 正交视口模型矩阵
+     * @param m 正交的一维数组
+     * @param left 左边界
+     * @param right 右边界
+     * @param bottom 底边界
+     * @param top 上边界
+     * @param near 近截面
+     * @param far 远截面
+     */
+    function orthoM(m,left,right,bottom,top,near,far)
+    {
+        m[0] = 2.0*1.0/(right - left);
+        m[5] = 2.0*1.0/(top - bottom);
+        m[10] = 1.0/(far - near);
+
+        m[12] = (right + left)/(right - left);
+        m[13] = (bottom + top)/(bottom - top);
+        m[14] = near/(near - far);
+
+        m[1] = m[2] = m[3] = m[4] =m[6] = m[7] = m[8] = m[9] = m[11] = 0;
+        m[15] = 1.0;
+    }
+    /**
+     * 初始化顶点信息
+     */
+    function initBuffers(){
+        var ratio=512/768,vertices,textureCoords,vertexIndices;
+        /**********************************************初始化顶点坐标信息*******************************************/
+        vertexPositionBuffer = gl.createBuffer();//向WebGL申请一个缓存数组
+        gl.bindBuffer(gl.ARRAY_BUFFER,vertexPositionBuffer);//将申请缓存数组绑定到WebGL状态机
+        /**
+         * WEBGL中默认坐标点是在屏幕的中心点
+         * 现在我们通过4个顶点坐标定义了一个四角形,所以我们的四角形的宽度和高度是2
+         * 左下角,右下角,右上角,左上角
+         * @type {Array}
+         */
+        vertices = [
+            -1.0,  1.0,//左上角
+            1.0,  1.0,//右上角
+            1.0, -1.0,//右下角
+            -1.0, -1.0//左下角
+        ];
+        for(var i= 0,l=vertices.length;i<l;i++){
+            vertices[i] = vertices[i]*ratio;
+        }
+        /**
+         *  上传这个顶点数据到WEBGL的状态机里(WBEGL是过程式)因为我们上面的操作是已经上传了顶点的缓存数组到状态机
+         *  通过使用参数gl.STATIC_DRAW,告诉告诉状态机,现在上传的是这个缓存数组里的具体参数,参数是浮点数
+         */
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        /**********************************************初始化UV信息*******************************************/
+        vertexTextureUvdBuffer = gl.createBuffer();//申请一个UV的缓存数组
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexTextureUvdBuffer);//将申请缓存数组绑定到WebGL状态机
+        /**
+         * 将UV,1代表原图的最大采样区域,如果我们要显示一个完整的原图,就需要设置各个顶点的UV坐标
+         * 它对应的是顶点坐标,通过设置UV信息着色器会帮我们计算插值坐标
+         * @type {Array}
+         */
+        textureCoords = [
+            0.0, 1.0,//左上角
+            1.0, 1.0,//右上角
+            1.0, 0.0,//右下角
+            0, 0.0//左下角
+        ];
+        /**
+         *  上传这个顶点数据到WEBGL的状态机里(WBEGL是过程式)因为我们上面的操作是已经上传了UV的缓存数组到状态机
+         *  通过使用参数gl.STATIC_DRAW,告诉告诉状态机,现在上传的是这个缓存数组里的具体参数,参数是浮点数
+         */
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW);
+        /**********************************************初始化顶点索引*******************************************/
+        vertexIndexBuffer = gl.createBuffer();//申请一个顶点索引的缓存数组
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);//将申请缓存数组绑定到WebGL状态机
+        /**
+         * 设置顶点绘制的循序,WebGL会根据你的这个循序去渲染你的图像,通常你可以利用这里改变你的图像的排序循序,这里渲染的是
+         * 两个三角形,因为我们是做2D,两个三角形是有两个共享点的
+         * @type {Array}
+         */
+        vertexIndices = [
+            0, 1, 2, 0, 2, 3
+        ];
+        /**
+         *  这里的上传类型改变为长整形了,Uint16Array,这里是一个坑,在其他语言里你上传错误的数据类型不会报错,因为索引ID没有小数
+         */
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(vertexIndices), gl.STATIC_DRAW);
+    }
+    /**
+     * 初始化纹理
+     */
+    function initTexture(weggl,bitmap){
+        var texture = weggl.createTexture(); //申请一个纹理
+        weggl.activeTexture(weggl.TEXTURE0);//开始WEBGL纹理功能,这是一个坑,如果你的程序没有报错,但是不显示图片看看这里有没有开启
+        weggl.bindTexture(weggl.TEXTURE_2D,texture);//将申请纹理绑定到WebGL状态机
+        //缩放的采样模式,这里是设置图像被放大时采样模式,为临近采样模式,这个参数很常用你最好把它封装起来,初始化时方便你
+        weggl.texParameteri(weggl.TEXTURE_2D, weggl.TEXTURE_MIN_FILTER, weggl.LINEAR);
+        //这里是设置缩小时的采样模式,原理同上,
+        weggl.texParameteri(weggl.TEXTURE_2D, weggl.TEXTURE_MAG_FILTER, weggl.LINEAR);
+        weggl.texParameteri(weggl.TEXTURE_2D, weggl.TEXTURE_WRAP_S, weggl.REPEAT);
+        weggl.texParameteri(weggl.TEXTURE_2D, weggl.TEXTURE_WRAP_T, weggl.REPEAT);
+        /**
+         * 核心函数,利用newTexture.image生成纹理,我们实际渲染的不是load进来的图片而是一个纹理,后面的0参数看起来是纹理等级
+         * 的意思,在3D中会有多级纹理,比如1024*1024 512*512 256*256 ...一直到最小,这个操作是方便在远处的贴图以小精度也就是
+         * 等级显示,这样就不需要利用大图缩放而损失画面质量了,不过我们的2D游戏不会用到这个功能,后面的参数看起来是设置图像
+         * 的一些颜色信息,默认吧,默认吧
+         */
+        weggl.pixelStorei(weggl.UNPACK_FLIP_Y_WEBGL, true); // 这个函数之前没见过,看样子你不这样子设置画面会反转,那就这样设置吧
+        weggl.texImage2D(weggl.TEXTURE_2D, 0, weggl.RGBA, weggl.RGBA, weggl.UNSIGNED_BYTE,bitmap);
+        //清空状态机里的纹理,这里只是清除引用而已,不是清除纹理,纹理我们已经经过状态机加工过了
+        weggl.bindTexture(weggl.TEXTURE_2D, null);
+        return texture;
+    }
+    /**
+     * 初始着色器
+     */
+    function initShaders(webgl){
+        //获取顶点着色器
+        var vertexShader = getShader(webgl, "shader-vs");
+        //获取像素着色器
+        var fragmentShader = getShader(webgl, "shader-fs");
+        //创建一个着色器程序
+        shaderProgram = webgl.createProgram();
+        //把顶点着色器上传到这个着色器程序里
+        webgl.attachShader(shaderProgram, vertexShader);
+        //把像素着色器上传到这个着色器程序里
+        webgl.attachShader(shaderProgram, fragmentShader);
+        //链接这个着色器
+        webgl.linkProgram(shaderProgram);
+        var linked = webgl.getProgramParameter(shaderProgram, webgl.LINK_STATUS);
+        //如果你创建失败了,那你又写错代码了
+        if (!linked && !webgl.isContextLost()) {
+            webgl.deleteProgram(shaderProgram);
+            return;
+        }
+        //把这个着色器上传到GPU
+        webgl.useProgram(shaderProgram);
+        //还记得aVertexPosition个寄存器的名称么,这是对应到顶点着色器的,getAttribLocation这句话的意思是,从这个着色器程序里
+        //获得一个叫aVertexPosition的寄存器名称,然后赋值给shaderProgram.vertexPositionAttribute
+        shaderProgram.vertexPositionAttribute = webgl.getAttribLocation(shaderProgram, "aVertexPosition");
+        //绑定这个寄存器属性
+        webgl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+        //原理同上,名称级的要一一对饮
+        shaderProgram.textureCoordAttribute = webgl.getAttribLocation(shaderProgram, "aTextureUv");
+        webgl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+    }
+    /**
+     * 获取着色器
+     * @param gl
+     * @param id
+     * @returns {*}
+     */
+    function getShader(webgl, id){
+        //这里是一系列的JS解析过程,实际上你不这么做直接上传字符串也可以
+        var shaderScript = document.getElementById(id),str="", k,shader;
+        if (!shaderScript) {
+            return null;
+        }
+        k = shaderScript.firstChild;
+        while (k) {
+            if (k.nodeType == 3) {
+                str += k.textContent;
+            }
+            k = k.nextSibling;
+        }
+        if (shaderScript.type == "x-shader/x-fragment") {
+            //根据参数定义不同的着色器类型,这里定义的是像素着色器类型
+            shader = webgl.createShader(webgl.FRAGMENT_SHADER);
+        } else if (shaderScript.type == "x-shader/x-vertex") {
+            //这里定义的是一个顶点着色器类型
+            shader = webgl.createShader(webgl.VERTEX_SHADER);
+        } else {
+            return null;
+        }
+        //绑定着色器字符串到到着色器里
+        webgl.shaderSource(shader, str);
+        //编译这个着色器,就是生成这段程序
+        webgl.compileShader(shader);
+        //如果创建不成功,那就是你写错代码了
+        if (!webgl.getShaderParameter(shader, webgl.COMPILE_STATUS) && !webgl.isContextLost()) {
+            webgl.deleteShader(shader);
+            return null;
+        }
+        //最后返回出这个着色器
+        return shader;
+    }
+    function drawScene() {
+        //清理画面
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        //上传顶点数据到WEBGL的状态机
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexPositionBuffer);
+        //设置顶点着色器接受缓存的数组并且上传到着色器,我们只用了二维,所以是2,类型为浮点数,flase是不需要转换为单位向量,这个
+        //矩阵会用到,或者是法线贴图的数据,现在用不到,后面是开始位置和间隔位置,实际上你可以在一个缓存数组里放所有的信息
+        //这样理论上会节省空间和提升效率,但我在其他平台上测试,分开的优势比较大,WEBGL的还没有测试过,现在默认是0,0
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute,2, gl.FLOAT, false, 0, 0);
+        //同上理,上传UV信息到WEBGL状态机
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexTextureUvdBuffer);
+        //同上理
+        gl.vertexAttribPointer(shaderProgram.textureCoordAttribute,2, gl.FLOAT, false, 0, 0);
+        //上传纹理信息到WBEGL状态机
+        gl.bindTexture(gl.TEXTURE_2D, newTexture);
+        //这里是一个坑,因为是面向过程的,循序不能错,把纹理上传到WEBGL状态机后,要紧接着上传到着色器,uSampler是和像素着色器对应
+        //好的寄存器名称,后面的参数,没见过,默认吧,默认吧,
+        gl.uniform1i(gl.getUniformLocation(shaderProgram,"uSampler"), 0);
+        /**
+         *第一个参数我们把刚才初始化的一维数组传递进来,第二个参数是左右的缩放的系数,通常我们使用场景的高度为确定值,宽度则
+         *是利用场景的宽度/高度这样的系数动态改变,通常的参数分为左边和右边,后面的-1,1是高度比,上面和下面,这里有一个小技巧
+         *你可以同时给这4个参数加上一个值来做镜头的移动,最后2个参数是近截面和远截面,什么意思呢?因为我们人类观察物体是有一
+         *个盲区的,比如,你可以把你的手机近距离的靠近你的眼睛,这时候你是看不清楚手机的,你甚至无法分辨它是一个手机还是一个
+         *其他的物体,并且会产生重影,如果你把手机放远了看,你一样是看不清,所以我们人类观察任何物体都是在离人眼一定距离和范
+         *围之内的,在3D中,小于这个范围的为了节省性能会被删除掉不显示,远了也一样,否则显示器不像人眼,你永远无法让你的手机
+         *无限的靠近你的眼球,因为你有鼻梁,有骨骼,而在显示器里则会无限制的放大,但其实这是无意义的,所以你在玩某个3D游戏穿
+         *越某个物体时它在一定的距离后会消失不见就是这个原因.
+         **/
+        orthoM(oRMatrixList,-ratio,ratio,-1,1, -10, 1000);
+
+        //上传正交矩阵,先在着色器中查询对应的矩阵寄存器名称然后把结果上传,后面的参数是否转置矩阵,默认吧,最后的参数是接受
+        //一个一维数组,也就是我们计算4*4的矩阵,长度为16的一维数组
+        gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "oRMatrix"),false,oRMatrixList);
+
+        //上传顶点索引到WBEGL状态机
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vertexIndexBuffer);
+        //通过刚上传的顶点索引绘制三角形,一共有6个顶点,类型为整形,间隔为0
+        gl.drawElements(gl.TRIANGLES,6, gl.UNSIGNED_SHORT, 0);
+        //循环调用
+
+        requestAnimationFrame(drawScene);
+    }
+    /**
+     * 加载图片完毕初始化WebGL和画布
+     */
+    flash.utils.queueImg(list,bitmaps, function () {
+        var canvas = document.getElementById("WebGl");
+        gl  = flash.utils.create3DContext(canvas);
+        if(gl) {
+            initBuffers();//初始化顶点数据缓存
+            newTexture = initTexture(gl,bitmaps["luf"]);//初始化纹理
+            initShaders(gl);//初始化着色器
+            drawScene();//游戏循环渲染
+        }else{
+            console.log("创建WebGL失败!");
+        }
+    })
+</script>
+</body>
+</html>

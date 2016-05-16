@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>MVC测试</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+		<script type="text/javascript" src="js/Util.js"></script>		
+		<script type="text/javascript" src="js/CustomType.js"></script>
+		<script type="text/javascript" src="js/DispatchFu.js"></script>		
+		<script type="text/javascript" src="js/Mode.js"></script>
+		<script type="text/javascript" src="js/Controller.js"></script>
+		<script type="text/javascript" src="js/View.js"></script>
+		<script type="text/javascript">
+	    var viewdata = {name:"宁肖",sex:"男"};
+		window.onload = function(){
+			Controller.addEvent(CustomType.Getdata,Tools.getdata);//取得数据
+			Controller.addEvent(CustomType.Setdata,Tools.setdata);//设置数据
+			for (var i=0; i < 10; i++) {
+				AMode.add(viewdata);
+			};			
+		}
+		function getdata(){
+			 Controller.dispatchEvent(CustomType.Getdata);
+		};	
+	    function setdata(){
+	    	   viewdata  = {name:document.getElementById("nametx").value,sex:document.getElementById("agetx").value};
+			   Controller.dispatchEvent(CustomType.Setdata,viewdata);
+		};				
+		</script>
+	</head>
+	<body>
+		<label>姓名:<input id="nametx" type="text"/></label><br />
+		<label>年龄:<input id="agetx" type="text" /></label><br />
+        <input type="button" value="取得数据" onclick="getdata();" />			
+        <input type="button" value="添加数据" onclick="setdata();" />		
+	</body>
+</html>

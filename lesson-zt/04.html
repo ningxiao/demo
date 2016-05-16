@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>MvcJs</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript" src="js/customEvent.js"></script>
+		<script type="text/javascript" src="js/mode.js"></script>
+		<script type="text/javascript" src="js/tools.js"></script>
+		<script type="text/javascript">
+		window.onload = function(){
+			Mode.addEvent(EventType.CLICK,Tools.myClick);
+			Mode.addEvent(EventType.CLICK,Tools.myDclick);
+		}
+		function postjs(){
+			Mode.dispatchEvent(EventType.CLICK,[1,2]);
+		}
+		</script>
+		<style type="text/css">
+			#mydiv{
+			    background-image: url("img/T14b15Xb4nXXXXXXXX-20-140.png");
+			    background-position: 0 0;
+			    background-repeat: no-repeat;
+			    border:#FCDFBE solid 1px;
+			    color: #3E3E3E;
+			    height: 18px;
+			    margin-bottom: 4px;
+			    margin-top: 3px;
+			    padding-left: 31px;
+			    padding-top: 6px;
+			    width: 144px;
+			}
+		</style>			
+	</head>
+	<body>
+		<input type="button" value="模拟后台响应" onclick="postjs();" />	
+		<div id="mydiv"></div>
+	</body>
+</html>

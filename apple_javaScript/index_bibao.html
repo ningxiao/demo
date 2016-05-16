@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>javascript闭包</title>
+		<meta name="author" content="leju" />
+		<script  type="text/javascript" src="js/ads.js"></script>			
+		<script type="text/javascript" src="js/index.js"></script>	
+		<script type="text/javascript" src="js/mode.js"></script>	
+		<style type="text/css">
+			*{
+				padding: 0px;
+				margin: 0px;
+				font-size: 12px;
+				font-family: "宋体","Arial Narrow",HELVETICA;
+                line-height: 22px;
+			}
+			#pradiv{
+				width:400px;
+				height:400px;
+				margin: 30px auto;
+				background-color:#E6EEF7;
+			}
+		</style>
+		<script type="text/javascript">
+		    var i=0;
+			window.onload = function(){
+				var inputdiv = document.getElementById('pradiv');
+				function createFunctions(){
+					var result = new Array();
+					for(i=0;i<10;i++){
+						result[i] = function(num){
+							return function(){
+								return num;
+							}
+						}(i);/**闭包函数调用**/
+					}
+					return result;
+				}
+				var funcs = createFunctions();
+				var inpt ='';
+				for(i=0;i<funcs.length;i++){
+					inpt+=funcs[i]();
+				}
+				inputdiv.innerHTML = inpt;
+				function getbutid(){
+					var btn = document.getElementById('inputbutton');
+					btn.onclick = function(){
+						alert(this.id);
+					}
+					btn = null;
+				}
+				getbutid();
+			}
+			ads.fp('马晓伟');
+			var person = new Person("开始测试私有封装");
+			alert(person.getName());
+			person.setName("修改数据封装内容");
+			alert(person.getName());
+			var pe = new Person("宁肖");
+			alert(person.getName()+"*-*"+pe.getName()+"--"+person.thname);
+		</script>
+	</head>
+	<body>
+		<input type="button" value="闭包垃圾回收" id="inputbutton">
+		<div id="pradiv"></div>	
+	</body>
+</html>

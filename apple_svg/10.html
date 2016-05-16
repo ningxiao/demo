@@ -1,0 +1,63 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+        <title>SVG的transform实例</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+            }
+            svg {
+                width: 1000px;
+                height: 600px;
+            }                  
+        </style>
+    </head>
+    <body>
+        <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-200.5 -100.5 1000 600">
+            <defs>
+                <g id="coord">
+                    <line x1="0" y1="0" x2="300" y2="0"/>
+                    <line x1="0" y1="0" x2="0" y2="300"/>
+                    <circle cx="0" cy="0" r="2"/>
+                    <circle cx="100" cy="0" r="2"/>
+                    <circle cx="200" cy="0" r="2"/>
+                    <circle cx="0" cy="100" r="2"/>
+                    <circle cx="0" cy="200" r="2"/>
+                </g>
+            </defs>
+            <text fill="red" x="5" y="-15">点击执行transform</text>
+            <use xlink:href="#coord" stroke="black" fill="black"/>
+            <text fill="black" x="5" y="20">参考</text>
+            <g id="a" stroke="red" fill="red">
+                <use xlink:href="#coord"/>
+                <text x="5" y="20">位移</text>
+                <g id="b" stroke="blue" fill="blue">
+                    <use xlink:href="#coord"/>
+                    <text x="5" y="20">旋转</text>
+                    <g id="c" stroke="green" fill="green">
+                        <use xlink:href="#coord"/>
+                        <text x="5" y="20">缩放</text>                
+                    </g>                                    
+                </g>                                
+            </g>
+        </svg>
+        <script type="text/javascript">
+            var sum = 10,svg = document.getElementById("svg");
+            svg.addEventListener("click", function(event){
+                var ga = document.getElementById("a");
+                var gb = document.getElementById("b");
+                var gc = document.getElementById("c");
+                ga.setAttribute("transform","translate(100, 100)");
+                gb.setAttribute("transform","rotate(45)");
+                gc.setAttribute("transform","rotate(-45) translate(100, 100) scale(1.5, 1.5)");
+            });
+        </script>
+    </body>
+</html>

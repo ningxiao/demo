@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>贪吃蛇</title>
+    <meta name="author" content="ningxiao"/>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body{
+        	width: 100%;
+        	height: 100%;
+        }
+        #myCanvas {
+            border: solid 4px #f31f32;
+            background-color: #111;
+            color: #CCC;
+        }
+
+        input {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div style="margin: 0 auto;width: 320px;height: 500px;">
+    <div style="left: 70px;position: relative;bottom: 5px;">上下左右键控制蛇的方向</div>
+    <canvas id="myCanvas" width="320" height="320">
+        你的浏览器不支持html5.
+    </canvas>
+    <div style="left: 80px;position: relative;">
+        <input id="btnStart" type="button" value="开始游戏"/>
+        <input id="btnReset" disabled="disabled" type="button" value="重新开始"/>
+    </div>
+</div>
+<script type="text/javascript">
+    var direction = "right";
+    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+        setTimeout(callback, 1000 / 60);
+    };
+    var start = false;
+    var positions = [
+        {x: 0, y: 0},
+        {x: 1, y: 0},
+        {x: 2, y: 0}
+    ];
+    var foodPositions = {
+        x: -1,
+        y: -1
+    };
+    var timers = 0;
+    var posLen = positions.length;
+    var btnStart = document.getElementById("btnStart");
+    var btnReset = document.getElementById("btnReset");
+    var can = document.getElementById("myCanvas");
+    var cxt = can.getContext("2d");
+    var height = 8;
+    var width = 8;
+    var gameOver = false;
+    var hax = null;
+    var wei = null;
+    btnStart.onclick = function () {
+        start = true;
+        btnReset.disabled = false;
+        startDraw();  
+        btnStart.disabled = true;
+        btnStart.blur();
+    }
+    function btnReset_click(){
+        cxt.clearRect(0, 0, 320, 320);
+        btnReset.disabled = true;
+        btnStart.disabled = false;
+        positions = [
+            {x: 0, y: 0},
+            {x: 1, y: 0},
+            {x: 2, y: 0}
+        ];
+        direction = "right";
+        posLen = positions.length;
+        gameOver = false;
+        start = false;
+        btnReset.blur();
+    }
+    btnReset.onclick = btnReset_click;
+    function randomColor() {
+        var arrHex = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
+        var strHex = "#";
+        var index;
+        for (var i = 0; i < 6; i++) {
+            index = Math.round(Math.random() * 15);
+            strHex += arrHex[index];
+        }
+        return strHex;
+    }
+    function drawSnakeAndFood(p) {
+        if (foodPositions.x == -1 && foodPositions.y == -1) {
+            foodPositions.x = Math.random() * 40 | 0;
+            foodPositions.y = Math.random() * 40 | 0;
+        }
+        cxt.fillStyle = randomColor();
+        cxt.fillRect(foodPositions.x * width, foodPositions.y * height, height, width);
+        cxt.fillStyle = "#FFFFFF";
+        for (var i = p.length - 1; i >= 0; i--) {
+            cxt.fillRect(p[i].x * width, p[i].y * height, height, width);
+        }
+    }
+    document.onkeydown = function (event) {
+        if (event.keyCode == 37 && direction !== "right") {
+            direction = "left";
+        }
+        if (event.keyCode == 38 && direction !== "down") {
+            direction = "up"
+        }
+        if (event.keyCode == 39 && direction !== "left") {
+            direction = "right"
+        }
+        if (event.keyCode == 40 && direction !== "up") {
+            direction = "down"
+        }
+        event.preventDefault();
+    }
+    function drawGameOver() {
+        cxt.fillStyle = '#FFF';
+        cxt.font = '30px Arial';
+        cxt.fillText('Game Over!', 80, 160);
+    }
+    function huiSe() {
+        var x,y;
+        wei = positions[posLen - 1];
+        if (direction == "right") {
+            x = wei.x + 1;
+            y = wei.y;
+        }
+        if (direction == "left") {
+            x = wei.x - 1;
+            y = wei.y;
+        }
+        if (direction == "up") {
+            x = wei.x;
+            y = wei.y - 1;
+        }
+        if (direction == "down") {
+            x = wei.x;
+            y = wei.y + 1;
+        }
+        if (x == foodPositions.x && y == foodPositions.y) {
+            foodPositions.x = -1;
+            foodPositions.y = -1;
+            positions.push({x:x,y:y});
+            posLen = positions.length;
+        }else{
+            hax = positions[0];
+            hax.x = x;
+            hax.y = y;
+            for (var i = 0, len = posLen - 1; i < len; i++) {
+                positions[i] = positions[i + 1];
+            }
+            positions[len] = hax;
+        }
+        if (x < 0 || x > 39 || y < 0 || y > 39) {
+            gameOver = true;
+        }
+    }
+    function startDraw() {
+        if (start) {
+            timers++;
+            if(timers>6){
+                cxt.clearRect(0, 0, 320, 320);
+                huiSe();
+                drawSnakeAndFood(positions);
+                if (gameOver) {
+                    btnReset_click();
+                    drawGameOver();
+                }
+                timers=0;
+            }
+            requestAnimationFrame(startDraw);
+        }
+    }
+</script>
+</body>
+</html>
+

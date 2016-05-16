@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>CSS3 边框</title>
+    <meta name="author" content="baofeng"/>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        .test {
+            width: 200px;
+            height: 200px;
+            float: left;
+            margin: 10px;
+            padding: 10px;
+        }
+
+        .radius {
+            border: #0000CC solid 5px;
+            border-radius: 20px;
+            -webkit-border-radius: 20px;
+            -moz-border-radius: 20px;
+            -o-border-radius: 20px;
+        }
+        .shadow{
+            background-color: #fffc0e;
+            box-shadow: 10px 10px 5px #888888;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div class="test radius">
+        css3 border-radius: 20px 圆角
+    </div>
+    <div class="test shadow">
+        css3 box-shadow: 10px 10px 5px #888888; 阴影
+    </div>
+</div>
+</body>
+</html>

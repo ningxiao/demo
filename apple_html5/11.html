@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>读取操作二进制</title>
+    <meta name="author" content="Administrator" />
+    <script type="text/javascript">
+        function ab2str(buf) {
+            return String.fromCharCode.apply(null, new Uint16Array(buf));
+        }
+        function str2ab(str) {
+            var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+            var bufView = new Uint16Array(buf);
+            for (var i=0, strLen=str.length; i<strLen; i++) {
+                bufView[i] = str.charCodeAt(i);
+            }
+            return buf;
+        }
+        window.onload = function(){
+            var result = document.getElementById('result');
+            var file = document.getElementById('file');
+            var imgdata ,byteArray ,readText ,docuobj=document;
+            if(typeof FileReader == 'undefined'){
+                result.innerHTML = "<p>抱歉,您的浏览器不支持FileReader<\/p>";
+                //fileshow.setAttribute('disabled','disabled');
+                return;
+            }else{
+                imgdata = docuobj.getElementById('imgdata');
+                byteArray = docuobj.getElementById('byteArray');
+                readText = docuobj.getElementById('readText');
+                /**读取img图片文件*/
+                file.onchange = addImage
+                byteArray.onclick = function(){
+                    var file = docuobj.getElementById('file').files[0];
+                    var reader = new FileReader();
+                    var test =  new FileReader();
+                    /** 动态分割文件大小 */
+                    var blob = file.slice(0, 4);
+                    test.onload = function(){
+                        console.log("测试文件类型:"+this.result);
+                    }
+                    test.readAsBinaryString(blob);
+                    /** 二进制*/
+                    reader.readAsArrayBuffer(file);
+                    reader.onload = function(){
+                        var buffer = this.result,len = buffer.byteLength,size = len-4;
+                        console.log("文件长度: "+len);
+                        var dataview = new DataView(buffer,size);
+                        console.log("追加分割长度: "+dataview.getInt32(0));
+                        dataview = new DataView(buffer,0,4);
+                        var ints = new Uint8Array(dataview.byteLength);
+                        for (var i = 0; i < ints.length; i++) {
+                            ints[i] = dataview.getUint8(i);
+                        }
+                        console.log("图片类型："+String.fromCharCode.apply(null, ints));
+                        dataview = new DataView(buffer,8,4);
+                        console.log("IHDR头块长为:"+dataview.getInt32(0));
+                        dataview = new DataView(buffer,16,4);
+                        console.log("宽度："+dataview.getInt32(0));
+                        dataview = new DataView(buffer,20,4);
+                        console.log("高度："+dataview.getInt32(0));
+                    }
+                    /** 二进制转为string*/
+                    /**
+                     reader.readAsBinaryString(file);
+                     reader.onload = function(){
+				    		result.innerHTML = this.result;
+				    	}
+                     */
+                }
+                readText.onclick = function(){
+                    var file=docuobj.getElementById('file').files[0];
+                    var reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = function(){
+                        result.innerHTML = this.result;
+                    }
+                }
+            }
+            document.addEventListener("dragover", function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }, false);
+            document.addEventListener("dragleave", function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }, false);
+            document.addEventListener("drop",addImage, false);}
+        //文件拖放
+        function addImage(event) {
+            var ctx = document.getElementById('canvas').getContext('2d');
+            event.stopPropagation();
+            event.preventDefault();
+            var file = event.target.files || event.dataTransfer.files;
+            var len = file.length;
+            for(var i=0;i<len;i++){
+                var files = file[i];
+                if(!/image\/\w+/.test(files.type)){
+                    alert('请确保文件类型为图片类型!');
+                    return false;
+                }
+                console.log(files);
+                var reader = new FileReader();
+                console.log(reader);
+                reader.readAsDataURL(files);
+                /**加载文件完成以后读取data数据*/
+                reader.onload = function(){
+                    var img = new Image();
+                    img.src = this.result;
+                    ctx.drawImage(img,400,300,50,50,0,0,200,200);
+                    document.body.appendChild(img);
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<label>请选择一个文件：</label>
+<input type="file" id="file" multiple="multiple" />
+<input type="button" value="取得图片" id="imgdata" />
+<input type="button" value="读取二进制文件" id="byteArray"/>
+<input type="button" value="读取文件" id="readText" />
+<div id="result">
+    <!-- 这里显示读取结果-->
+</div>
+<canvas id="canvas" width="200" height="200">
+    <p class="noCanvas">You need a <a href="http://www.google.com/chrome">modern browser</a> to view this.</p>
+</canvas>
+</body>
+</html>

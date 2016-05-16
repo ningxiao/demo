@@ -1,0 +1,188 @@
+<html lang="en">
+<head>
+<title>JavaScript Patterns</title>
+<meta charset="utf-8"/>
+	<style>
+		img {float: left;padding-right: 7px;}
+		div {padding: 7px;border: 1px solid #ccc;background: #eee;width: 400px;}
+		h2 {margin: 0;}
+		span {text-decoration: underline;cursor: pointer;}
+		body {padding: 21px;font-size: 105%;font-family: Helvetica;}
+		input {margin-right: 7px;}
+		a {color: blue;}
+	</style>
+</head>
+<body>
+	<h1>Dave Matthews vids</h1>
+	<p><span id="toggle-all">Toggle Checked</span></p>
+	<ol id="vids">
+		<li><input type="checkbox" checked><a href="http://new.music.yahoo.com/videos/--2158073">Gravedigger</a></li>
+		<li><input type="checkbox" checked><a href="http://new.music.yahoo.com/videos/--4472739">Save Me</a></li>
+		<li><input type="checkbox" checked><a href="http://new.music.yahoo.com/videos/--45286339">Crush</a></li>
+		<li><input type="checkbox" checked><a href="http://new.music.yahoo.com/videos/--2144530">Don't Drink TheWater</a></li>
+		<li><input type="checkbox" checked><a href="http://new.music.yahoo.com/videos/--217241800">Funny the Way ItIs</a></li>
+		<li><input type="checkbox" checked><a href="http://new.music.yahoo.com/videos/--2144532">What Would You Say</a></li>
+	</ol>
+<script>
+    /**根据ID选择元素*/
+	var $ = function (id) {
+		return document.getElementById(id);
+	};
+	var http = {/**远程数据请求执行*/
+		makeRequest:function (ids, callback) {
+			var url = 'http://query.yahooapis.com/v1/public/yql?q=',
+			sql = 'select * from music.video.id where ids IN ("%ID%")',
+			format = "format=json",
+			handler = "callback=" + callback,
+			script = document.createElement('script');
+			script.type = "text/javascript";
+			sql = sql.replace('%ID%', ids.join('","'));/**一次取得所有视频的信息*/
+			sql = encodeURIComponent(sql);/**URI 组件进行编码。*/
+			
+			url += sql + '&' + format + '&' + handler;
+			if(script.readyState){
+				script.onreadystatechange = function(){
+				   if(script.readyState == "loaded" ||script.readyState == "complete"){
+				   	   this.parentNode.removeChild(this);
+					    script.onreadystatechange = null;
+					}	
+				}
+			}else{
+				script.onload=function(){
+					this.parentNode.removeChild(this);
+					script.onload=null;
+				}
+			}
+			script.src = url;
+			document.body.appendChild(script);
+		}
+	};
+	var proxy = {
+		ids:[],
+		delay:50,
+		timeout:null,
+		callback:null,
+		context:null,
+		makeRequest:function (id, callback, context) {/**执行数据调用*/
+			this.ids.push(id);
+			this.callback = callback;
+			this.context = context;
+			if (!this.timeout) {/**检测是否还在调用*/
+				this.timeout = setTimeout(function () {
+					proxy.flush();
+				},this.delay);
+			}
+		},
+		flush:function () {/**没有其他地方使用调用jsop*/
+			http.makeRequest(this.ids, 'proxy.handler');
+			this.timeout = null;
+			this.ids = [];
+		},
+		handler:function (data) {/**jsopq取得数据完毕以后执行回调*/
+			var i, max;
+			if (parseInt(data.query.count, 10) === 1) {
+				/**执行处理完数据的回调*/
+				proxy.callback.call(proxy.context, data.query.results.Video);
+				return false;
+			}
+			for (i = 0, max = data.query.results.Video.length; i < max; i += 1) {
+				proxy.callback.call(proxy.context, data.query.results.Video[i]);
+			}
+		}
+	};
+	
+	var videos = {
+		getPlayer:function (id) {/***插入播放视频html页面*/
+			return ""+	
+			"<object height='255' width='400' type='application/x-shockwave-flash' codebase='http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7' classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' id='uvp_fop'>"
+				+"<param value='http://d.yimg.com/m/up/fop/embedflv/swf/fop.swf' name='movie'>"
+				+"<param value='high' name='quality'>"
+				+"<param value='true' name='allowFullScreen'>"
+				+"<param value='id=v"+ id + "&amp;eID=1301797&amp;lang=us&amp;enableFullScreen=0&amp;shareEnable=1' name='flashVars'>"
+				+"<param value='transparent' name='wmode'>"
+				+"<param value='always' name='allowscriptaccess'>"
+				+"<embed height='255' width='400' type='application/x-shockwave-flash' flashvars='id=v"+ id + "&amp;eID=1301797&amp;lang=us&amp;enableFullScreen=0&amp;shareEnable=1' allowscriptaccess='always' allowscriptaccess='true' wmode='transparent' pluginspage='http://www.macromedia.com/go/getflashplayer' quality='high' src='http://d.yimg.com/m/up/fop/embedflv/swf/fop.swf' id='uvp_fop'>"
+			+"<\/object>"
+		},
+		updateList:function (data) {/**取得数据执行回调生成数据*/
+			var id,
+			html = '',
+			info;
+			if (data.query) {
+				data = data.query.results.Video;
+			}
+			id = data.id;
+			html += '<img src="' + data.Image[0].url + '" width="50" \/>';
+			html += '<h2>' + data.title + '<\/h2>';
+			html += '<p>' + data.copyrightYear + ', ' + data.label + '<\/p>';
+			if (data.Album) {
+				html += '<p>Album: ' + data.Album.Release.title + ', ' + data.Album.Release.releaseYear + '<br \/>';
+			}
+			html += '<p><a class="play" href="http://new.music.yahoo.com/videos/--' + id + '">&raquo; play<\/a><\/p>';
+			info = document.createElement('div');
+			info.id = "info" + id;
+			info.innerHTML = html;
+			$('v' + id).appendChild(info);
+		},
+		getInfo:function (id) {
+			var info = $('info' + id);
+			if (!info) {/**如果父亲id没有添加过视频证明是第一次点击派发代理隐藏*/
+				proxy.makeRequest(id, videos.updateList, videos);/**并且创建DIV*/
+				return false;
+			}
+			if (info.style.display === "none") {
+				info.style.display = '';
+			} else {
+				info.style.display = 'none';
+			}
+		}
+	};
+	
+	/**事件代理*/
+	$('vids').onclick = function (e) {
+		var src, id, box;
+		e = e || window.event;
+		src = e.target || e.srcElement;
+		box = src.previousSibling ||src.previousElementSibling;
+		if(box!=null && !box.checked){
+			box.checked=true;	
+		}
+		if (src.nodeName.toUpperCase() !== "A") {/**取得如果点击对象节点不为a标签转为大写并且不执行*/
+			return;
+		};
+		if (typeof e.preventDefault === "function") {/**阻止默认事件执行*/
+			e.preventDefault();
+		};
+		e.returnValue = false;
+		id = src.href.split('--')[1];/**取得视频ID进行*/
+		if (src.className === "play") {
+			try{	
+			  	src.parentNode.innerHTML = videos.getPlayer(id);/**插入播放html代码*/
+			}catch(e)
+			{
+			    alert(e.message);
+			}				
+			return false;
+		};
+		src.parentNode.id = "v" + id;/**给视频播放的父亲节点添加id*/
+		videos.getInfo(id);
+	};
+	
+	$('toggle-all').onclick = function (e) {
+		var hrefs,i,max,id=[];
+		hrefs = $('vids').getElementsByTagName('a');
+		for (i = 0, max = hrefs.length; i < max; i += 1) {/**当已经选过和不需要选择的排查在外*/
+			if (hrefs[i].className === "play") {
+				continue;
+			}
+			if (!hrefs[i].parentNode.firstChild.checked) {
+				continue;
+			}
+			id = hrefs[i].href.split('--')[1];
+			hrefs[i].parentNode.id = "v" + id;
+			videos.getInfo(id);				
+		}
+	};
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>瀑布流</title>
+<style>
+#container{position: relative;}
+#container div{background:red;position:absolute;color:black;font-size:24px;}
+</style>
+<script type="text/javascript">
+/**整体高度数组*/
+	var list=createArray(90);
+	/**间隔*/
+	var MARGIN=10;
+	/**图片的宽度*/
+	var WIDTH=225;
+	/**定义的列数*/
+	var COW=0;
+	/**父级容器*/
+	var container=null;
+	var topHeight;
+	var divList=[];
+	function createArray(num){
+		var temp=[];
+		for(var i=0;i<num;i++){
+			temp.push(Math.floor(Math.random()*300+50));
+		}
+		return temp;
+	}
+	window.onload=function(){
+		refresh();
+		initData();
+		window.onresize=function(){
+			refresh();
+			for(var i=0;i<divList.length;i++){
+				setPostion(divList[i],divList[i].offsetHeight);
+			}
+		}	
+	}
+	function refresh(){
+		container=document.getElementById("container");
+		COW=Math.floor(container.offsetWidth/WIDTH);
+		topHeight=[];
+		for(var i=0;i<COW;i++){
+			topHeight.push({left:i,"top":0});
+		}
+	}
+	function initData(){
+		for(var i=0;i<list.length;i++){
+			createDiv(list[i],i);
+		}
+	}
+	function createDiv(height,index){
+		var div=document.createElement("div");
+		div.style.width=WIDTH+"px";
+		div.style.height=height+"px";
+		div.innerHTML=index;
+		container.appendChild(div);
+		divList.push(div);
+		setPostion(div,height);
+	}
+	function setPostion(div,height){
+		var temp=flowData(height);
+		div.style.left=temp.left*(WIDTH+MARGIN)+"px";
+		div.style.top=temp.top+"px";
+	}
+	function flowData(height){
+		var temp=Number.MAX_VALUE;
+		var index=0;
+		for(var j=0;j<topHeight.length;j++){
+			if(temp>topHeight[j].top){
+				temp = topHeight[j].top;
+				index=j;
+			}
+		}
+		topHeight[index].top=topHeight[index].top+height+MARGIN;
+		var obj={};
+		obj.top=temp;
+		obj.left=index;
+		return obj; 
+	}
+	function trace(str){
+		console.log(str);
+	}
+</script>
+</head>
+<body>
+	<div id="container">
+	</div>
+</body>
+</html>

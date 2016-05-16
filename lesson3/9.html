@@ -1,0 +1,75 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta property="qc:admins" content="2440032737651176637572013"/>
+    <title>js 调用监听CSS3 过渡动画</title>
+    <style type="text/css">
+        .box {
+            width: 100px;
+            height: 100px;
+            background: hotpink;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .change-size {
+            width: 300px;
+            height: 300px;
+        }
+
+        #foo {
+            width: 50px;
+            height: 50px;
+            background: #c00;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+    <script type="text/javascript" src="js/utils.js"></script>
+</head>
+<body>
+<input type="button" id="button" value="点击我查看下面box的变化"/>
+<div id="box" class="box"></div>
+<div id="foo"></div>
+<script type="text/javascript">
+    var button = document.getElementById('button'), box = document.getElementById('box'), sum = 0;
+    var foo = document.getElementById('foo'),anima;
+    var animation = [
+        [4, {"left": "200px", "top": "200px", "width": "100px", "height": "100px"}],
+        [2, {"left": "0px", "top": "0px","transition-duration": "1s"}],
+        [1, {"top": "200px"}],
+        [1, {"left": "200px"}],
+        [1, {"top": "0px"}],
+        [1, {"left": "0px"}]
+    ];
+    var len = 2;
+    button.addEventListener('click', function (event) {
+        utils.setStyle(box, {"transition": "all 0.5s"});
+        box.classList.add("change-size");
+        if (event.stopPropagation) {
+            event.cancelBubble = true;
+        } else if (event) {
+            event.stopPropagation();
+        }
+    });
+    document.addEventListener('click', function (ev) {
+        foo.style.left = (ev.clientX - 25) + 'px';
+        foo.style.top = (ev.clientY - 25) + 'px';
+    }, false);
+    utils.setStyle(foo, {"border-radius": "50px", "transition": "all 1s"});
+    utils.prefixedEvent(box, "TransitionEnd", function (event) {
+        sum++;
+        if (sum == len) {
+            anima = animation.shift();
+            if (anima) {
+                len = anima[0];
+                utils.setStyle(box, anima[1]);
+            }
+            sum = 0;
+        }
+    });
+</script>
+</body>
+</html>

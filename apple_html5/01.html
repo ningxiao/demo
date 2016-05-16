@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>html5的选择器测试</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{
+				margin: 0px;
+				padding: 0px;
+			 }
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var divobj = $('#mydiv');
+				var butList = document.getElementsByName('button');
+				divobj.innerHTML = '当前元素可见宽度:'+divobj.offsetWidth+'px'+butList.length;
+			}
+			function $(vArg){
+				var docuobj = document;
+				switch(typeof vArg){
+					case'string':
+					switch(vArg.charAt(0)){
+						case'#':
+						return docuobj.querySelector?docuobj.querySelector(vArg):docuobj.getElementById(vArg.substring(1));
+						break;
+						default:
+						var arr=docuobj.getElementsByTagName(vArg);
+					    this.elements=arr;
+					}
+					break;
+					case'object':
+						return vArg;
+					break;
+				}
+			}
+			function mergeNum (){
+				var arr = [3,4,3,7,9,1,5,2,5,7,8,2,1];
+				var index = null;
+				for(var i=arr.length-1,temp={};i>=0;i--){
+					index = arr[i];
+					if(!temp[index]){
+						temp[index]=i;
+					}else{
+					    arr.splice(i,1);
+					}
+				}
+				alert(arr);
+			}
+			mergeNum();
+		</script>
+	</head>
+	<body>
+		<div id="mydiv" style="border:solid 2px #FF0000;margin: 40px auto; width: 400px;height: 100px"></div>
+		<input type="button" name="button" value="按钮A" />
+		<input type="button" name="button" value="按钮B" />
+		<input type="button"  value="按钮C" />
+		<input type="button"  value="按钮D" />
+	</body>
+</html>

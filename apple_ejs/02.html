@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>02</title>
+		<meta name="author" content="leju" />
+		<!-- Date: 2012-07-02 -->
+	</head>
+	<body>	
+        <h1>javascript模板 by 司徒正美</h1>
+        <div id="tmplTC">这是容器</div>
+        <script id="tmpl" type="tmpl">
+            <h2>{{=  name }}{{= name }}</h2>
+            {{# 这是注释!!!!!!!!! }}
+            <ul>
+                {{ for(var i=0; i< uls.length; i++){ }}
+                <li>{{=  uls[i] }}的名字是{{= name }}</li>
+                {{  }  }}
+            </ul>
+            {{ var color = "color:red;" }}
+            <p style="text-indent:2em;{{= color }} ">{{= address }}</p>
+        </script>
+        <script>
+            (function () {
+
+                if(!String.prototype.trim){
+                    String.prototype.trim = function(str){
+                        return this.replace(/^[\s\xa0]+|[\s\xa0]+$/g, '');
+                    }
+                }
+                var dom = {
+                    quote: function (str) {
+                        str = str.replace(/[\x00-\x1f\\]/g, function (chr) {
+                            var special = metaObject[chr];
+                            return special ? special : '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).slice(-4)
+                        });
+                        return '"' + str.replace(/"/g, '\\"') + '"';
+                    }
+                },
+                metaObject = {
+                    '\b': '\\b',
+                    '\t': '\\t',
+                    '\n': '\\n',
+                    '\f': '\\f',
+                    '\r': '\\r',
+                    '\\': '\\\\'
+                },
+                startOfHTML = "\t__views.push(",
+                endOfHTML = ");\n";
+                (function(){
+                    //http://blogs.msdn.com/xmlteam/archive/2006/10/23/using-the-right-version-of-msxml-in-internet-explorer.aspx
+                    var s = ["XMLHttpRequest",
+                        "ActiveXObject('Msxml2.XMLHTTP.6.0')",
+                        "ActiveXObject('Msxml2.XMLHTTP.3.0')",
+                        "ActiveXObject('Msxml2.XMLHTTP')",
+                        "ActiveXObject('Microsoft.XMLHTTP')"];
+                    if(eval("''+/*@cc_on"+" @_jscript_version@*/-0")*1 === 5.7 && location.protocol === "file:"){
+                        s.shift();
+                    }
+                    for(var i = 0 ,el;el=s[i++];){
+                        try{
+                            if(eval("new "+el)){
+                                dom.xhr = new Function( "return new "+el)
+                                break;
+                            }
+                        }catch(e){}
+                    }
+                })();
+
+                dom.partial = function(url){
+                    var xhr = dom.xhr();
+                    xhr.open("GET",url,false);
+                    xhr.setRequestHeader("If-Modified-Since","0");
+                    xhr.send(null);
+                    return xhr.responseText|| ""
+                }
+
+                dom.ejs = function (obj) {
+                    if(!arguments[1]){
+                        obj.left = obj.left || "%>";
+                        obj.right = obj.right || "<%";
+                        obj.reg = new RegExp('([\\s\\S]*?)(?:'+obj.left+')((.)([\\s\\S]*?))(?:'+obj.right+')','g');
+                    }
+                    var buff = ["var __views = [];\n"],
+                    self = arguments.callee,
+                    key = obj.selector || obj.url,str;
+                    if(obj.selector){
+                        var el = document.getElementById(key);
+                        if (!el) throw "找不到目标元素";
+                        str = el.text;
+                    }else{
+                        str =  dom.partial(key);
+                        if(!str) throw "目标文件不存在";
+                    }
+                    if(!self[key]){//缓存模板函数
+                        var temp = [];
+                        str = str.replace(obj.reg,function($,outer,inner,symbol,logic){
+                            outer && temp.push(startOfHTML, dom.quote.call(null,outer.trim()), endOfHTML);
+                            switch (symbol) {
+                                case "#"://处理注释
+                                    break;
+                                case "="://处理后台返回的变量（输出到页面的);
+                                    temp.push(startOfHTML, logic, endOfHTML)
+                                    break;
+                                case ":"://处理局部模板
+                                    delete obj.selector;
+                                    var url = obj.url =  logic.trim();
+                                    //缓存构筑函数的数组
+                                    self[url] = self[url] || self(obj,true);
+                                    temp = temp.concat( self[url] );
+                                    break;
+                                default:
+                                    temp.push(inner, "\n");
+                            }
+                            return ""
+                        });
+                        str && temp.push(startOfHTML, dom.quote.call(null,str.trim()), endOfHTML);
+                    }
+                    if(arguments[1]){
+                        return (self[key] = temp);
+                    }else{
+                        buff = buff.concat(temp);
+                        self[key] = new Function("json", "with(json){"+buff.join("") + '\t};return __views.join("");');
+                    }
+                    return self[key](obj.json || {});
+                };
+                window.dom = dom;
+            })();
+
+        </script>
+        <script>
+
+            window.onload = function(){
+                var els = [];
+                for(var i=0;i<100;i++){
+                    els.push("第"+i+"个元素")
+                }
+                var a = new Date
+                var data = dom.ejs({
+                    selector:"tmpl",
+                    left:"{{",
+                    right:"}}",
+                    json: {
+                        name:"司徒正美",
+                        uls:els,
+                        address:"异次元"
+                    }
+                });
+                document.getElementById("tmplTC").innerHTML = data;
+                alert( new Date-a)
+            }
+        </script>
+        </script>         
+         
+	</body>
+</html>

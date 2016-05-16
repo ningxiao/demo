@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>02</title>
+		<meta name="author" content="leju" />
+		<link id="css" href="css/1.css" rel="stylesheet" type="text/css"/>
+		<style type="text/css">
+		*{
+			padding: 0px;
+			margin: 0px;
+			font-size:12px;	
+			font-family: "宋体","Arial Narrow",HELVETICA;
+		    line-height: 22px;/*行间距*/
+		}
+		#search{
+			width: 960px;
+			height: 78px;
+			margin: 20px auto;/*外边距  上下20px 左右自动计算居中**/
+		}
+		#weather{
+			cursor:pointer;/**设置鼠标手型*/
+			height:54px;
+	        line-height:18px;
+			margin-top:-9px;
+			margin-left:-5px;
+			width:170px;
+			overflow:hidden;/**修剪*/
+			padding-bottom:7px;
+		}
+		#weather span img{
+			float:left;
+			padding-top:8px;
+		}
+		#weather h6{
+			float:left;	
+			padding-top:15px;
+			font-size:13px;
+		}
+		#weather div{
+			float:left;
+			width:100px;
+			line-height:18px;
+			font-size:12px;
+		}
+		#left{
+			width:265px;	
+			position:relative;
+			overflow:hidden;
+			margin:0 10px 0 0;
+			padding:5px 0 0 25px;
+		}
+		#mySkin{
+			overflow:hidden;
+			width:70px;
+			float:left;
+			height:9px;
+		}
+		#mySkin ul{
+			list-style:none;/*不显示标记**/
+		}
+		
+		#mySkin ul li{
+			width:10px;
+			height:9px;
+			margin-right:4px;
+			float:left;
+			display:inline-block;
+			cursor:pointer;
+		}
+		#s1{
+			background-image:url(images/skinbt.png);
+			background-position:0px 0px;
+			background-repeat:no-repeat;	
+		}
+		#s2{
+			background-image:url(images/skinbt.png);
+			background-position:0px -11px;
+			background-repeat:no-repeat;	
+		}
+		#s3{
+			background-image:url(images/skinbt.png);
+			background-position:0px -22px;
+			background-repeat:no-repeat;	
+		}
+		#s4{
+			background-image:url(images/skinbt.png);
+			background-position:0px -33px;
+			background-repeat:no-repeat;	
+		}
+		#s5{
+			background-image:url(images/skinbt.png);
+			background-position:0px -44px;
+			background-repeat:no-repeat;	
+		}
+		#s6{
+			background-image:url(images/skinbt.png);
+			background-position:0px -55px;
+			background-repeat:no-repeat;	
+		}
+		#s7{
+			background-image:url(images/skinbt.png);
+			background-position:0px -66px;
+			background-repeat:no-repeat;	
+		}
+		#s8{
+			background-image:url(images/skinbt.png);
+			background-position:0px -77px;
+			background-repeat:no-repeat;	
+		}
+		#s9{
+			background-image:url(images/skinbt.png);
+			background-position:0px -88px;
+			background-repeat:no-repeat;	
+		}
+		#s10{
+			background-image:url(images/skinbt.png);
+			background-position:0px -99px;
+			background-repeat:no-repeat;	
+		}
+		#s1.active { background-position:-14px 0px;}
+		#s2.active { background-position:-14px -11px;}
+		#s3.active { background-position:-14px -22px;}
+		#s4.active { background-position:-14px -33px;}
+		#s5.active { background-position:-14px -44px;}
+		#s6.active { background-position:-14px -55px;}
+		#s7.active { background-position:-14px -66px;}
+		#s8.active { background-position:-14px -77px;}
+		#s9.active { background-position:-14px -88px;}
+		#s10.active { background-position:-14px -99px;}
+		
+		#myNav{
+			background-image:url(images/skinbt.png);
+			background-position:-7px -110px;
+			background-repeat:no-repeat;	
+			width:10px;
+			height:9px;
+			float:left;
+			cursor:pointer;
+		}
+		#myNav.active{
+			background-position:0px -110px;
+		}
+		</style>
+	</head>
+	<body>
+		<div id="search">
+		    <div id="left">
+		        <div id="weather" title="点击查看天气情况">
+		        	<span><img alt="" src="http://mat1.qq.com/www/images/200801/wealth/sun.png" /></span>
+		            <h6>-3℃</h6>
+		            <div>北京</div>            
+		        </div>
+		        <div id="skin">
+		            <div id="mySkin">
+		                <ul>
+		                    <li id="s1"></li>
+		                    <li id="s2"></li>
+		                    <li id="s3" class="active"></li>
+		                    <li id="s4"></li>
+		                    <li id="s5"></li>
+		                    <li id="s6"></li>
+		                    <li id="s7"></li>
+		                    <li id="s8"></li>  
+		                    <li id="s9"></li>
+		                    <li id="s10"></li>                                                                                                          
+		                </ul>
+		            </div>
+		            <div id="myNav"></div>
+		        </div>
+		    </div>
+		</div>
+		<script language="javascript">
+		window.onload=function(){
+			var container = document.getElementById('mySkin');
+			var css = document.getElementById('css');
+			var btn = document.getElementById("myNav");
+			var bool=false;/**切换方向*/
+			var timer=null;/**定时器*/
+			var terminal=null;/**动画启动位置140 或者70*/
+			var running=false;/**是否播放完成*/
+			btn.onclick=function(){
+				if(running)return false;
+				terminal=(bool==false)?140:70;
+				timer=setInterval(openMenu,30);
+				bool=!bool;
+				running=true;
+			}
+			function openMenu(){
+				var currentW=container.offsetWidth;
+				currentW+=(terminal-currentW)*0.2;/**减速度运动*/
+				/**Math.ceil()向上取整 Math.floor()向下取整**/
+				currentW=(terminal-currentW>0)?Math.ceil(currentW):Math.floor(currentW);
+				container.style.width=currentW+"px";
+				//console.log(Math.abs(terminal-currentW))
+				if((Math.abs(terminal-currentW))<=0){
+					clearInterval(timer);
+					timer=null;
+					bool==true?btn.className="active":btn.className="";
+					running=false;
+				}
+			}
+			setStyle();
+			function setStyle(){
+				var liList = container.getElementsByTagName('li');
+				var downbut;
+				for(var i in liList){
+					liList[i].className=='active'?downbut=liList[i]:null;
+					liList[i].onclick = function(){
+						css.href="css/"+this.id.substr(1)+".css";
+						downbut.className = "";
+						this.className = "active";
+						downbut = this;
+					}
+				}
+			}
+		}
+		</script>
+	</body>
+</html>

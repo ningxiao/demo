@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>index_prototype</title>
+		<meta name="author" content="leju" />
+	</head>
+	<body>
+		<script type="text/javascript">
+			function ClassA(){
+				this.namea='ClassA';
+				var namec = "mx";
+				this.func=function(name){
+					namec = name;
+					alert(namec);
+				}
+				this.ret = function(){
+					alert(namec);
+				}
+			}
+			function ClassB(){
+				this.nameb = 'ClassB';
+			}
+			ClassB.prototype=new ClassA();
+			ClassB.prototype.constructor = ClassB;
+			var objB=new ClassB();
+			ClassB.prototype.namea='changed!!';
+			//for(var p in objB)document.write(objB[p]+"<br>");
+			Function.prototype.method=function(name,func){
+				if(!this.prototype[name]){
+				   this.prototype[name]=func;
+				}else{
+					alert('添加存在');
+				}
+			}
+			Number.method('integer',function(){
+				return Math[this < 0?'ceil':'floor'](this);
+			});
+			String.method('integer',function(){
+				return Math[this < 0?'ceil':'floor'](this);
+			});
+			document.write((-10/3).integer());
+		</script>		
+	</body>
+</html>

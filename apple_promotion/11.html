@@ -1,0 +1,285 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>html5生成音频图</title>
+    <style type="text/css">
+		html, body {
+		    margin: 0;
+		    font-family: arial, "Microsoft YaHei";
+		    background-color: #272822;
+		    color: #FEFEFE;
+		}
+		#fileWrapper{
+			transition:all 0.5s ease;
+		}
+		#fileWrapper:hover{
+			opacity: 1!important;
+		}
+
+		#visualizer_wrapper{
+			text-align: center;
+		}   
+    </style>
+</head>
+<body>
+	<div id="wrapper">
+		<div id="fileWrapper" class="file_wrapper">
+			<div id="info">HTML5音频音频API生成音谱图</div>
+			<label for="uploadedFile">拖放文件或选择音频文件播放：</label>
+			<input type="file" id="uploadedFile"></input>
+		</div>
+		<div id="visualizer_wrapper">
+			<canvas id='canvas' width="800" height="350"></canvas>
+		</div>
+	</div>
+	<script type="text/javascript">
+	    var playlist = ["./audio/a.mp3","./audio/b.mp3","./audio/c.mp3","./audio/d.mp3","./audio/e.mp3"];
+		var Visualizer = function() {
+		    this.file = null; //当前文件
+		    this.fileName = null; //文件名称
+		    this.audioContext = null;
+		    this.source = null; //音频源
+		    this.info = document.getElementById('info').innerHTML; //信息提示界面
+		    this.infoUpdateId = null; //对sotore setTimeout ID和清晰的间隔
+		    this.animationId = null;
+		    this.status = 0; //声音的标志是打1或停止0
+		    this.forceStop = false;
+		    this.allCapsReachBottom = false;
+		};
+		Visualizer.prototype = {
+		    initialization: function(url) {
+		        this._prepareAPI();
+		        if(url){
+		        	this._loadSound(url);
+		        }else{
+		        	this._addEventListner();
+		        }
+		    },
+		    _prepareAPI: function() {
+		        window.AudioContext || (window.AudioContext = window.webkitAudioContext || window.mozAudioContext || window.msAudioContext);
+		        window.requestAnimationFrame || (window.requestAnimationFrame = window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame);
+		        window.cancelAnimationFrame || (window.cancelAnimationFrame = window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.msCancelAnimationFrame);
+		        try{
+		            this.audioContext = new AudioContext();
+		        }catch(error){
+		        	console.log(error);
+		            this._updateInfo('你的浏览器不支持AudioContext方法', false);
+		        }
+		    },
+		    _addEventListner: function() {
+		        var seif = this;
+		        var audioInput = document.getElementById('uploadedFile');
+		        var dropContainer = document.getElementsByTagName("canvas")[0];
+		        audioInput.onchange = function() {
+		            if(seif.audioContext === null){
+		            	return
+		            }
+		            if(audioInput.files.length !== 0) {
+		                seif.file = audioInput.files[0];
+		                seif.fileName = seif.file.name;
+		                if(seif.status === 1){
+		                    seif.forceStop = true;
+		                }
+		                document.getElementById('fileWrapper').style.opacity = 1;
+		                seif._updateInfo('Uploading', true);
+		                seif._start();
+		            };
+		        };
+		        dropContainer.addEventListener("dragenter", function() {
+		            document.getElementById('fileWrapper').style.opacity = 1;
+		            seif._updateInfo('把它放在页面上', true);
+		        }, false);
+		        dropContainer.addEventListener("dragover", function(event) {
+		            event.stopPropagation();
+		            event.preventDefault();
+		            event.dataTransfer.dropEffect = 'copy';
+		        }, false);
+		        dropContainer.addEventListener("dragleave", function() {
+		            document.getElementById('fileWrapper').style.opacity = 0.2;
+		            seif._updateInfo(seif.info, false);
+		        }, false);
+		        dropContainer.addEventListener("drop", function(event) {
+		            event.stopPropagation();
+		            event.preventDefault();
+		            if(seif.audioContext === null) {
+		            	return
+		            }
+		            document.getElementById('fileWrapper').style.opacity = 1;
+		            seif._updateInfo('Uploading', true);
+		            seif.file = event.dataTransfer.files[0];
+		            if (seif.status === 1) {
+		                document.getElementById('fileWrapper').style.opacity = 1;
+		                seif.forceStop = true;
+		            };
+		            seif.fileName = seif.file.name;
+		            seif._start();
+		        }, false);
+		    },
+		    _start: function() {
+		        var seif = this;
+		        var file = this.file;
+		        var fr = new FileReader();
+		        fr.onload = function(event) {
+		            var fileResult = event.target.result;
+		            var audioContext = seif.audioContext;
+		            if (audioContext === null) {
+		                return
+		            }
+		            seif._updateInfo('音频解码', true);
+		            audioContext.decodeAudioData(fileResult, function(buffer) {
+		                seif._updateInfo('并且开始解码，可视化工具', true);
+		                seif._visualize(audioContext, buffer);
+		            }, function(error) {
+		                seif._updateInfo('无法解码文件', false);
+		                console.log(error);
+		            });
+		        };
+		        fr.onerror = function(error) {
+		            seif._updateInfo('无法读取文件', false);
+		            console.log(error);
+		        };
+		        seif._updateInfo('开始读文件', true);
+		        fr.readAsArrayBuffer(file);
+		    },
+		    _visualize: function(audioContext, buffer) {
+		        var audioBufferSouceNode = audioContext.createBufferSource();
+		        var analyser = audioContext.createAnalyser();
+		        var seif = this;
+		        audioBufferSouceNode.connect(analyser);
+		        analyser.connect(audioContext.destination);
+		        audioBufferSouceNode.buffer = buffer;
+		        if (!audioBufferSouceNode.start) {
+		            audioBufferSouceNode.start = audioBufferSouceNode.noteOn //in old browsers use noteOn method
+		            audioBufferSouceNode.stop = audioBufferSouceNode.noteOff //in old browsers use noteOff method
+		        };
+		        if (this.animationId !== null) {
+		            cancelAnimationFrame(this.animationId);
+		        }
+		        if (this.source !== null) {
+		            this.source.stop(0);
+		        }
+		        audioBufferSouceNode.start(0);
+		        this.status = 1;
+		        this.source = audioBufferSouceNode;
+		        audioBufferSouceNode.onended = function() {
+		        	audioBufferSouceNode.stop();
+		            seif._audioEnd(seif);
+		        };
+		        this._updateInfo('Playing ' + this.fileName, false);
+		        this.info = 'Playing ' + this.fileName;
+		        document.getElementById('fileWrapper').style.opacity = 0.2;
+		        this._drawSpectrum(analyser);
+		    },
+		    _drawSpectrum: function(analyser) {
+		        var seif = this;
+		        var canvas = document.getElementById('canvas'),ctx = canvas.getContext('2d');
+		        var cwidth = canvas.width,cheight = canvas.height - 2;
+		        var meterWidth = 10;
+		        var gap = 2;
+		        var capHeight = 2;
+		        var capStyle = '#fff';
+		        var meterNum = 800 / (10 + 2);
+		        var drawMeter,array,capYPositionArray = [];
+		        gradient = ctx.createLinearGradient(0, 0, 0, 300);
+		        gradient.addColorStop(1, '#0f0');
+		        gradient.addColorStop(0.5, '#ff0');
+		        gradient.addColorStop(0, '#f00');
+		        drawMeter = function() {
+		            array = new Uint8Array(analyser.frequencyBinCount);
+		            analyser.getByteFrequencyData(array);
+		            if (seif.status === 0) {
+		                for (var i = array.length - 1; i >= 0; i--) {
+		                    array[i] = 0;
+		                }
+		                allCapsReachBottom = true;
+		                for (var i = capYPositionArray.length - 1; i >= 0; i--) {
+		                    allCapsReachBottom = allCapsReachBottom && (capYPositionArray[i] === 0);
+		                }
+		                if (allCapsReachBottom) {
+		                    cancelAnimationFrame(seif.animationId);
+		                    return;
+		                }
+		            };
+		            var step = Math.round(array.length / meterNum);
+		            ctx.clearRect(0, 0, cwidth, cheight);
+		            for(var i = 0; i < meterNum; i++) {
+		                var value = array[i * step];
+		                if(capYPositionArray.length < Math.round(meterNum)) {
+		                    capYPositionArray.push(value);
+		                }
+		                ctx.fillStyle = capStyle;
+		                if (value < capYPositionArray[i]) {
+		                    ctx.fillRect(i * 12, cheight - (--capYPositionArray[i]), meterWidth, capHeight);
+		                } else {
+		                    ctx.fillRect(i * 12, cheight - value, meterWidth, capHeight);
+		                    capYPositionArray[i] = value;
+		                };
+		                ctx.fillStyle = gradient;
+		                ctx.fillRect(i * 12, cheight - value + capHeight, meterWidth, cheight);
+		            }
+		            seif.animationId = requestAnimationFrame(drawMeter);
+		        }
+		        this.animationId = requestAnimationFrame(drawMeter);
+		    },
+		    _audioEnd: function(instance) {
+		    	var text = 'HTML5 Audio API showcase | An Audio Viusalizer';
+		        if (this.forceStop) {
+		            this.forceStop = false;
+		            this.status = 1;
+		            return;
+		        };
+		        document.getElementById('fileWrapper').style.opacity = 1;
+		        document.getElementById('info').innerHTML = text;
+		        instance.info = text;
+		        document.getElementById('uploadedFile').value = '';
+		        if(playlist.length){
+		        	this._loadSound(playlist.shift());
+		        }else{
+		        	this.status = 0;
+		        }
+		    },
+		    _updateInfo: function(text, processing) {
+		        var infoBar = document.getElementById('info'),
+		            dots = '...',
+		            i = 0,
+		            that = this;
+		        infoBar.innerHTML = text + dots.substring(0, i++);
+		        if (this.infoUpdateId !== null) {
+		            clearTimeout(this.infoUpdateId);
+		        };
+		        if (processing) {
+		            var animateDot = function() {
+		                if (i > 3) {
+		                    i = 0
+		                };
+		                infoBar.innerHTML = text + dots.substring(0, i++);
+		                that.infoUpdateId = setTimeout(animateDot, 250);
+		            }
+		            this.infoUpdateId = setTimeout(animateDot, 250);
+		        };
+		    },
+		    _loadSound:function(url){
+				var seif = this,request = new XMLHttpRequest(); //建立一个请求
+				request.open('GET', url, true); //配置好请求类型，文件路径等
+			    request.responseType = 'arraybuffer'; //配置数据返回类型
+			    // 一旦获取完成，对音频进行进一步操作，比如解码
+			    request.onload = function() {
+			        var buffer = request.response;
+			        seif._updateInfo('音频解码中....', true);
+		            seif.audioContext.decodeAudioData(buffer, function(buffer) {
+		                seif._updateInfo('并且开始解码，可视化工具', true);
+		                seif._visualize(seif.audioContext, buffer);
+		            }, function(error) {
+		                seif._updateInfo('无法解码文件', false);
+		                console.log(error);
+		            });        
+			    }
+			    this._updateInfo('开始加载音频', false);
+			    request.send();	  
+		    }
+		}
+		new Visualizer().initialization(playlist.shift());
+	</script>
+</body>
+</html>

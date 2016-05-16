@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>01</title>
+		<meta name="author" content="leju" />
+		<!-- Date: 2012-07-02 -->
+	</head>
+	<body>
+        <h1>javascript模板 </h1>
+        <script id="tmpl" type="text/html">
+                <h2><%=  name %><\/h2>
+                <%# 这是注释!!!!!!!!! %>
+                <ul>
+                <% for(var i=0; i< supplies.length; i++){ %>
+                    <li><%=  supplies[i] %><\/li>
+                    <% } %>
+                <\/ul>
+                <% var color = "color:red;" %>
+                <p style="text-indent:2em;<%= color %>"><%= address %><\/p>
+        </script>
+        <script>
+            (function () {
+                if(!String.prototype.trim){
+                    String.prototype.trim = function(str) {
+                        return this.replace(/^[\s\xa0]+|[\s\xa0]+$/g, '');
+                    }
+                }
+                var dom = {
+                    quote: function (str) {
+                        str = str.replace(/[\x00-\x1f\\]/g, function (chr) {
+                            var special = metaObject[chr];
+                            return special ? special : '\\u' + ('0000' + chr.charCodeAt(0).toString(16)).slice(-4)
+                        });
+                        return '"' + str.replace(/"/g, '\\"') + '"';
+                    }
+                },
+                metaObject = {
+                    '\b': '\\b',
+                    '\t': '\\t',
+                    '\n': '\\n',
+                    '\f': '\\f',
+                    '\r': '\\r',
+                    '\\': '\\\\'
+                },
+                parser = document.createElement("div"),
+                startOfHTML = "\t__views.push(",
+                endOfHTML = ");\n",
+                outerScan = function(str,buff,left,right){
+                    var index = str.indexOf(left);
+                    if(index !== -1){
+                        buff.push(startOfHTML, dom.quote(str.slice(0,index)), endOfHTML);
+                        innerScan(str.slice(index+2),buff,left,right);
+                    }else{
+                        buff.push(startOfHTML, dom.quote(str), endOfHTML);
+                    }
+                },
+                innerScan = function(str,buff,left,right){
+                    var index = str.indexOf(right);
+                    if(index !== -1){
+                        var text = str.slice(0,index);
+                        switch (text.charAt(0)) {
+                            case "#"://处理注释
+                                break;
+                            case "="://处理后台返回的变量（输出到页面的）
+                                buff.push(startOfHTML, text.slice(1), endOfHTML)
+                                break;
+                            default:
+                                buff.push(text, "\n")
+                        }
+                        outerScan( str.slice(index+2),buff,left,right);
+                    }else{
+                        throw "找不到右界定符 " + str
+                    }
+                }
+
+                //onsite，可选，Boolean，是否就地替换掉模板容器，默认true，如果为false，则返回一个文档碎片，交由用户自己插入到需要的地方
+                dom.ejs = function (obj) {
+                    var onsite = obj.onsite === void 0 ,
+                    left = obj.left || "<%",
+                    right = obj.right || "%>",
+                    selector = obj.selector,
+                    buff = ["var __views = [];\n"],
+                    fragment = document.createDocumentFragment(),
+                    el = document.getElementById(selector),
+                    ejs = dom.ejs;
+                    if (!el) throw "找不到目标元素";
+                    if(!ejs[selector]){
+                        outerScan(el.text.trim(),buff,left,right);
+                        ejs[selector] = new Function("json", "with(json){"+buff.join("") + '};return __views.join("");')
+                    }
+                    parser.innerHTML = ejs[selector](obj.json || {});
+                    while (parser.firstChild) {
+                        fragment.appendChild(parser.firstChild)
+                    }
+                    return onsite ? el.parentNode.replaceChild(fragment, el) : fragment;
+                };
+                window.dom = dom;
+            })();
+            window.onload = function(){
+                dom.ejs({
+                    selector:"tmpl",
+                    json: {
+                        name:"司徒正美",
+                        supplies:["第一个LI元素","第二个LI元素","第三个LI元素","第四个LI元素"],
+                        address:"异次元"
+                    },
+                    onsite:false
+                });
+            }
+        </script>		
+	</body>
+</html>

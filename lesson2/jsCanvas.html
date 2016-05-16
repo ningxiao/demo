@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>jsCanvas</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+		window.onload =function(){
+			  var canvas = document.getElementById('mycanvas');
+			  if (canvas.getContext){
+			    var ctx = canvas.getContext('2d');
+			    ctx.beginPath();
+			    ctx.arc(75,75,50,0,Math.PI*2,true); // 外圆
+			    ctx.moveTo(110,75);
+			    ctx.arc(75,75,35,0,Math.PI,false);   // 嘴
+			    ctx.moveTo(65,65);
+			    ctx.arc(60,65,5,0,Math.PI*2,true);  //左眼
+			    ctx.moveTo(95,65);
+			    ctx.arc(90,65,5,0,Math.PI*2,true);  // 右眼
+			    ctx.stroke();
+			  } else {
+			    alert('你的浏览器不支持html5，请用chrome或火狐safari .');
+			  }
+			}
+		</script>
+	</head>
+	<body>
+		<canvas id="mycanvas"></canvas>
+	</body>
+</html>

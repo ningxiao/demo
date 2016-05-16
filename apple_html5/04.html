@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>惰性函数</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+			window.onload = function(){
+				var btnList = document.getElementsByTagName('input');
+				for(var i=0;i<btnList.length;i++){
+					btnList[i].onclick=function(){
+						alert(sum(parseInt(this.getAttribute('max'),10)));
+					}
+				}
+				var script = document.createElement('script');
+				script.type = 'text/javascript';
+				script.text = "alert('这是动态添加的！')";
+				document.body.appendChild(script);				
+			}
+			var sum = function(vr){/**原理修改sum变量的内存引用第一次执行包含计算逻辑的方法体计算完毕将值在给予新的函数体修改并且返回*/
+				var max = vr*vr;
+				sum = function(){
+					return max;
+				}
+				return sum();
+			}
+			function $(id){
+				return typeof id=='string'?document.getElementById(id):id;
+			}
+		</script>
+	</head>
+	<body>
+		<div id="inputdiv" style="width: 200px;height: 50px;border:solid 2px #00CC33"></div>
+		<input type="button" max="4"  value="4*4"/><input type="button" max="5" value="5*5"/><input type="button" max="6"value="6*6"/>
+	</body>
+</html>

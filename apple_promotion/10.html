@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<head>
+<style type="text/css">
+
+body{
+	background-color:#b2bdc6;
+	}
+
+</style>
+
+<script type="text/javascript" src="slider_k/res/k_effets.js"></script>
+
+<script type="text/javascript">
+
+
+var kmiscro={
+
+ajoutevent:function(e){
+
+		e.preventDefault();
+		kmiscro.kaska(e);
+		document.documentElement.addEventListener("mousemove", kmiscro.kaska, false);
+		document.documentElement.addEventListener("mouseup", kmiscro.retireevent, false);
+	},
+
+retireevent:function(){
+		
+		document.documentElement.removeEventListener("mousemove", kmiscro.kaska, false);
+		document.documentElement.removeEventListener("mouseup", kmiscro.retireevent, false);
+	},
+
+
+
+kaska:function(e) {
+		
+		e.preventDefault();
+		
+		var cb=document.getElementById('cb');
+						
+		var taille=cb.parentNode.offsetWidth-cb.offsetWidth
+		var valeur=e.clientX-e.currentTarget.offsetLeft-cb.offsetWidth;	//position du curseur de la sourie dans la barre de defilement
+		
+		if(e.type=='mousemove' || e.type=='mousedown'){
+		
+		var valeur=valeur/taille;
+		}
+		
+		else{
+		
+		var delta = 0;
+		delta =((e.wheelDelta) ? e.wheelDelta/120 : -e.detail/3)
+		var val=((delta<0) ? -1/30 : 1/30)
+		var valeur=(parseInt(cb.style.marginLeft)/taille)+val
+		}
+		
+		valeur = valeur>1 ? 1 : valeur;
+		valeur = valeur<0 ? 0 : valeur;
+
+		cb.style.marginLeft=valeur*taille+'px'
+
+		var elem=document.getElementById('cs').parentNode;
+
+		var effet='scale('+valeur*2+')';
+
+		elem.style.WebkitTransform=effet;
+		elem.style.OTransform=effet;
+		elem.style.MozTransform=effet;
+		elem.style.msTransform=effet;
+		elem.style.transform=effet;
+
+
+	},
+
+init:function(){
+	
+var adi=document.getElementById('cs')
+var elmouse=((navigator.userAgent.indexOf("Firefox") != -1) ? 'DOMMouseScroll' : 'mousewheel')
+adi.addEventListener(elmouse, kmiscro.kaska, false);
+document.getElementById('cb').style.marginLeft=document.getElementById('cb').parentNode.offsetWidth/2-document.getElementById('cb').offsetWidth/2+'px'
+}
+
+}
+
+if(typeof window.addEventListener == 'undefined'){
+	window.attachEvent('onload', kmiscro.init);
+}
+else{
+	window.addEventListener('load', kmiscro.init, false);
+}
+
+</script>
+
+</head>
+<body>
+<div style='width:500px;height:600px'>
+<img src='slider_k/mini/cuilleremini.jpg' onclick='effet("cuillere.jpg")'/>
+<img src='slider_k/mini/carmini.jpg' onclick='effet("car.jpg")'/>
+<img src='slider_k/mini/cartonmini.jpg' onclick='effet("carton.jpg")'/>
+<img src='slider_k/mini/oursmini.jpg' onclick='effet("ours.jpg")'/>
+<img src='slider_k/mini/bateaumini.jpg' onclick='effet("bateau.jpg")'/>
+<img src='slider_k/mini/avionmini.jpg' onclick='effet("avion.jpg")'/>
+<img src='slider_k/mini/fizzmini.jpg' onclick='effet("fizz.jpg")'/>
+<img src='slider_k/mini/girafemini.jpg' onclick='effet("girafe.jpg")'/>
+<img src='slider_k/mini/carnivoresmini.jpg' onclick='effet("carnivores.jpg")'/>
+<img src='slider_k/mini/surfmini.jpg' onclick='effet("surf.jpg")'/>
+<img src='slider_k/mini/robotmini.jpg' onclick='effet("robot.jpg")'/>
+<img src='slider_k/mini/robot2mini.jpg' onclick='effet("robot2.jpg")'/>
+<img src='slider_k/mini/romini.jpg' onclick='effet("romain.jpg")'/>
+<img src='slider_k/mini/lapmini.jpg' onclick='effet("lap.jpg")'/>
+<img src='slider_k/mini/gliss2mini.jpg' onclick='effet("gliss2.jpg")'/>
+<img src='slider_k/mini/lieumini.jpg' onclick='effet("lieu.jpg")'/>
+<img src='slider_k/mini/chiotmini.jpg' onclick='effet("chiot.jpg")'/>
+<img src='slider_k/mini/rockmini.jpg' onclick='effet("rock.jpg")'/>
+<img src='slider_k/mini/clydemini.jpg' onclick='effet("clyde.jpg")'/>
+<img src='slider_k/mini/mustangmini.jpg' onclick='effet("mustang.jpg")'/>
+<img src='slider_k/mini/lboymini.jpg' onclick='effet("lboy.jpg")'/>
+<img src='slider_k/mini/voitumini.jpg' onclick='effet("voitu.jpg")'/>
+<img src='slider_k/mini/levantmini.jpg' onclick='effet("levant.jpg")'/>
+<img src='slider_k/mini/monstremini.jpg' onclick='effet("monstre.jpg")'/>
+<img src='slider_k/mini/monstre2mini.jpg' onclick='effet("monstre2.jpg")'/>
+<img src='slider_k/mini/yorkmini.jpg' onclick='effet("york.jpg")'/>
+<img src='slider_k/mini/lionmini.jpg' onclick='effet("lion.jpg")'/>
+<img src='slider_k/mini/lap2mini.jpg' onclick='effet("lap2.jpg")'/>
+</div>
+
+
+<div ontouchstart='kmiscro.ajoutevent(event)' ontouchmove='kmiscro.ajoutevent(event)' onmousedown='kmiscro.ajoutevent(event)' style='height:10px;width:300px;background-color:blue;border-radius:5px;'>
+<div style='height:10px;width:10px;background-color:red;margin-top:-20px;border-radius:5px'id='cb' >
+</div>
+</div>
+
+
+<div style='height:375px;width:500px;background-color:gray;margin-left:450px;margin-top:-550px;'>
+
+<canvas id='cs' height='375' width='500'/>
+
+</div>
+
+</body>
+</html>

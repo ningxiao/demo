@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>html5 二维码</title>
+    <style type="text/css">
+        *{margin: 0;padding: 0}
+    </style>
+	<script type="text/javascript" src="js/qrcode.js"></script>
+	<script type="text/javascript" src="js/sample.js"></script>
+</head>
+<body onload="update_qrcode()">
+		<form>
+			<textarea name="msg" rows="10" cols="40">测试二维码</textarea>
+			<br/>
+			<input type="button" value="生成" onclick="update_qrcode()"/>
+			<div id="qr">
+			</div>
+		</form>
+	</body>
+</html>

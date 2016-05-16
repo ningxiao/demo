@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>CSS3 过渡</title>
+    <meta name="author" content="baofeng"/>
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+            text-align: center;
+            background-color: #ffffff;
+        }
+
+        img {
+            display: inline-block;
+            border: none;
+        }
+
+        .animated_div {
+            width: 65px;
+            height: 40px;
+            background: #92B901;
+            color: #ffffff;
+            position: absolute;
+            font-weight: bold;
+            text-align: center;
+            line-height: 40px;
+            font: 12px '微软雅黑', Verdana, Arial, Helvetica, sans-serif;
+            padding: 20px 10px 0px 10px;
+            float: left;
+            opacity: 0.4;
+            cursor: pointer;
+            margin-top: 60px;
+            border-radius: 5px;
+            transition: width 1s, height 1s, transform 1s, background 1s, font-size 1s, opacity 1s;
+            -webkit-transition: -webkit-transform 1s, opacity 1s, background 1s, width 1s, height 1s, font-size 1s;
+            -webkit-border-radius: 5px;
+            -o-transition: width 1s, height 1s, -o-transform 1s, background 1s, font-size 1s, opacity 1s;
+            -o-border-radius: 5px;
+            -moz-transition: width 1s, height 1s, -moz-transform 1s, background 1s, font-size 1s, opacity 1s;
+            -moz-border-radius: 5px;
+        }
+        .animated_div:hover {
+            -moz-transform: rotate(360deg);
+            -webkit-transform: rotate(360deg);
+            -o-transform: rotate(360deg);
+            transform: rotate(360deg);
+            opacity: 1;
+            background: #1ec7e6;
+            width: 90px;
+            height: 60px;
+            font-size: 16px;
+        }
+        .show {
+            display: block;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .scitem {
+            width: 300px;
+            height: auto;
+            background: #ffffff;
+            border-radius: 2px;
+            -moz-border-radius: 2px;
+            -webkit-border-radius: 2px;
+            -o-border-radius: 2px;
+            float: left;
+            margin-right: 10px;
+            margin-top: 10px;
+            border: transparent 1px solid;
+        }
+
+        .simage {
+            width: 280px;
+            height: 180px;
+            border: #f1f3f4 9px solid;
+            display: block;
+            margin: 1px auto;
+            transition: all 0.4s ease-out;
+            -webkit-transition: all 0.4s ease-out;
+            -o-transition: all 0.4s ease-out;
+            -mz-transition: all 0.4s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simagemask {
+            left: 0;
+            top: 180px;
+            width: 280px;
+            height: 180px;
+            position: absolute;
+            transition: all 0.3s ease-out;
+            -webkit-transition: all 0.3s ease-out;
+            -o-transition: all 0.3s ease-out;
+            -mz-transition: all 0.3s ease-out;
+            opacity: 0;
+            filter: alpha(opacity=0);
+            background-color: #000;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .simagemask p {
+            color: #fff;
+            width: 240px;
+            margin: 20px 20px;
+            height: 140
+        }
+
+        .scitemimage:hover .simage {
+            border-color: #70ca10;
+        }
+
+        .scitemimage:hover .simagemask {
+            opacity: 1;
+            top: 0;
+            filter: alpha(opacity=80)
+        }
+
+        .image-container {
+            transform: scale(0.8);
+            -webkit-transform: scale(0.6);
+            -moz-transform: scale(0.6);
+            -o-transform: scale(0.6);
+            transition-duration: 0.5s;
+            -webkit-transition-duration: 0.5s;
+            -moz-transition-duration: 0.5s;
+            -o-transition-duration: 0.5s;
+            float: left;
+            margin-left: -30px;
+            margin-right: -30px;
+            margin-top: -10px;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            padding: 10px;
+            border: 1px solid #fff;
+        }
+
+        .image-container .mask {
+            width: 100%;
+            background-color: rgb(0, 0, 0);
+            position: absolute;
+            height: 100%;
+            opacity: 0.6;
+            cursor: pointer;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+            -moz-transition: all 0.5s;
+            -o-transition: all 0.5s;
+        }
+
+        .image-container:hover {
+            transform: scale(0.8);
+            box-shadow: 0px 0px 30px #ccc;
+            -webkit-transform: scale(0.8);
+            -webkit-box-shadow: 0px 0px 30px #ccc;
+            -moz-transform: scale(0.8);
+            -moz-box-shadow: 0px 0px 30px #ccc;
+            -o-transform: scale(0.8);
+            -o-box-shadow: 0px 0px 30px #ccc;
+        }
+
+        .image-container:hover .mask {
+            margin-left: 219px;
+            margin-top: 135px;
+            height: 0%;
+            width: 0%;
+            transform: rotateZ(750deg);
+            -webkit-transform: rotateZ(750deg);
+            -moz-transform: rotateZ(750deg);
+            -o-transform: rotat(750deg);
+        }
+        #transition1 {
+            width:100px;
+            height: 100px;
+            background-color:#1abc9c;
+            position: relative;
+            float: left;
+            transition:width 1s ;
+            transition-propety:width,background-color;
+            transition-duration:0.5s, 1s;
+        }
+        #transition1:hover {
+            width:200px;
+            height: 200px;
+            background-color:#8e44ad;
+            transition-duration:0.5s, 3s;
+        }
+    </style>
+    <script type="text/javascript" src="js/utils.js"></script>
+</head>
+<body>
+请把鼠标移动到下面的元素上：
+<div class="scitem scitemimage show">
+    <a class="simage" id="simage" href="javascript:void(0);" target="_blank">
+        <img src="image/1367649425704.jpg" width="280" height="180">
+
+        <div class="simagemask">
+            <p>CSS3的按钮，十分绚丽</p>
+        </div>
+    </a>
+</div>
+<div class="image-container" id="img-6">
+    <div class="mask"></div>
+    <img src="image/08.jpg" alt="">
+</div>
+<div style="width: 200px;height: 180px; float: left;padding: 20px 10px 0px 10px;">
+    <p class="animated_div">胖胖熊</p>
+</div>
+<div id="transition1">
+</div>
+<script type="text/javascript">
+    var animation = document.getElementById("simage");
+//    var json =document.defaultView.getComputedStyle(animation, false);
+    console.log(utils.getStyle(animation,"transitionDuration"));
+    console.log("---------------------");
+//    for(var i in json){
+//        console.log(i+"--"+json[i]);
+//    }
+
+</script>
+</body>
+</html>

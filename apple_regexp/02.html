@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>正则入门2</title>
+		<meta name="author" content="leju" />
+		<style>
+		*{margin: 0;padding: 0;}
+		html {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+		</style>
+		<script type="text/javascript">
+		function $(id){
+			return document.getElementById(id) || "";
+		}
+		</script>
+	</head>
+	<body>
+		<div>
+			<h1 id="matdata">北京as1111sssds4545+百度22sssdscsassdd..</h1>
+			<h4 id="matchd"></h4>
+			<h4 id="matchd1"></h4>
+			<h4 id="matchd2"></h4>
+			<h4 id="searchi"></h4>
+			<h4 id="search1"></h4>
+			<h4 id="replaced"></h4>
+			<h4 id="replace1"></h4>
+		</div>	
+		<div>
+			<textarea id="matchhtml" style="margin: 0px; width: 852px; height: 54px;"><div class='ecl-weigou-product-vendor'><span>当当网</span><b class='ecl-weigou-product-vendor-bg'>当当网</b></div></textarea>
+		</div>	
+		<script type="text/javascript">   
+			/**
+			* 正则表达式学习
+			* i 忽略大小写 /s/i
+			* g 全部匹配 /\d/g
+			* | 或只要满足一个条件就行 /北京|百度|淘宝/
+			* [da] 满足方括号里面任意一个条件 /[da]s/g 
+			* ^ 排除指定条件 /[^da]s/g 
+			* [a-z0-9] 取得a到z和0到9
+			* 元字符
+			* .查找单个字符 /h.t/g;
+			* 量词
+			* n+ 至少一个 n 的任何字符串 /o+/g;
+			* n* 量词匹配包含零个或多个 n 的任何字符串 /lo*\/g
+			* n? 匹配任何包含零个或一个 n 的字符串 /10?/g
+			* n{X,} 匹配包含 X 个 n 的序列的字符串。/\d{4}/g
+			* n{X,Y} 匹配包含 X 或 Y 个 n 的序列的字符串。/\d{3,4}/g;
+			* n$ 匹配任何结尾为 n 的字符串。/is$/g
+			* n^ 匹配任何开头为 n 的字符串 /^Is/g
+			* ?=n 匹配任何其后紧接指定字符串 n 的字符串 /is(?= all)/g;
+			*/
+			var str = matdata.innerHTML;
+			var re = new RegExp("s","i");
+			var res = new RegExp("北京|百度|xx","g");
+			var data = $("matchhtml").value;
+			//读取字符串里面数字放入数组
+			$("matchd").innerHTML = "提取数字："+str.match(/\d+/g).join();
+			$("matchd1").innerHTML = "提取以d或者a开头后面为s："+str.match(/[da]s/g).join();
+			$("matchd2").innerHTML = "提取非d或者a开头后面为s："+str.match(/[^da]s/g).join();
+			$("searchi").innerHTML = "返回a位置："+str.search(re);
+			$("search1").innerHTML = "第一个数字位置："+str.search(/\d/);
+			$("replaced").innerHTML = "替换所以s为f："+str.replace(/s/g,"f");
+			$("replace1").innerHTML = "关键字过滤："+str.replace(res,"**");
+			// /<.*?>/g /<[^<>]+>/g
+			$("matchhtml").value =data+"\r\n替换html标签\r\n"+data.replace(/<[^<>]+>/g,"");
+			console.log(/^[\u4E00-\u9FA5][a-zA-Z][\da-zA-Z]{5}$/.test("京C1145"));
+		</script>
+	</body>
+</html>

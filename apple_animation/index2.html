@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>9-倒啤酒</title>
+        <style type="text/css">
+        *{margin:0; padding:0;}
+		body{background:url(../image/bottle.jpg) no-repeat;}
+		h1{display:block; margin-top:200px; height:200px; text-align:center; line-height:200px; font-size:40px; font-family:"微软雅黑";}
+			h1 a{color:#0051a1; text-decoration:none;}
+			h1 a:hover{text-decoration:underline;}
+		#wine-top,#pour-wine,#glass-bottom{position:absolute;}
+		#wine-top{top:0; right:0; width:286px; height:155px; background:url(../image/wine-top.png) no-repeat;}
+		#pour-wine{top:100px; right:187px; width:215px; height:900px; background:url(../image/pour-wine.png) no-repeat; z-index:10;}
+        </style>
+        <script type="text/javascript">
+        window.onload = function(){
+			var position = ["0 0", "-215px 0", "-430px 0", "-645px 0", "-860px 0", "-1075px 0", "-1290px 0", "-1505px 0", "-1720px 0", "-1935px 0", "-2150px 0", "-2365px 0", "-2580px 0", "-2795px 0", "-3010px 0", "-3225px 0"];
+			var i = 0;
+			setInterval(
+				function(){
+					document.getElementById("pour-wine").style.backgroundPosition = position[i<position.length?i++:i=0];
+				},80
+			);
+		}
+        </script>
+    </head>
+    <body>
+    	<h1><a href="http://www.W3Cfuns.com/" target="_blank">By W3Cfuns.com</a></h1>
+    	<div id="wine-top"></div>
+        <div id="pour-wine"></div>
+    </body>
+</html>

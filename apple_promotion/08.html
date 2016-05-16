@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>快速查找</title>
+<style type="text/css">
+	*{padding: 0;margin:0;}
+	body{font-size: 12px;font-family: "微软雅黑";padding: 20px 400px;background: #d9d9d9;}
+	#txt{padding: 10px;border-bottom: 1px dashed #999;margin-bottom: 4px;}
+	#txt span{background-color: #ffff00;}
+	#txt span.active{background-color:#ff9632; }
+	#myinput{width: 146px;height: 11px;border: none;outline: none;padding: 6px 4px;background: none;float: left;}
+	.des{float: left;height: 23px;line-height: 23px;font-size: 12px;font-family: "宋体";font-weight: normal;column-rule: #4d4d4d;text-align: center;width:108px;}
+	.des em{font-style: normal;padding: 0 7px}
+	.desC{background: #ff6666;}
+	.box{border: 1px solid #aaaaab;border-radius: 4px;background: #e2e2e2;padding:2px;overflow: hidden;width: 342px;}
+	.search{width:316px;border:1px solid #aaaaab;border-radius: 3px;height: 23px;box-shadow: 0 0 2px #ffffff,inset 2px 2px 1px rgba(0,0,0,0.1);background: #fff;overflow: hidden;float: left;}
+	.search span{float: right;border-left: 1px solid #9a9a9b;}
+	.search span a{width: 24px;float: left;height: 22px;background: url("image/nav.png") no-repeat center center #eaeaeb;border:1px solid #fff;border-bottom: none;}
+	.search span a:hover{box-shadow: none;background-color: #ffffff;}
+	.search span a.up{-webkit-transform:rotate(180deg);}
+	.close{width: 14px;height: 14px;background: url("image/close.png") no-repeat center center;float: left;margin-left: 6px;margin-top: 6px;}
+	.close:hover{background-image: url("image/closeHover.png"); }
+</style>
+</head>
+<body>
+<p id="txt">
+	Friendship means understanding, not agreement. It means forgiveness, not forgetting.It means the memories last, even if contact is lost.You know, it occurs to me you could solve all your problems by obtaining more money.A good life is when you assume nothing, do more, need less, smile often, and realize how blessed you are for what you have.Sometimes the hardest part isn't letting go, but rather learning to start over.Don't ever change just to impress and please someone. 
+</p>
+<div class="box" id="box">
+	<div class="search">
+		<input type="text" id="myinput" />
+        <p class="des" id="des"></p>
+		<span>
+            <a href="javascript:void(0);" class="up" title="上一个"></a>
+        </span>
+        <span>
+            <a href="javascript:void(0);" class="down"  title="下一个"></a>
+        </span>
+	</div>
+	<a href="javascript:void(0);" class="close" title="关闭查找框"></a>
+</div>
+<script type="text/javascript">
+    function $(id){
+        return document.getElementById(id) || "";
+    }
+</script>
+<script type="text/javascript">
+    var inquiry = $("myinput"),des = $("des"),txt = $("txt"),box = $("box");
+    var sum = 0,index= 0,spans = txt.getElementsByTagName("span"),data;
+    inquiry.focus();
+    data = txt.innerHTML;
+    box.addEventListener("click",function(event){
+        var className;
+        if(event.target.tagName.toLowerCase() == "a"){
+            className = event.target.className;
+            if(className=="close"){
+                des.className = "des";
+                des.innerHTML = "";
+                inquiry.innerHTML = data;
+            }else if(spans.length){
+                spans[index].className = "";
+                className== "down"?index--:index++;
+                index=(sum+index)%sum;
+                spans[index].className = "active";
+            }
+        }
+    },false);
+    inquiry.addEventListener("keyup",function(event){
+        var key = inquiry.value,exp,str=data;
+        sum = 0;
+        if(key){
+            exp = new RegExp(key,"gi");
+            str = data.replace(exp,function(){
+                var className;
+                if(sum==0){
+                    className ='active';
+                }
+                sum++;
+                return '<span class = '+className+'>'+arguments[0]+'</span>';
+            });
+        }
+        txt.innerHTML = str;
+        console.log();
+        des.innerHTML = "查询:<em>"+key+"</em>,共<em>"+sum+"</em>条";
+        des.className = sum > 0 ? "des" :"des desC";
+    });
+</script>
+</body>
+</html>

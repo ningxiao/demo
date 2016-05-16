@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>canvas倒计时</title>
+    <meta name="author" content="Administrator"/>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #canvas {
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #aaa;
+        }
+    </style>
+    <script type="text/javascript" src="js/config.js"></script>
+</head>
+<body>
+<canvas id="canvas" width="1024" height="768">
+    <p>对不起该浏览器不支持刮奖！</p>
+</canvas>
+<script type="text/javascript">
+    var countdown,times = [];
+    function initConfig() {
+        Config.WINDOW_H = document.body.clientHeight;
+        Config.WINDOW_W = document.body.clientWidth;
+        Config.MARGIN_L = Math.round(Config.WINDOW_W / 15);
+        Config.MARGIN_T = Math.round(Config.WINDOW_H / 5);
+        Config.RADIUS = Math.round(Config.WINDOW_W * 4 / 5 / 108) - 1;
+        Config.CANVAS = document.getElementById("canvas");
+        Config.CONTEXT = Config.CANVAS.getContext("2d");
+        Config.CANVAS.width = Config.WINDOW_W;
+        Config.CANVAS.height = Config.WINDOW_H;
+    }
+    function initDate(){
+        var json,hours,minutes,seconds,list=[],x=0;
+        countdown = getCountdown();
+        hours = parseInt( countdown / 3600);
+        minutes = parseInt( (countdown - hours * 3600)/60);
+        seconds = countdown % 60;
+        list.push(parseInt(hours/10),parseInt(hours%10),parseInt(minutes/10),parseInt(minutes%10),parseInt(seconds/10),parseInt(seconds%10));
+        for(var i=1;i<9;i++){
+            json = {};
+            json.y = Config.MARGIN_T;
+            if(i%3==0){
+                json.x = 0;
+                json.data = Config.MAP[10];
+            }else{
+                json.x = i*Config.RADIUS*2*7;
+                console.log(Config.RADIUS);
+                json.data = Config.MAP[list.shift()];
+            }
+            times.push(json);
+        }
+    }
+    function initView(){
+        var data, x, y, i = 0;
+        Config.CONTEXT.fillStyle = "rgb(0,102,153)";
+        for(;i<times.length;i++) {
+            data = times[i].data;
+            x = times[i].x;
+            y = times[i].y;
+            for(var k=0;k<data.length;k++) {
+                for(var j=0;j<data[k].length;j++) {
+                    if (data[k][j] == 1) {
+                        Config.CONTEXT.beginPath();
+                        Config.CONTEXT.arc(x + j * 2 * Config.RADIUS, y + k * 2 * Config.RADIUS, Config.RADIUS, 0, 2 * Math.PI)
+                        Config.CONTEXT.closePath()
+                        Config.CONTEXT.fill()
+                    }
+                }
+            }
+        }
+    }
+    function enterFrame(){
+        initView();
+        window.requestAnimationFrame(enterFrame,null);
+    }
+    function getCountdown() {
+        var ret = Config.END_TIME.getTime() -  new Date().getTime();
+        ret = Math.round( ret/1000 );
+        return ret >= 0 ? ret : 0;
+    }
+    function init() {
+        initDate();
+        initConfig();
+        initView();
+        enterFrame();
+    }
+    init();
+</script>
+</body>
+</html>

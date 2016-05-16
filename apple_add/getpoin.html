@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>getCoords取得全局坐标</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+			var getCoords = function(el){
+			  var box = el.getBoundingClientRect(),
+			  doc = el.ownerDocument,
+			  body = doc.body,
+			  html = doc.documentElement,
+			  clientTop = html.clientTop || body.clientTop || 0,
+			  clientLeft = html.clientLeft || body.clientLeft || 0,
+			  top  = box.top  + (self.pageYOffset || html.scrollTop  ||  body.scrollTop ) - clientTop,
+			  left = box.left + (self.pageXOffset || html.scrollLeft ||  body.scrollLeft) - clientLeft
+			  return { 'top': top, 'left': left };
+			};
+			window.onload = function(){
+				var mid = document.getElementById("mid");
+				alert(getCoords(mid).top)
+			}			
+		</script>
+	</head>
+	<body>
+		<div id="mid" style="top: 120px;left: 150px;background:#FF0000;width: 400px;height: 400px;position:relative"></div>
+	</body>
+</html>

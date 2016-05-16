@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>弹性运动</title>
+		<meta name="author" content="leju" />
+		<style>
+		* {margin:0; padding:0;}
+		#ul1 {position:relative; margin:20px auto; width:408px;}
+		#ul1 li {float:left;cursor:pointer; width:100px; height:30px; text-align:center; background:#CCC; border:1px solid #999; line-height:30px; list-style:none;}
+		#ul1 .box {position:absolute; left:0; top:0; background:green; filter:alpha(opacity=60); opacity:0.6;}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var aLi = document.getElementById('ul1').getElementsByTagName('li');
+				for(var i = 0;i<aLi.length-1;i++){
+					aLi[i].onmouseover = function(){
+						startMove(this.offsetLeft,aLi[4]);
+					}
+				}
+			}
+			var timer =null;/*定时器标记*/
+			var iSpeed = 0;/**初始化速度*/
+			var len=0;/**移动距离因为left不接受小数并且保持上一次移动的点以便计算初始速度*/
+			function startMove(iTarget,lenobj){
+				clearInterval(timer);/**清除定时器*/
+				timer = setInterval(function(){
+					iSpeed+=(iTarget - len)/5;
+					iSpeed*=0.7;
+					if(Math.round(len)==iTarget && Math.abs(iSpeed)<1){
+						clearInterval(timer);
+					}else{
+					  len+=iSpeed;
+					  lenobj.style.left = Math.round(len)+'px';		
+					}
+				},30);
+			}
+		</script>
+	</head>
+	<body>
+		<ul id="ul1">
+			<li>首页</li>
+			<li>关于</li>
+			<li>登陆</li>
+			<li>aaa</li>
+		    <li class="box"></li>
+		</ul>
+	</body>
+</html>

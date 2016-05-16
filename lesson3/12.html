@@ -1,0 +1,143 @@
+<html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta property="qc:admins" content="2440032737651176637572013"/>
+    <title>3D旋转</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            height: 100%;
+        }
+        .flip-container {
+            -webkit-perspective: 1000;
+            -moz-perspective: 1000;
+            -ms-perspective: 1000;
+            perspective: 1000;
+
+            -webkit-transform: perspective(1000px);
+            -moz-transform: perspective(1000px);
+            -ms-transform: perspective(1000px);
+            transform: perspective(1000px);
+
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+            -ms-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+
+            border: 1px solid #ccc;
+        }
+        .flip-container, .front, .back {
+            width: 320px;
+            height: 427px;
+        }
+        .flipper {
+            -webkit-transition: 0.6s;
+            -webkit-transform-style: preserve-3d;
+
+            -moz-transition: 0.6s;
+            -moz-transform-style: preserve-3d;
+
+            -ms-transition: 0.6s;
+            -ms-transform-style: preserve-3d;
+
+            transition: 0.6s;
+            transform-style: preserve-3d;
+
+            position: relative;
+        }
+
+        .front, .back {
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
+            -ms-backface-visibility: hidden;
+            backface-visibility: hidden;
+
+            -webkit-transition: 0.6s;
+            -webkit-transform-style: preserve-3d;
+
+            -moz-transition: 0.6s;
+            -moz-transform-style: preserve-3d;
+
+            -ms-transition: 0.6s;
+            -ms-transform-style: preserve-3d;
+
+            transition: 0.6s;
+            transform-style: preserve-3d;
+
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .front {
+            -webkit-transform: rotateY(0deg);
+            -moz-transform: rotateY(0deg);
+            -ms-transform: rotateY(0deg);
+            transform: rotateY(0deg);
+            background: lightgreen;
+            z-index: 2;
+        }
+
+        .back {
+            -webkit-transform: rotateY(-180deg);
+            -moz-transform: rotateY(-180deg);
+            -ms-transform: rotateY(-180deg);
+            transform: rotateY(-180deg);            
+            background: lightblue;
+        }
+    </style>
+    <script type="text/javascript" src="js/utils.js"></script>
+</head>
+<body>
+<div class="flip-container">
+    <div class="flipper">
+        <div class="front">front</div>
+        <div class="back">back</div>
+    </div>
+</div>
+<input type="button" id="startbutton" value="切换"/>
+<input type="button" id="endbutton" value="几点切换"/>
+<script type="text/javascript">
+    var isbool = true,degs = [];
+    var startbutton = document.getElementById("startbutton");
+    var endbutton = document.getElementById("endbutton");
+    var backdiv = document.getElementsByClassName('back')[0];
+    var frontdiv = document.getElementsByClassName('front')[0];
+    startbutton.onclick = function(){
+        if(isbool){
+            degs[0] = "rotateY(180deg)";
+            degs[1] = "rotateY(0deg)";
+        }else{
+            degs[0] = "rotateY(0deg)";
+            degs[1] = "rotateY(-180deg)";           
+        }
+        utils.setStyle(frontdiv, {"transform": degs[0]});
+        utils.setStyle(backdiv, {"transform": degs[1]}); 
+        isbool=!isbool;
+        console.log(utils.getStyle(frontdiv,"transform"));    
+        console.log(utils.getStyle(frontdiv,"z-index"));   
+    }
+    endbutton.onclick = function(){
+        if(isbool){
+            degs[0] = "rotateX(180deg)";
+            degs[1] = "rotateX(0deg)";
+        }else{
+            degs[0] = "rotateX(0deg)";
+            degs[1] = "rotateX(-180deg)";           
+        }
+        utils.setStyle(frontdiv, {"transform": degs[0],"transform-origin":"bottom"});
+        utils.setStyle(backdiv, {"transform": degs[1],"transform-origin":"bottom"}); 
+        isbool=!isbool;
+        console.log(utils.getStyle(frontdiv,"transform"));    
+        console.log(utils.getStyle(frontdiv,"z-index"));   
+    }
+    
+    //var container = document.getElementsByClassName('flip-container')[0];
+    //utils.setStyle(container, {"perspective": "1000","transform":"perspective(1000px)","transform-style":"preserve-3d"});
+</script>
+</body>
+</html>

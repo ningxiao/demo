@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>图片</title>
+<link id="css" href="images/1.css" rel="stylesheet" type="text/css" />
+
+<style type="text/css">
+*{
+	padding:0px;
+	margin:0px;
+	font-size:12px;	
+	font-family: "宋体","Arial Narrow",HELVETICA;
+    line-height: 22px;
+}
+#main{
+	position:relative;
+	width:490px;
+	height:170px;
+	margin:30px  auto 0 auto;
+	overflow:hidden;
+}
+
+#list{
+	position:absolute;
+	left:0px;
+	top:0px;
+}
+#list a{
+	
+}
+#list a img{
+	border:0px;
+	float:left;
+}
+#menu{
+	position:absolute;
+	bottom:5px;
+	right:5px;	
+	height:18px;
+	padding-top:2px;
+}
+#menu ul{
+	list-style:none;
+	
+}
+#menu ul li{
+	width:20px;
+	height:20px;
+	float:left;
+	background:#FFF;
+	border-radius:20px;
+	text-align:center;
+	font-size:13px;
+	line-height:20px;
+	height:20px;
+	color:#de7d4b;
+	cursor:pointer;
+	margin-left:3px;
+	margin-top:-2px;
+	position:relative;
+}
+#menu ul li.active{
+	background:#ff6600;
+	font-weight:bold;
+	opacity:1;
+	filter:Alpha(opacity=100);
+	color:#fff;
+}
+#text{
+	width:490px;
+	height:36px;
+	margin:0px auto;
+	overflow:hidden;
+}
+#text #left{
+	margin-left:10px;
+	margin-top:13px;
+	line-height:13px;
+	height:23px;
+	float:left;
+	font-weight:bold;
+}
+#text #right{
+	margin-top:13px;
+	height:23px;
+	position:relative;
+	float:right;
+	width:300px;
+}
+
+#text #right a.prev{
+	background-position:-165px -110px;
+	overflow:hidden;
+	position:absolute;
+	right:15px;
+	top:0px;
+	display:block;
+	width:16px;
+	height:14px;
+	background-image:url(images/sprites.gif);
+	background-repeat:no-repeat;
+	cursor:pointer;
+}
+#text #right a.prev:hover{
+	background-position:-165px -124px;
+}
+#text #right a.next{
+	background-position:-180px -110px;
+	overflow:hidden;
+	position:absolute;
+	right:0;
+	top:0px;
+	display:block;
+	width:16px;
+	height:14px;
+	background-image:url(images/sprites.gif);
+	background-repeat:no-repeat;
+	cursor:pointer;
+}
+#text #right a.next:hover{
+	background-position:-180px -124px;
+}
+#txtContent{
+	width:260px;
+	height:15px;
+	overflow:hidden;
+	position:relative;
+}
+#txtContent ul{
+	width:2000em;
+	position:absolute;
+	list-style:none;
+}
+#txtContent ul li{
+	float:left;
+	width:260px;
+	text-align:right;
+	overflow:hidden;
+	line-height:15px;
+	margin-top:-3px;
+	
+}
+#txtContent ul li a{
+	color:#3E3E3E;
+	text-decoration:none;
+}
+#txtContent ul li a:hover{
+	color:#F90;
+	text-decoration:underline;
+}
+</style>
+</head>
+<body>
+<div id="main">
+	<div id="list">
+		  <a href="javascript:;"><img alt="" src="images/1.jpg" /></a>
+		  <a href="javascript:;"><img alt="" src="images/2.jpg" /></a>
+		  <a href="javascript:;"><img alt="" src="images/3.jpg" /></a>
+		  <a href="javascript:;"><img alt="" src="images/4.jpg" /></a>
+		  <a href="javascript:;"><img alt="" src="images/5.jpg" /></a>                                        
+    </div>
+    <div id="menu" style="clear:both">
+      <ul>
+        <li class="active">1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>                        
+      </ul>
+    </div>
+</div>
+<div id="text">
+	<div id="left">每日精选图片</div>
+	<div id="right">
+        <div id="txtContent">
+        	<ul>
+                <li><a href="http://jia.tmall.com/?TBG=54041.99790.1&amp;spm=1.54041.99790.1"><strong>家装馆</strong><span class="dot">春心萌动，2012狠狠爱！</span></a></li>
+                <li><a href="http://beauty.tmall.com/?TBG=54041.99790.2&amp;spm=1.54041.99790.2"><strong>美容馆</strong><span class="dot">新年犒劳有好礼展新颜戴新饰</span></a></li>
+                <li><a href="http://3c.tmall.com/?TBG=54041.99790.3&amp;spm=1.54041.99790.3"><strong>电器城</strong><span class="dot">数码家电低至5折疯抢 限量！</span></a></li>
+                <li><a href="http://yundong.tmall.com/?TBG=54041.99790.4&amp;spm=1.54041.99790.4"><strong>运动馆</strong><span class="dot">NIKE 阿迪达斯，秋冬新品特惠</span></a></li>
+                <li><a href="http://xie.tmall.com/?TBG=54041.99790.5&amp;spm=1.54041.99790.5"><strong>名鞋馆</strong><span class="dot">抢购品牌名鞋秋冬热卖新品</span></a></li>
+            </ul>
+        </div>
+        <a href="javascript:;" class="prev" id="prev" title="上一页"></a>
+        <a href="javascript:;" class="next"  id="next"  title="下一页"></a>
+    </div>    
+</div>
+<script>
+window.onload=function(){
+	///////得到相应的引用
+	var list=document.getElementById("menu").getElementsByTagName("li");
+	var txt=document.getElementById("txtContent").getElementsByTagName("li");
+	var prevBtn=document.getElementById("prev");
+	var nextBtn=document.getElementById("next");	
+	var container=document.getElementById("list");
+	var txtContainer=document.getElementById("txtContent").getElementsByTagName("ul")[0];
+	///////////////////
+	var zontTimer=20;
+	var picTimer=4000;
+	var txtTimer=2400;
+	var picW=170;
+	var txtW=260;
+	/////////实时监测函数
+	var time=setInterval(movePic,zontTimer);
+	var auto=setInterval(run,picTimer);
+	var autoTxt=setInterval(loop,txtTimer);
+	/////////大图的目标位置
+	var terminal=0;
+	////////记录大图上一个
+	var last;
+	///////当前大图的索引
+	var current=0;
+	//////当前小图的索引
+	var record=0;
+	/////文字的位置
+	var finala=0;
+	//////为每一个图片控制li元素加事件
+	for(var i=0;i<list.length;i++){
+		list[i].className=="active"?last=list[i]:null;
+		list[i].index=i;
+		list[i].onmouseover=function(){
+			runPic(this.index);
+			clearInterval(auto);
+		}
+		list[i].onmouseout=function(){
+			auto=setInterval(run,picTimer);
+		}
+	}
+	////上一页按钮的点击事件+浮动和离开事件
+	prevBtn.onmouseover=function(){
+		clearInterval(autoTxt);
+	}
+	prevBtn.onmouseout=function(){
+		autoTxt=setInterval(loop,txtTimer);
+	}
+	prevBtn.onclick=function(){
+		loop(-1);
+	}
+	///下一页按钮的点击事件+浮动和离开事件
+	nextBtn.onclick=function(){
+		loop(1);
+	}
+	nextBtn.onmouseover=function(){
+		clearInterval(autoTxt);
+	}
+	nextBtn.onmouseout=function(){
+		autoTxt=setInterval(loop,txtTimer);
+	}
+	////////////大图片的定时器
+	function run(){
+		current>=list.length-1?current=0:current++;
+		runPic(current);
+	}
+	////设置大图函数
+	function runPic(index){
+		terminal=-picW*index;
+		last.className="";
+		list[index].className="active";
+		last=list[index];
+		current=index;
+	}
+	////////////文字的定时器
+	function loop(num){
+		record+=num;
+		(record>=txt.length)&&(record=0);
+		(record<0)&&(record=txt.length-1);
+		finala=-txtW*record;
+	}
+	/////////实时调用函数
+	function movePic(){
+		TweenLite(container,"offsetTop",terminal,"top");
+		TweenLite(txtContainer,"offsetLeft",finala,"left");
+	}
+}
+/////////缓动效果函数通用
+function TweenLite(target,property,value,style){
+	var currentValue=target[property];
+	currentValue+=(value-currentValue)*0.1;
+	currentValue=(value-currentValue>0)?Math.ceil(currentValue):Math.floor(currentValue);
+	target["style"][style]=currentValue+"px";
+}
+</script>
+</body>
+</html>

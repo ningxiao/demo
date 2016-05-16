@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <style>
+            *{
+                box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                outline: none;
+            }
+            body {
+                background: black;
+                color: white;
+                font-family: Helvetica;
+                overflow: hidden;
+            }
+            #canvas{
+                position: absolute;
+                left: 0;
+                top: 40px;
+                right: 0;
+                bottom: 0;
+            }
+            h1{
+                font-size: 1em;
+                float: left;
+            }
+            ul{ 
+                position: absolute;
+                left: 0;
+                top: 0;
+                right: 0;
+                height: 40px;
+                list-style-type: none;
+            }
+            li{ 
+                float: left;
+                width: 25%;
+                text-align: center;
+            }
+            li a{
+                display: block;
+                width: 100%%;
+                padding: 10px;
+                font-size: 1em;
+                color: white;
+                text-decoration: none;
+                text-shadow: 0 -2px 0 #111;
+            }
+            li a:hover{
+                background-color: #555;
+            }
+            li a.on{
+                background-color: #b70000;
+            }
+        </style>
+        <title>Canvas 粒子效果</title>
+    </head>
+    <body>
+    </body>
+        <ul>
+            <li><a id="resetBtn" href="#">Reset</a></li>
+            <li><a id="attractBtn" class="on" href="#">Attract</a></li>
+            <li><a id="repulseBtn" href="#">Repulse</a></li>
+            <li><a id="fullscreenBtn" href="#">Fullscreen</a></li>
+        </ul>
+        <canvas id="canvas" ></canvas>
+
+        <script>
+          
+            (function() {
+                var lastTime = 0;
+                var vendors = ['ms', 'moz', 'webkit', 'o'];
+                for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+                    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+                    window.cancelRequestAnimationFrame = window[vendors[x]+
+                    'CancelRequestAnimationFrame'];
+                }
+                if (!window.requestAnimationFrame)
+                window.requestAnimationFrame = function(callback, element) {
+                    var currTime = new Date().getTime();
+                    var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+                    var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+                    timeToCall);
+                    lastTime = currTime + timeToCall;
+                    return id;
+                };
+
+                if (!window.cancelAnimationFrame)
+                    window.cancelAnimationFrame = function(id) {
+                    clearTimeout(id);
+                };
+            }())
+
+            var boids = [], numBoids = 100, globalSpeed = .5, 
+            centerOfMass = { x: 0, y: 0, z: 0 }, steerDistance = 1000,
+            repulsion = false, neighbourDistance = 10000;
+
+            var touches = [];
+
+            var canvas = document.getElementById( 'canvas' ),
+                ctx = canvas.getContext( '2d' );
+
+            function createBoids() {
+
+                boids = [];
+
+                for( var j = 0; j < numBoids; j++ ) {
+        
+                    boids.push( {
+                        position: {
+                            x: Math.random() * window.innerWidth,
+                            y: Math.random() * window.innerHeight
+                        },
+                        oPosition: {
+                            x: 0,
+                            y: 0
+                        },
+                        velocity: {
+                            x: .5 - Math.random(),
+                            y: .5 - Math.random()
+                        },
+                        speed: .85 + .15 * Math.random(),
+                        id: j,
+                        c: 0
+                    } );
+                    
+                }
+
+            }
+
+            function init(){
+                
+                if( window.location.hash ) {
+                    var v = parseInt( window.location.hash.substr( 1 ), 10 );
+                    if( v > 0 ) numBoids = v;
+                }
+
+                document.getElementById( 'resetBtn' ).addEventListener( 'click', function( e ) {
+                    createBoids();
+                    e.preventDefault();
+                } ); 
+
+                var attractBtn = document.getElementById( 'attractBtn' );
+                var repulseBtn = document.getElementById( 'repulseBtn' );
+
+                attractBtn.addEventListener( 'click', function( e ) {
+                    repulsion = false;
+                    attractBtn.className = 'on';
+                    repulseBtn.className = '';
+                    e.preventDefault();
+                } ); 
+
+                repulseBtn.addEventListener( 'click', function( e ) {
+                    repulsion = true;
+                    attractBtn.className = '';
+                    repulseBtn.className = 'on';
+                    e.preventDefault();
+                } ); 
+
+                document.getElementById( 'fullscreenBtn' ).addEventListener( 'click', function( e ) {
+                    var elem = document.body;
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.mozRequestFullScreen) {
+                        elem.mozRequestFullScreen();
+                    } else if (elem.webkitRequestFullscreen) {
+                        elem.webkitRequestFullscreen();
+                    }
+                } );
+
+                function findTouchById( id ) {
+
+                    for( var k = 0; k < touches.length; k++ ) {
+                        if( touches[ k ].id == id ) {
+                            return k;
+                        }
+                    }
+
+                    return null;
+
+                }
+
+                canvas.addEventListener( 'mousedown', onTouchStart );
+                canvas.addEventListener( 'touchstart', onTouchStart );
+
+                function onTouchStart( event ) {
+
+                    if( event.changedTouches ) {
+                        for( var j = 0; j < event.changedTouches.length; j++ ){
+                            var t = findTouchById( event.changedTouches[ j ].identifier );
+                            if( t === null ) {
+                                touches.push( {
+                                    x: event.changedTouches[ j ].pageX,
+                                    y: event.changedTouches[ j ].pageY,
+                                    id: event.changedTouches[ j ].identifier
+                                } );
+                            } else {
+                                touches[ t ].x = event.changedTouches[ j ].pageX;
+                                touches[ t ].y = event.changedTouches[ j ].pageY;
+                            }
+                        }
+                    } else {
+                        touches.push( {
+                            x: event.clientX,
+                            y: event.clientY,
+                            id: 0
+                        } );
+                    }
+
+                    event.preventDefault();
+                    return false;
+                }
+
+                canvas.addEventListener( 'mousemove', onTouchMove );
+                canvas.addEventListener( 'touchmove', onTouchMove );
+
+                function onTouchMove( event ) {
+
+                    if( event.changedTouches ) {
+                        for( var j = 0; j < event.changedTouches.length; j++ ){
+                            var t = findTouchById( event.changedTouches[ j ].identifier );
+                            if( t !== null ) {
+                                touches[ t ].x = event.changedTouches[ j ].pageX;
+                                touches[ t ].y = event.changedTouches[ j ].pageY;
+                            }
+                        }
+                    } else {
+                        if( touches[ 0 ] ) {
+                            touches[ 0 ].x = event.clientX;
+                            touches[ 0 ].y = event.clientY;
+                        }
+                    }
+
+                    event.preventDefault();
+
+                }
+
+                canvas.addEventListener( 'mouseup', onTouchEnd );
+                canvas.addEventListener( 'touchend', onTouchEnd );
+
+                function onTouchEnd( event ) {
+
+                    if( event.changedTouches ) {
+                        for( var j = 0; j < event.changedTouches.length; j++ ) {
+                            var t = findTouchById( event.changedTouches[ j ].identifier );
+                            if( t !== null ) {
+                                touches.splice( t, 1 );
+                            }
+                        }
+                    } else {
+                        touches = [];
+                    }
+
+                    event.preventDefault();
+
+                }
+
+                onWindowResize();
+
+                createBoids();
+
+                animate();
+
+            }
+
+        function draw() {
+    
+        //ctx.clearRect( 0, 0, canvas.width, canvas.height );
+        ctx.globalAlpha = .1;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect( 0, 0, canvas.width, canvas.height );
+        ctx.globalAlpha = 1;
+
+        ctx.lineWidth = 10;
+        ctx.fillStyle = '#ffffff';
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#000000';
+        
+        for( var j = 0, m = boids.length; j < m; j++ ) {
+            
+            var b = boids[ j ];
+
+            ctx.strokeStyle = '#ff00ff'
+            if( b.c === 0 ) ctx.strokeStyle = 'rgb(255, 20, 10)';
+            if( b.c === 1 ) ctx.strokeStyle = 'rgb(255, 216, 58)';
+            if( b.c === 2 ) ctx.strokeStyle = 'rgb(223, 80, 0)';
+            if( b.c === 3 ) ctx.strokeStyle = 'rgb(1, 129, 189)';
+            if( b.c === 4 ) ctx.strokeStyle = 'rgb(73, 185, 73)';
+
+            ctx.beginPath();
+            ctx.lineWidth = 3 * ( 1 + 3 * b.speed );
+            ctx.moveTo( b.oPosition.x, b.oPosition.y );
+            ctx.lineTo( b.position.x, b.position.y );
+            ctx.stroke();
+            
+        }
+        
+        /*ctx.fillStyle = '#000000';
+        ctx.globalAlpha = 1;
+        for( var j = 0; j < touches.length; j++ ) {
+            ctx.beginPath();
+            ctx.arc( touches[ j ].x, touches[ j ].y, 5, 0, 2 * Math.PI );
+            ctx.fill();
+        }*/
+
+    }
+    
+    function steerTowardsCenter( b, neighbours ) {
+    
+        if( neighbours.length == 0 ) return { x: 0, y: 0, z: 0 };
+        
+        var centerOfMass = { x: 0, y: 0, z: 0 };
+        
+        for( var k = 0, m = neighbours.length; k < m; k++ ) {
+            var b2 = neighbours[ k ];
+            centerOfMass.x += b2.position.x;
+            centerOfMass.y += b2.position.y;
+        }
+        
+        centerOfMass.x /= neighbours.length;
+        centerOfMass.y /= neighbours.length;
+        
+        var v = {
+            x: .01 * ( centerOfMass.x - b.position.x ),
+            y: .01 * ( centerOfMass.y - b.position.y )
+        }
+        
+        return v;
+        
+    }
+    
+    function steerAwayFromNeighbours( b, neighbours ) {
+        
+        if( neighbours.length == 0 ) return { x: 0, y: 0, z: 0 };
+        
+        var sD = steerDistance;
+        var v = { x: 0, y: 0, z: 0 }
+        
+        for( var k = 0, m = neighbours.length; k < m; k++ ) {
+            var b2 = neighbours[ k ];
+            var dx = b2.position.x - b.position.x;
+            var dy = b2.position.y - b.position.y;
+            var distance = dx * dx + dy * dy;
+            if( distance < sD ) {
+                v.x -= .1 * dx;
+                v.y -= .1 * dy;
+            }
+        }
+        
+        return v;
+        
+    }
+    
+    function matchVelocity( b, neighbours ) {
+        
+        var v = { x: 0, y: 0, z: 0 }
+        
+        if( neighbours.length ) {
+
+            for( var k = 0, m = neighbours.length; k < m; k++ ) {
+                var b2 = neighbours[ k ];
+                v.x += b2.velocity.x;
+                v.y += b2.velocity.y;
+            }
+            
+            v.x /= neighbours.length;
+            v.y /= neighbours.length;
+        
+        }
+
+        return {
+            x: .0125 * ( v.x - b.velocity.x ),
+            y: .0125 * ( v.y - b.velocity.y )
+        }
+
+    }
+    
+    function steerTowardsMouse( b ) {
+    
+        var x = 0, y = 0, c = 0;;
+        for( var j = 0; j < touches.length; j++ ){
+            if( j === b.c ) {
+                x += ( repulsion?-1:1 ) * .001 * ( touches[ j ].x - b.position.x ); 
+                y += ( repulsion?-1:1 ) * .001 * ( touches[ j ].y - b.position.y );
+            }
+        }
+
+        return {
+            x: x, 
+            y: y
+        }
+        
+    }
+    
+    function repulseFromMouse( b ) {
+    
+        if( repulsion ) {
+
+            var ax = 0, ay = 0;
+            for( var j = 0; j < touches.length; j++ ) {
+                var x = ( b.position.x - touches[ j ].x ),
+                    y = ( b.position.y - touches[ j ].y ),
+                    l = Math.sqrt( x * x + y * y ),
+                    dx = x / l,
+                    dy = y / l;
+                    if( l > 10 ) l = 10;
+                    l = 100 / l;
+                    ax += .05 * dx * l;
+                    ay += .05 * dy * l;
+            }
+            
+            return {
+                x: ax, 
+                y: ay
+            }
+        } else{
+            return {
+                x: 0,
+                y: 0
+            }
+        }
+        
+    }
+
+    function update() {
+        
+        var nD = neighbourDistance;
+        
+        var mt = touches.length;
+        for( var j = 0, m = boids.length; j < m; j++ ) {
+            var b = boids[ j ];
+            for( var k = 0; k < touches.length; k++ ){
+                if( k === b.id % mt ) {
+                    b.c = k;
+                }
+            }
+        }
+
+        for( var j = 0, m = boids.length; j < m; j++ ) {
+            
+            var b = boids[ j ];
+            var neighbours = [];
+            
+            for( k = 0, m = boids.length; k < m; k++ ) {
+                
+                var b2 = boids[ k ];
+                if( b != b2 ) {
+                    var dx = b2.position.x - b.position.x;
+                    var dy = b2.position.y - b.position.y;
+                    var distance = dx * dx + dy * dy;
+                    if( distance < nD && b.c === b2.c ) {
+                        neighbours.push( b2 );
+                    }
+                }
+            }
+            
+            var v1 = steerTowardsCenter( b, neighbours );
+            var v2 = steerTowardsMouse( b );
+            var v3 = steerAwayFromNeighbours( b, neighbours );
+            var v4 = matchVelocity( b, neighbours );
+            
+            b.velocity.x += v1.x + v2.x + v3.x + v4.x;
+            b.velocity.y += v1.y + v2.y + v3.y + v4.y;
+            
+            var l = Math.sqrt( b.velocity.x * b.velocity.x + b.velocity.y * b.velocity.y );
+            var norm = 1 / l;
+            if( l > 10 ) l = 10;
+            if( l < 2 ) l = 2;
+            b.velocity.x *= b.speed * l * norm;
+            b.velocity.y *= b.speed * l * norm;
+            
+            b.oPosition.x = b.position.x;
+            b.oPosition.y = b.position.y;
+            
+            b.position.x += b.velocity.x * globalSpeed;
+            b.position.y += b.velocity.y * globalSpeed;
+            
+            if( b.position.x < 0 || b.position.x > window.innerWidth ) b.velocity.x *= -1;
+            if( b.position.y < 0 || b.position.y > window.innerHeight ) b.velocity.y *= -1;
+            
+        }
+        
+    }
+    
+    function animate() {
+    
+        update();
+        draw();
+        requestAnimationFrame( animate );
+        
+    }
+
+    function onWindowResize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    
+    window.addEventListener( 'resize', onWindowResize );
+    window.addEventListener( 'load', init )
+    </script>    
+    </body>
+</html>

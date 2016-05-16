@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+        <title>清空绘图区</title>
+        <style type="text/css">
+            *{padding: 0;margin: 0}
+            body,html{width: 100%;height: 100%}
+            canvas{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                cursor:pointer;
+                -webkit-transform:translate(-50%,-50%);
+                -moz-transform:translate(-50%,-50%);
+                -ms-transform:translate(-50%,-50%);
+                -o-transform:translate(-50%,-50%);
+                transform:translate(-50%,-50%);
+            }
+        </style>
+        <script type="text/javascript" src="./js/Utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-debug.js"></script>
+        <script type="text/javascript" src="./js/cuon-utils.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas" width="800" height="600"></canvas>   
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_Position;
+            attribute float a_PointSize;
+            void main(){
+                gl_Position = a_Position;
+                gl_PointSize = a_PointSize;
+            }  
+        </script>  
+        <!-- 片段着色器 --> 
+        <script id="shader-fs" type="x-shader/x-fragment">
+            precision mediump  float;
+            uniform vec4 u_FragColor;
+            void main(){
+                gl_FragColor = u_FragColor;
+            }  
+        </script>         
+        <script type="text/javascript">
+            function getshaderstr(id){
+                var key,shader="",element = document.getElementById(id);
+                if(!element){
+                    return null;
+                }
+                key = element.firstChild;
+                while (key) {
+                    if (key.nodeType == 3) {
+                        shader += key.textContent;
+                    }
+                    key = key.nextSibling;
+                }
+                return shader;
+            }
+        </script>
+        <script type="text/javascript">
+        window.onload = function(){
+            var canvas = document.getElementById("canvas");
+            var gl = getWebGLContext(canvas,true);
+            var VSHADER_SOURCE = getshaderstr("shader-vs");
+            var FSHADER_SOURCE = getshaderstr("shader-fs");
+            var canvasw = canvas.getAttribute("width")/2;
+            var canvash = canvas.getAttribute("height")/2;
+            var offsetx = 25/canvasw,offsety = 25/canvash;
+            var u_FragColor,a_Position,a_PointSize,points = new Float32Array([0.0,0.0,0.0]);
+            var colors = new Float32Array([1.0,0.0,0.0,1.0]);
+            if(!gl){
+                console.log("你的浏览器暂时不支持WEBGL");
+                return;
+            } 
+            //设置顶点着色器与片段着色器形成渲染对象
+            if(!initShaders(gl,VSHADER_SOURCE,FSHADER_SOURCE)){
+                console.log("初始化着色器错误");
+                return;                
+            }
+            //获取到顶点着色器的全局变量a_Position
+            a_Position = gl.getAttribLocation(gl.program,'a_Position');
+            //获取到顶点着色器的全局变量a_PointSize
+            a_PointSize = gl.getAttribLocation(gl.program,'a_PointSize');
+            //获取片段着色器的颜色
+            u_FragColor = gl.getUniformLocation(gl.program,'u_FragColor');
+            //清除canvas的颜色
+            gl.clearColor(0,0,0,1);            
+            function rendering(point){
+                //清空canvas 颜色缓冲区
+                gl.clear(gl.COLOR_BUFFER_BIT);                
+                //在设置顶点着色器的全局变量a_Position进行渲染
+                gl.vertexAttrib3fv(a_Position,point);
+                gl.vertexAttrib1f(a_PointSize,50);  
+                gl.uniform4fv(u_FragColor,colors);             
+                //绘制一个点使用
+                gl.drawArrays(gl.POINTS,0,1);
+            }
+            /**
+            * webgl 的坐标系是以中心为起点的笛卡尔坐标系
+            * 范围是-1.0 1.0之间
+            * 所以在使用的时候必须将像素级别的映射到webgl的坐标系
+            * 
+            */
+            document.addEventListener('touchmove', function (event) {
+                event.preventDefault();
+            });            
+            if(false){
+                canvas.addEventListener("touchstart", function(event){
+                    var x,y,rect,index;
+                    event = event["touches"][0];
+                    rect = event.target.getBoundingClientRect();
+                    x = rect.left;
+                    y = rect.top;
+                    x = ((event.clientX - x) - canvasw)/canvasw;
+                    y = (canvash - (event.clientY - y))/canvash;
+
+                    index = Math.ceil(Math.random()*4)-1
+                    points[0] = x;
+                    points[1] = y;
+                    for(var i =0;i<2;i++){
+                        colors[i] = (Math.ceil(Math.random()*256)-1)/255;
+                    }
+                    rendering(points);
+                    event.preventDefault();                    
+                });                    
+            }else{
+                canvas.addEventListener("click", function(event){
+                    var x,y,rect,index;
+                    rect = event.target.getBoundingClientRect();
+                    x = rect.left;
+                    y = rect.top;
+                    x = ((event.clientX - x) - canvasw)/canvasw;
+                    y = (canvash - (event.clientY - y))/canvash;
+                    index = Math.ceil(Math.random()*4)-1
+                    points[0] = x;
+                    points[1] = y;
+                    for(var i =0;i<2;i++){
+                        colors[i] = (Math.ceil(Math.random()*256)-1)/255;
+                    }
+                    rendering(points);
+                });                              
+            }
+            rendering(points);
+        }
+        </script>
+    </body>
+</html>

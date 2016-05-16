@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>select练习</title>
+		<link rel="stylesheet" type="text/css" href="../css/index.css">
+		<meta name="author" content="leju"/>
+		<script type="text/javascript">
+		    var isClick = false;
+		    var objSelect = null;
+		    var idTime;
+		    var objFish
+		    /*页面加载完成取得值*/
+		    function loadevent(){
+		    	objSelect = document.getElementById('mySelect');
+		    	var str='这个列表共有'+objSelect.length+'个选项.'+'<br/>';
+		    	for(var i=0;i<objSelect.length;i++){
+		    		str+='value:'+objSelect.options[i].value+"----text:"+objSelect.options[i].text+'<br/>';
+		    	}
+		    	document.getElementById("loginput").innerHTML = str;
+		        objFish = document.getElementById('error_wrap');
+		    }
+		    /*设置下拉列表是否可以使用**/
+			function click_updata(event){
+				var event = event || window.event;//取得不同浏览器下的事件对象
+	        	var targ = event.target || event.srcElement;
+	        	isClick = !isClick;
+	        	if(isClick){
+	        		targ.value ="启用列表";
+	        		objSelect.disabled = true;
+	        	}else{
+	        		targ.value ="禁用列表";
+	        		objSelect.disabled = false;
+	        	}
+			}
+			/**取得你选择的下拉框的值**/
+			function selectChange(event){
+				var event = event || window.event;//取得不同浏览器下的事件对象
+	        	var targ = event.target || event.srcElement;	
+	        	var obj = targ.options;
+	        	var index = targ.selectedIndex;
+	        	document.getElementById("loginput").innerHTML += '选项值和索引:'+obj[index].text+'--'+obj[index].index+'<br/>';	
+			}
+			/**设置默认值**/
+			function selectOrange(){
+				objSelect.options[2].selected = true;
+			}
+			/**多选复制到右边下拉框**/
+			function rigthClik(){
+				var region = document.getElementById('rigthSelect');
+				region.options.length=0;/**删除之前选项**/
+				for(var i=objSelect.length-1;i>=0;i--){
+					// console.log(objSelect.options[i].selected); // --> true	
+					if(objSelect.options[i].selected){
+						var opt = document.createElement("option");
+						 opt.text=objSelect.options[i].text;
+						 opt.value=objSelect.options[i].value; 
+						 region.options.add(opt);
+						 console.log(objSelect.options[0],i)
+						 //objSelect.remove(objSelect.options[i]);	
+					}
+				}
+				options = null;
+			}
+			/**设置是否可以多选**/
+			function setMultiple(){
+				document.getElementById('rigthSelect').multiple = objSelect.multiple = true;
+			}
+			/**启动动画定时器**/
+			function startTime(event){
+				var event = event || window.event;//取得不同浏览器下的事件对象
+	        	var targ = event.target || event.srcElement;	
+				if(idTime){
+					window.clearInterval(idTime);
+					idTime = null;
+					targ.value = '播放动画';
+				}else{
+					idTime = window.setInterval(move,300);
+					targ.value = '停止动画';
+				}
+			}
+			var k=0;
+			var reg = /px/;
+			/**动画定时器执行的方法**/
+			function move(){
+				objFish.style.backgroundPosition='0px -'+(k*122)+'px';
+				var let = objFish.style.marginLeft;
+				if(let){
+					var result = parseInt(let.replace(reg,''));
+					objFish.style.marginLeft=(result+3)+'px';
+				}else{
+					objFish.style.marginLeft='15px';
+				}				
+				k>=3?k=0:k++;
+			}
+		</script>
+	</head>
+	<body onload="loadevent();">
+		<form>
+			<select id="mySelect" onchange="selectChange(event)">
+				<option value="A">苹果</option>
+				<option value="B">桃子</option>
+				<option value="C">香蕉</option>
+				<option value="D">橘子</option>
+			</select>
+			<input type="button" value=">>" onclick="rigthClik()"/>
+			<select id="rigthSelect">
+			</select>
+			<br/><br/>
+			<input type="button" id="updata" value="禁用列表" onclick="click_updata(event);"/>
+			<input type="button" value="设置多选" onclick="setMultiple()"/>
+			<input type="button" value="设置默认值(香蕉)" onclick="selectOrange()"/>
+			<div id="loginput"></div>
+		</form>
+		<div id="error_wrap" class="error_wrap"></div>
+	</body>
+</html>

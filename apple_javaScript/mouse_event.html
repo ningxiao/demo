@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>鼠标事件</title>
+		<meta name="author" content="leju"/>
+		<style type="text/css">
+			*{
+				margin: 0px;
+				padding: 0px;
+			}
+		</style>
+		<script type="text/javascript">
+			var EventUtil=new Object;
+			(function(){
+				var iebool = top.execScript?1:0;
+				EventUtil.addEventHandler=function(oTarget,sEventType,fhHandler){
+					if(oTarget.attachEvent){/**IE下面的注册事件*/
+						oTarget.attachEvent('on'+sEventType,fhHandler);
+					}else if(oTarget.addEventListener){/**非IE下面的注册事件*/
+						oTarget.addEventListener(sEventType,fhHandler,false);
+					}else{
+						oTarget['on'+sEventType] = fhHandler;
+					}
+				};
+				EventUtil.removeEventHandler=function(oTarget,sEventType,fhHandler){
+					if(oTarget.detachEvent){
+						oTarget.detachEvent('on'+sEventType,fhHandler);
+					}else if(oTarget.removeEventListener){
+						oTarget.removeEventListener(sEventType,fhHandler,false);
+					}else{
+						oTarget['on'+sEventType] = null;
+					}
+				};
+				EventUtil.getTarget = function(event){/**取得事件对象*/
+					event = event || window.event;
+					return event.target || event.srcElement;
+				};
+				EventUtil.getEvent = function(event){/**取得事件event对象*/
+					return event || window.event;
+				};
+				EventUtil.preventDefault = function(event){/**取消默认事件*/
+					event = event || window.event;
+					if(event.preventDefault){
+						event.preventDefault();
+					}else{
+						event.returnValue = false;
+					}
+				};
+				EventUtil.stopPropagation = function(event){/**阻止事件冒泡*/
+					event = event || window.event;
+					if(event.stopPropagation){
+						event.stopPropagation();
+					}else{
+						event.cancelBubble = true;
+					}
+				};
+				EventUtil.getRelatedTarget = function(event){/**取得鼠标移动**/
+					event = event || window.event;
+					if(event.relatedTarget){
+						return event.relatedTarget;
+					}else if(event.toElement){
+						return event.toElement;
+					}else if(event.fromElement){
+						return event.fromElement;
+					}else{
+						return null;
+					}
+				};
+				EventUtil.getbutton = function(event){//检测鼠标单,左,中,右击键
+					var event = event || window.event;
+					if(document.implementation.hasFeature('MouseEvents','2.0')){
+						return event.button;
+					}else{
+						switch(event.button){
+							case 0:
+							case 1:
+							case 3:
+							case 5:
+							case 7:
+							return 0;
+							case 2:
+							case 6:
+							return 2;
+							case 4:
+							return 1;				
+						}
+					}
+				};
+				EventUtil.getCharCode = function(event){/**取得当前键盘的值*/
+					event = event || window.event;
+					if(typeof event.charCode =='number'){
+						return event.charCode;
+					}else{
+						return event.keyCode;
+					}
+				};
+				EventUtil.getWheelData = function(event){/**取得鼠标滚轮值**/
+					event = event || window.event;
+					if(event.wheelDelta){
+						return event.wheelDelta;
+					}else{
+						return -event.detail * 40;
+					}
+				};
+				EventUtil.dispatchEvent = function(obj,type){/**主动派发事件*/
+					try{
+						if(iebool){
+							obj.fireEvent('on'+type);  
+						}else{
+			                var evt = document.createEvent('Event');  
+			                evt.initEvent(type,true,true);  
+			                el.dispatchEvent(evt); 							
+						}
+					}catch(error){
+						
+					}  					
+				};
+				EventUtil.fixedMouse = function (e, target) {
+				    var related, type = e.type.toLowerCase();//这里获取事件名字
+				    if (type == "mouseover") {
+				        related = e.relatedTarget || e.fromElement
+				    } else if (type == "mouseout") {
+				        related = e.relatedTarget || e.toElement
+				    } else return true;
+				    return related && related.prefix != "xul" && !EventUtil.contains(target, related) && related !== target;
+				}
+				EventUtil.contains = function (p, c) {
+				    return p.contains ? p != c && p.contains(c) : !!(p.compareDocumentPosition(c) & 16);
+				}				
+			})();			
+			window.onload = function(){
+				var inputtext = document.getElementById('inputtxt');
+				var obj = document.documentElement;
+				obj.onmousedown = function(event){
+					var clickkey = EventUtil.getbutton(event);
+					inputtext.innerHTML += '鼠标按键'+clickkey+'<\/br>';
+				}
+				obj.onclick = function(event){
+					var event = event || window.event;
+					var cX = event.clientX;
+					var cY = event.clientY;
+					var sX = event.screenX;
+					var sY = event.screenY;
+					var keys = [];
+					if(event.shiftKey){
+						keys.push('shift');
+					}
+					if(event.ctrlKey){
+						keys.push('ctrl');
+					}
+					if(event.altKey){
+						keys.push('alt');
+					}
+					if(event.metaKey){
+						keys.push('meta');
+					}
+					inputtext.innerHTML += 'kyes:'+keys.join(',')+"相对内容坐标"+cX+"--"+cY+'屏幕'+sX+"--"+sY+'鼠标按键'+'<\/br>';
+				}
+				EventUtil.addEventHandler(inputtext,'mouseout',mouseEvent);
+				EventUtil.addEventHandler(inputtext,'mouseover',mouseEvent);
+				EventUtil.addEventHandler(document,'keydown',eventKey);
+				function mouseEvent(event){
+					var targrt = EventUtil.getTarget(event);
+					var relatedTarget = EventUtil.getRelatedTarget(event);
+					inputtext.innerHTML += '响应事件对象'+targrt.tagName+"父级对象"+relatedTarget.tagName +'<\/br>';
+					
+				}
+				function eventKey(event){
+					event = event || window.event;
+					inputtext.innerHTML += '键盘对应键值'+String.fromCharCode(event.keyCode)+'<\/br>';
+				}
+				EventUtil.addEventHandler(document,'mousewheel',wheelfun);
+				EventUtil.addEventHandler(window,'mousewheel',wheelfun);
+				EventUtil.addEventHandler(window,'DOMMouseScroll',wheelfun);
+				function wheelfun(event){
+				   alert(EventUtil.getWheelData(event));
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="inputtxt" style="padding:10px; margin:10px auto;width: 80%;height: 200px;border: 2px solid #FF0000"></div>
+	    <p><label for="wheelDelta">滚动值:</label>(IE/Opera)<input type="text" id="wheelDelta" /></p>
+		<p><label for="detail">滚动值:(Firefox)</label><input type="text" id="detail" /></p> 
+	</body>
+</html>

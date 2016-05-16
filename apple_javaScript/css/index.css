@@ -1,0 +1,6 @@
+#listul{
+	list-style: none;
+}
+#listul li{
+	float: left;
+}

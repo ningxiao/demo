@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
+        <title>绘制多层级三角形</title>
+        <style type="text/css">
+            *{padding: 0;margin: 0}
+            body,html{width: 100%;height: 100%}
+            canvas{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                cursor:pointer;
+                -webkit-transform:translate(-50%,-50%);
+                -moz-transform:translate(-50%,-50%);
+                -ms-transform:translate(-50%,-50%);
+                -o-transform:translate(-50%,-50%);
+                transform:translate(-50%,-50%);
+            }
+        </style>
+        <script type="text/javascript" src="./js/Utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-utils.js"></script>
+        <script type="text/javascript" src="./js/webgl-debug.js"></script>
+        <script type="text/javascript" src="./js/cuon-utils.js"></script>
+        <script type="text/javascript" src="./js/cuon-matrix.js"></script>
+    </head>
+    <body>
+        <canvas id="canvas" width="800" height="600"></canvas>   
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_Position;
+            attribute vec4 a_Color;
+            uniform mat4 u_ModelViewMatrix;
+            varying vec4 v_Color;
+            void main(){
+                gl_Position = u_ModelViewMatrix * a_Position;
+                v_Color = a_Color;
+            }  
+        </script>  
+        <!-- 片段着色器 --> 
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision mediump float;
+            #endif
+            varying vec4 v_Color;
+            void main() {
+                gl_FragColor = v_Color;
+            }
+        </script>  
+        <script type="text/javascript">
+            function getshaderstr(id){
+                var list,key,shader="",element = document.getElementById(id);
+                if(!element){
+                    return null;
+                }
+                key = element.firstChild;
+                while (key) {
+                    if (key.nodeType == 3) {
+                        shader += key.textContent;
+                    }
+                    key = key.nextSibling;
+                }
+                return shader.toString();
+            }
+        </script>     
+        <script type="text/javascript">
+        window.onload = function(){
+            var canvas = document.getElementById("canvas");
+            var ANGLE = 0,gl = getWebGLContext(canvas,true);
+            var VSHADER_SOURCE = getshaderstr("shader-vs");
+            var FSHADER_SOURCE = getshaderstr("shader-fs");
+            var vertex,modelMatrix,viewMatrix,modelviewMatrix,u_ModelViewMatrix,a_Color,a_Position;
+            function initVertexBuffers(gl){
+                var vertex,FSIZE,vertexColorbuffer,verticesColors = new Float32Array([
+                   //x     y     z      r     g     b
+                     0.0,  0.5,  -0.4,  0.4,  1.0,  0.4,//绿色三角形在最后面
+                    -0.5, -0.5,  -0.4,  0.4,  1.0,  0.4,
+                     0.5, -0.5,  -0.4,  1.0,  0.4,  0.4, 
+                   
+                     0.5,  0.4,  -0.2,  1.0,  0.4,  0.4,//黄色三角形在中间
+                    -0.5,  0.4,  -0.2,  1.0,  1.0,  0.4,
+                     0.0, -0.6,  -0.2,  1.0,  1.0,  0.4, 
+
+                     0.0,  0.5,   0.0,  0.4,  0.4,  1.0,//蓝色三角形在最前面
+                    -0.5, -0.5,   0.0,  0.4,  0.4,  1.0,
+                     0.5, -0.5,   0.0,  1.0,  0.4,  0.4, 
+                    ]);
+                //向gl申请一个缓冲区对象 存放顶点坐标与纹理数据
+                vertexColorbuffer = gl.createBuffer();
+                if(!vertexColorbuffer){
+                    return -1;
+                }
+                //获取改几何图形由几个顶点组成
+                vertex = verticesColors.length / 6;
+                //将缓冲区对象绑定到目标对象gl
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorbuffer);
+                //向缓冲区对象写入顶点坐标与纹理数据
+                gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
+                //获取单元字节数大小即 数组索引里面字节大小
+                FSIZE = verticesColors.BYTES_PER_ELEMENT;
+                //获取到顶点着色器的全局变量a_Position
+                a_Position = gl.getAttribLocation(gl.program,'a_Position');
+                //获取到纹理的全局变量a_TexCoord
+                a_Color = gl.getAttribLocation(gl.program, 'a_Color');
+                if(a_Position < 0 && a_Color < 0){
+                    return -1;
+                }
+                /*
+                 * 将缓冲区对象分配给a_Position变量
+                 * 每次读取6个数据大小为24偏移量为0 但是只使用前三个数据x y z(x y z r g b)
+                 */                
+                gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
+                gl.enableVertexAttribArray(a_Position);
+                /*
+                 * 将缓冲区对象分配给a_Color变量
+                 * 每次读取6个数据大小为24偏移量为三个数据大小(r,r,b) 但是只使用三个数据r,r,b(x y z r g b)
+                 */
+                gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+                gl.enableVertexAttribArray(a_Color);
+                gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                return vertex;
+            }                       
+            if(!gl){
+                console.log("你的浏览器暂时不支持WEBGL");
+                return;
+            } 
+            //设置顶点着色器与片段着色器形成渲染对象
+            if(!initShaders(gl,VSHADER_SOURCE,FSHADER_SOURCE)){
+                console.log("初始化着色器错误");
+                return;                
+            }
+            vertex = initVertexBuffers(gl);
+            if(vertex<0){
+                console.log("初始化缓冲区错误");
+                return;                
+            }
+            //创建canvas的背景色颜色
+            gl.clearColor(0.0, 0.0, 0.0, 1.0); 
+            //获取视点,视线,旋转矩阵u_ModelMatrix变量
+            u_ModelViewMatrix = gl.getUniformLocation(gl.program, 'u_ModelViewMatrix');
+            if (!u_ModelViewMatrix) { 
+                console.log('获取矩阵 u_ModelViewMatrix 错误');
+                return;
+            }                              
+            modelMatrix = new Matrix4();
+            viewMatrix = new Matrix4();
+            //计算旋转矩阵
+            modelMatrix.setRotate(-10,0,0,1); 
+            //设置视点 视线 和上方向
+            viewMatrix.setLookAt(0.20, 0.25, 0.25, 0, 0, 0, 0, 1, 0);
+            modelviewMatrix = viewMatrix.multiply(modelMatrix);
+            //设置视点,视线,旋转矩阵u_ModelViewMatrix变量 
+            gl.uniformMatrix4fv(u_ModelViewMatrix, false, modelviewMatrix.elements); 
+            //清除canvas
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            //绘制三角形
+            gl.drawArrays(gl.TRIANGLES, 0, vertex);                     
+        }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>js动画封装播放</title>
+		<meta name="author" content="leju" />
+		<link rel="stylesheet" type="text/css" href="../css/index.css">
+		<script type="text/javascript">	
+		var a = {};
+		var c;
+		var d;
+		function oninit(){
+			 c = new a.execution(document.getElementById('fisha'),0,3,300,playecall);
+			 d = new a.execution(document.getElementById('fishb'),4,7,500,playecall);
+		}
+		/*执行动画的具体函数*/
+		(function(){
+			a.execution = function(obj,or,max,time,playecall){
+				obj.style.marginLeft='-110px';
+				var idTime;
+				var k=or;
+				var reg = /px/;
+				var callfun = playecall;
+				var thisobj = this;
+				this.stop=function(){
+					window.clearInterval(idTime);
+					idTime = null;
+				};
+				this.playe = function(){
+					obj.style.display = 'block';
+					idTime = window.setInterval(this.timeevent,time);
+				};
+				this.timeevent = function(){
+					var let = parseInt(obj.style.marginLeft.replace(reg,''));
+						if(let<200){
+							obj.style.backgroundPosition='0px -'+(k*122)+'px';
+							obj.style.marginLeft=(let+3)+'px';
+							k>=max?k=or:k++;
+						}else{
+							obj.style.marginLeft='-110px';
+							callfun(thisobj);
+							k=or;
+						}
+				};
+			}
+		})();
+		/**启动定时器**/
+		function startTime(event){
+			var event = event || window.event;
+			var targ = event.target || event.srcElement;
+			if(targ.value=='播放动画'){
+				targ.value='暂停动画';
+				c.playe();
+				d.playe();
+			}else{
+				targ.value='播放动画';
+				c.stop();
+				d.stop();
+			}
+		}
+		function playecall(obj){
+			obj.stop();
+			obj.playe();
+		}
+		</script>
+	</head>
+	<body onload="oninit();">
+		<input type="button" value="播放动画" onclick="startTime(event);"/><br/>
+		<div id="fisha" class="fisha"></div>
+		<div id="fishb" class="fishb"></div>
+	</body>
+	<!--[if IE 6]>
+	<script ltype="text/javascript" src="http://import.highso.org.cn/js/web/public/DD_belatedPNG_0.0.8a-min.js"></script>
+	<script type="text/javascript">
+		DD_belatedPNG.fix('.fisha');
+		DD_belatedPNG.fix('.fishb');
+	</script>
+	<![endif]-->	
+</html>

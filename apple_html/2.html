@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>测试DIV</title>
+    <style type="text/css">
+        *{padding: 0;margin: 0}
+        body{
+            font-family: Georgia, serif;
+        }
+        h1 {margin-bottom:0;}
+        h2 {margin-bottom:0; font-size:14px;}
+        ul {margin:0;}
+        li {list-style:none;margin-left: 10px}
+        input[type="text"]
+        {
+            width:150px;
+            display:block;
+            margin-bottom:10px;
+            background-color:yellow;
+            font-family: Verdana, Arial;
+        }
+
+        input[type="button"]
+        {
+            width:120px;
+            margin-left:35px;
+            display:block;
+            font-family: Verdana, Arial;
+        }
+        li strong {
+            font-style: italic;
+            font-weight: normal;
+        }
+        .container{
+            width: 700px;
+        }
+        .header{
+            background-color:#99bbbb;
+        }
+        .menu{
+            background-color: #ffff99;width: 100px;float: left;padding-bottom: 1000px;margin-bottom: -1000px;
+        }
+        .content{
+             background-color: #EEEEEE;float:right;width: 600px;
+        }
+        .footer{
+            background-color:#99bbbb; clear:both; text-align:center;
+        }
+        .red{color: red}
+        .green{color:green}
+        [title]{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="header">网页主题</h1>
+    <div style="overflow:hidden;">
+        <div class="menu">
+            <h2>菜单选项</h2>
+            <ul>
+                <li>HTML</li>
+                <li>CSS</li>
+                <li>JavaScript</li>
+            </ul>
+        </div>
+        <div class="content">
+            <p><strong>我是粗体字，不是斜体字，因为我不在列表当中，所以这个规则对我不起作用</strong></p>
+            <ol>
+                <li><strong>我是斜体字。这是因为 strong 元素位于 li 元素内。</strong></li>
+                <li>我是正常的字体。</li>
+            </ol>
+            <p class="red">这个段落是红色。</p>
+            <p class="green">这个段落是绿色。</p>
+            <h2>Hello world</h2>
+            <a href="http://w3school.com.cn" title="w3school">W3School</a>
+            <form name="input" action="" method="get">
+                <input type="text" name="Name" value="Bill" size="20">
+                <input type="text" name="Name" value="Gates" size="20">
+                <input type="button" value="Example Button">
+            </form>
+        </div>
+    </div>
+    <div class="footer">W3School.com.cn</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>CSS 列布局</title>
+    <style type="text/css">
+        *{padding: 0;margin: 0}
+        html,body{
+            margin: 0;
+            height: 100%;
+        }
+        body{
+            font-family: Georgia, serif;
+        }
+        div{
+            width: 100px;height: 100px;background-color: #eee;border: 2px solid #aaa;
+            margin: 2px 2px 2px 0px;float: left;
+        }
+        .b{
+            position: relative;top: 80px;left: 100px;
+        }
+        .d{
+            position: absolute;top: 80px;left: 210px;
+        }
+    </style>
+</head>
+<body>
+<div style="margin-left: 200px;width: 400px;height: 400px;position: absolute;">
+    <div class="a">A</div>
+    <div class="b">B</div>
+    <div class="c">C</div>
+    <div class="d">D</div>
+</div>
+</body>
+</html>

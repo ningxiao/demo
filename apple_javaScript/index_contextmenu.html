@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>自定义菜单</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+		    *{
+		    	margin: 0px;
+		    	padding: 0px;
+		    }
+			#myMenu{
+				position: absolute;
+				visibility: hidden;
+				background-color: silver;
+			}
+		</style>
+		<script type="text/javascript">
+		    var isIE=top.execScript?1:0;//判断浏览器是否为IE
+			window.onload = function(){
+				var div = document.getElementById('mydiv');
+				var menu = document.getElementById('myMenu');
+				div.oncontextmenu = function(event){
+					event = event||window.event;
+					isIE?event.returnValue = false:event.preventDefault();
+					menu.style.left = event.clientX+'px';
+					menu.style.top = event.clientY+'px';
+					menu.style.visibility = 'visible';
+				}
+				document.onclick = function(event){
+					menu.style.visibility = 'hidden';
+				}
+			}
+			window.onbeforeunload = function(event){
+				event = event||window.event;
+				event.returnValue='11111';
+			}
+		</script>
+	</head>
+	<body>
+		<div id="mydiv" style="width: 200px;height: 200px;margin: 40px auto;border: solid 2px #0099FF;cursor:pointer">自定义右击菜单
+			<ul id="myMenu">
+				<li><a href="http://www.baidu.com">百度</a></li>
+				<li><a href="http://www.baidu.com">百度</a></li>
+				<li><a href="http://www.baidu.com">百度</a></li>
+			</ul>
+		</div>
+	</body>
+</html>

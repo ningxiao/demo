@@ -1,0 +1,89 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+        <title>SVG的文本实例</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background:#CFC7C7;
+            }
+            svg {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            } 
+            svg > text{
+                font-size: 20px;
+                font-family: 'Arial';
+            }                  
+        </style>
+    </head>
+    <body>
+        <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path stroke="#F0F0F0" fill="none" d="M 0 0 H20 V20"></path>
+                </pattern>
+            </defs>
+            <!-- 使用上面定义好的对象填充背景 -->
+            <rect width="100%" height="100%" fill="url(#grid)"></rect>
+            <path id="path" stroke="red"/>
+            <text id="sintext" x="82" y="138">ABCDEFGHIJKLMNOPQRSTUVWXYZ</text>
+            <text id="sintspan" x="82" y="360"></text>
+        </svg>
+        <script type="text/javascript">
+            window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+                    setTimeout(callback, 1000 / 60);
+                });
+            window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame ||window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);        
+        </script>
+        <script type="text/javascript">
+            var svg = document.getElementById("svg"),svgw = svg.offsetWidth,svgh = svg.offsetHeight;
+            var sintext = document.getElementById("sintext");
+            var sinval = sintext.textContent,slen =sinval.length;
+            var sintspan = document.getElementById("sintspan");
+            var path = document.getElementById("path");
+            //sintspan.textContent = sinval;
+            var y,t = 0,w = 0.02,s = 100,x = [],i = slen;
+            path.setAttribute("d",'M100,0 V'+svgh+' M0,20 H'+svgw+' M0,240 H'+svgw+' M0,460 H'+svgw);
+            while(i--){
+                var h = Math.round(360/26*i);
+                var tspan = document.createElementNS("http://www.w3.org/2000/svg","tspan");
+                tspan.textContent = sinval[slen - i -1];
+                tspan.setAttribute('fill','hsl('+h+',100%,80%');
+                sintspan.appendChild(tspan);
+                x.push(20);
+            };
+            function arrange(t){
+                var cy,ly = 0;
+                y = [];
+                for(var i=0;i<slen;i++){
+                    cy = -s *Math.sin(w * i *20 + t);
+                    y.push(cy - ly);
+                    ly = cy;
+                }
+            }
+            function render(){
+                sintext.setAttribute("dx",x.join(' '));
+                sintext.setAttribute("dy",y.join(' '));
+                sintspan.setAttribute("dx",x.join(' '));
+                sintspan.setAttribute("dy",y.join(' '));                
+            }
+            function frame(){
+                t+=0.04;
+                arrange(t);
+                render(); 
+                window.requestAnimationFrame(frame);               
+            }
+            frame();
+        </script>        
+    </body>
+</html>

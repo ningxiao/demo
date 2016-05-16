@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>js派发事件</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{
+				margin: 0px;
+				padding: 0px;
+			}
+			.mydiv{
+				padding: 10px 10px;
+				margin-bottom: 5px;
+			}
+		</style>
+		<script type="text/javascript">
+			var EventUtil=new Object;
+			(function(){
+				var iebool = top.execScript?1:0;
+				EventUtil.addEventHandler=function(oTarget,sEventType,fhHandler){
+					if(oTarget.attachEvent){/**IE下面的注册事件*/
+						oTarget.attachEvent('on'+sEventType,fhHandler);
+					}else if(oTarget.addEventListener){/**非IE下面的注册事件*/
+						oTarget.addEventListener(sEventType,fhHandler,false);
+					}else{
+						oTarget['on'+sEventType] = fhHandler;
+					}
+				};
+				EventUtil.removeEventHandler=function(oTarget,sEventType,fhHandler){
+					if(oTarget.detachEvent){
+						oTarget.detachEvent('on'+sEventType,fhHandler);
+					}else if(oTarget.removeEventListener){
+						oTarget.removeEventListener(sEventType,fhHandler,false);
+					}else{
+						oTarget['on'+sEventType] = null;
+					}
+				};
+				EventUtil.getTarget = function(event){/**取得事件对象*/
+					event = event || window.event;
+					return event.target || event.srcElement;
+				};
+				EventUtil.getEvent = function(event){/**取得事件event对象*/
+					return event || window.event;
+				};
+				EventUtil.preventDefault = function(event){/**取消默认事件*/
+					event = event || window.event;
+					if(event.preventDefault){
+						event.preventDefault();
+					}else{
+						event.returnValue = false;
+					}
+				};
+				EventUtil.stopPropagation = function(event){/**阻止事件冒泡*/
+					event = event || window.event;
+					if(event.stopPropagation){
+						event.stopPropagation();
+					}else{
+						event.cancelBubble = true;
+					}
+				};
+				EventUtil.getRelatedTarget = function(event){/**取得鼠标移动**/
+					event = event || window.event;
+					if(event.relatedTarget){
+						return event.relatedTarget;
+					}else if(event.toElement){
+						return event.toElement;
+					}else if(event.fromElement){
+						return event.fromElement;
+					}else{
+						return null;
+					}
+				};
+				EventUtil.getbutton = function(event){//检测鼠标单,左,中,右击键
+					var event = event || window.event;
+					if(document.implementation.hasFeature('MouseEvents','2.0')){
+						return event.button;
+					}else{
+						switch(event.button){
+							case 0:
+							case 1:
+							case 3:
+							case 5:
+							case 7:
+							return 0;
+							case 2:
+							case 6:
+							return 2;
+							case 4:
+							return 1;				
+						}
+					}
+				};
+				EventUtil.getCharCode = function(event){/**取得当前键盘的值*/
+					event = event || window.event;
+					if(typeof event.charCode =='number'){
+						return event.charCode;
+					}else{
+						return event.keyCode;
+					}
+				};
+				EventUtil.getWheelData = function(event){/**取得鼠标滚轮值**/
+					event = event || window.event;
+					if(event.wheelDelta){
+						return event.wheelDelta;
+					}else{
+						return -event.detail * 40;
+					}
+				};
+				EventUtil.dispatchEvent = function(obj,type){/**主动派发事件*/
+					try{
+						if(iebool){
+							obj.fireEvent('on'+type);  
+						}else{
+			                var evt = document.createEvent('Event');  
+			                evt.initEvent(type,true,true,document.defaultView);  
+			                obj.dispatchEvent(evt); 							
+						}
+					}catch(error){
+						
+					}  					
+				};
+			})();
+			window.onload = function(){
+				var btn = document.getElementById('btn');
+				btn.onclick = clickfun;
+				var inpt = document.getElementById('textbox');
+				var sizinpt = document.getElementById('sizinpt');
+				EventUtil.addEventHandler(sizinpt,'keypress',keyinp);
+				var formid = document.getElementById('textform');
+				formid.onkeyup = function(event){
+					event = event||window.event;
+					var target = event.currentTarget||this;
+					alert(target.id);
+				}
+			}
+			function keyinp(event){
+				var charCode = EventUtil.getCharCode(event);
+				if(!/\d/.test(String.fromCharCode(charCode)) && charCode>9){
+					EventUtil.preventDefault(event);
+				}
+			}
+			function getSelectDtext(obj){
+				if(document.selection){
+					return document.selection.createRange().text;
+				}else{
+					return obj.value.substring(obj.selectionStart,obj.selectionEnd);
+				}
+			}
+			function setSelectDtext(obj){
+				if(obj.createTextRange){
+					var range = obj.createTextRange();
+					range.collapse(true);
+					range.moveStart('character',2);
+					range.moveEnd('character',8);
+					range.select();
+				}else if(obj.setSelectionRange){
+					obj.setSelectionRange(0,8);
+				}
+				obj.focus();
+			}
+			function clickfun(event){
+				event = event||window.event;
+				var target = event.target||event.srcElement;
+				alert(target.value+"---"+target.type);
+			}
+			function onbutton(){
+				var btn = document.getElementById('btn');
+				EventUtil.dispatchEvent(btn,'click');	
+			}
+			var time =null;
+			var index = 0;
+			var inul = null;
+			function addLi(){
+				var lilist = document.getElementsByTagName('li')[0];
+				var alpah = count = iHeight = 0;
+				var oli = document.createElement('li');
+				oli.style.width = '400px';
+				oli.style.overflow = 'hidden';
+				oli.style.border = 'solid 1px #0099FF';
+				oli.style.marginBottom = '10px';
+				oli.innerHTML = "<div class='mydiv'>"
+								+"法第四十的发生地方是大师大师阿四大尚德的法第四十的发生地方是大师大师阿四大尚德的法第四十的发生地方是大师大师阿四大尚德的法第四十的发生地方是大师大师阿四大尚德的"
+								+"<\/div>";
+				var oul = document.getElementsByTagName('ul')[0];
+				index>0 ? oul.insertBefore(oli,lilist) :oul.appendChild(oli);
+				index++;
+				iHeight = oli.clientHeight;
+				oli.style.height = '0px';
+				oli.style.opacity = 0;
+				oli.style.filter='alpha(opacity=0)';
+				time = setInterval(function(){
+					count += 8;
+					oli.style.height = count+'px'
+					if(count>iHeight){
+						clearInterval(time);
+						oli.style.height = iHeight+'px';
+						timer = setInterval(function(){
+							oli.style.opacity=(alpah+=0.1);
+							oli.style.filter='alpha(opacity='+(alpah+=0.1)*100+')';
+							alpah > 1 && (clearInterval(timer),oli.style.opacity=1,oli.style.filter='alpha(opacity=100)');
+						},50);							
+					}
+				},30);
+			}
+		</script>
+	</head>
+	<body>
+		<input  id="btn" type="button" value="鼠标单击事件" />
+		<input type="button" value="派发鼠标事件" onclick="onbutton();" /></br>
+		<input  id="textbox"  size="20" value="今天开始面朝大海春暖花开。" style="width: 220px" />
+		<input type="button" value="获取选择文本"  onclick="alert(getSelectDtext(document.getElementById('textbox')))"/>
+		<input type="button" value="设置选择文本" onclick="setSelectDtext(document.getElementById('textbox'));" />
+	    <input id="sizinpt" type="text" value="只输入数字" style="width: 200px;ime-mode:disabled"/>
+	    <form id="textform">
+	    	<input type="text" id="text1" maxlength="4" />
+	    	<input type="text" id="text2" maxlength="6" />
+	    	<input type="text" id="text3" maxlength="2" />
+	    	<input type="text" id="text4" maxlength="3" />
+	    </form>	
+	    <input type="button" value="取得高度" onclick="addLi();" />
+	    <div style="margin: 40px auto;width: 420px;">
+		    <ul style="list-style-type: none;">
+		    </ul>
+	    </div>
+	</body>
+</html>

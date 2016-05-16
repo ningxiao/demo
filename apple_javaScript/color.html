@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>颜色</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			*{padding: 0;margin:0;}
+			body{font-size:12px;font-family:"宋体";line-height:16px;}
+			.container{width:210px;margin: 20px auto;position: relative;}
+			#colorDrag{width:210px;height:110px;border:1px solid #999;padding:10px 20px 20px 20px;overflow: hidden; position: absolute;background:white;z-index:100;}
+			.target{width:100px;height:100px;background-color: #000;margin-right: 10px;float: left;}
+			.drag{float: left;width:100px;height:100px;position: relative;}
+			ul li{list-style: none;width:100px;height:10px;margin-bottom: 10px;background-color:#e1e1e1;position: relative;}
+			ul li span{width:10px;height:10px;display: block;position: absolute;overflow: hidden; background-image: url("./image/ba.jpg");}
+			#content{width:50px;float: left;}
+			#color16{width:50px;float: left;background-color: #999;line-height:45px;height:45px;text-align:center;color: #FFF;}
+			.myInput{position: absolute;left:20px;top:116px;width:98px;border:1px solid #999;overflow: hidden;}
+			#inTxt{border:0;}
+			.r{background-color: red;}
+			.g{background-color: green;}
+			.b{background-color: blue;}
+			#navi{width:5px;height:9px;position: absolute; background-image: url("./image/navi.jpg");right:4px;top:50%;overflow: hidden;cursor: pointer;}
+			/**********************/
+			#colorPicker{width:180px;height:110px;border:1px solid #999;padding:10px 20px 20px 20px;overflow: hidden; position: absolute;top:0px;left:0px;}
+			#colorPicker #colorPicker_container{position: relative;}
+			#colorPicker #colorPicker_container div{position: absolute;width:9px;height:9px;border:1px solid #000; cursor: pointer;}
+			#colorPicker #colorPicker_container div.active{border-color:#FFFFFF;}
+		</style>
+		<script type="text/javascript">
+			//三原色数组
+			var colorArr=[0,0,0];
+			//colorPicker颜色索引
+			var color=["00","33","66","99","cc","ff"];
+			//文本输入框对象
+			var myTxt;
+			///动画时间
+			var timeInterval;
+			//colorPicker状态
+			var isOver=true;
+			//初始化
+			window.onload=function(){
+				bindContent();
+				bindDrag();
+				bindInput();
+				setInput();	
+				initColorPicker();
+				bindNavi();
+			}
+			///点击扩展出现colorPicker
+			function bindNavi(){
+				$("navi").onclick=function(){
+					animate($("colorPicker"),251);
+					isOver=true;
+				}
+			}
+			////实例化colorPicker
+			function initColorPicker(){
+				for(var i=0;i<color.length;i++){
+					var r=color[i];
+					for(var j=0;j<color.length;j++){
+						var b=color[j];
+						for(var k=0;k<color.length;k++){
+							var g=color[k];
+							var temp=document.createElement("div");
+							temp.style.left=k*10+Math.floor(i%(color.length/2))*60+"px";
+							temp.style.top=j*10+Math.floor(i/(color.length/2))*60+"px";
+							temp.style.backgroundColor="#"+r+g+b;
+							temp.color="0x"+r+g+b
+							temp.onmouseover=function(){
+								if(!isOver){
+									return false;
+								}
+								myTxt.value=this.color;
+								sendValue();
+								this.className="active";
+							}
+							temp.onmouseout=function(){
+								this.className="";
+							}
+							temp.onclick=function(){
+								isOver=false;
+								animate($("colorPicker"),0);
+							}
+							$("colorPicker_container").appendChild(temp);
+						}
+					}
+				}
+			}
+			///设置页面中的文本输入
+			function bindInput(){
+				myTxt.onfocus=function(){
+					this.value="";
+				}
+				myTxt.onblur=function(){
+					sendValue();
+				}
+				myTxt.onkeyup=function(ev){
+					var oEvent=ev || window.event;
+					if(oEvent.keyCode==13){
+						sendValue();	
+					};
+				}
+			}
+			////共有方法提取设置三原色
+			function sendValue(){
+				var num=parseInt(myTxt.value,16);
+				if(!isNaN(num)){
+					///分别提取每个颜色段的数值
+					var r=num>>16;
+					var g=num>>8 & 0xFF;
+					var b=num & 0xFF;
+					///设置滑块位置
+					colorArr[0]=r;
+					colorArr[1]=g;
+					colorArr[2]=b;
+				}
+				setInput();	
+			}
+			////设置输入框内容+拖拽块内容
+			function setInput(){
+				myTxt.value="0x"+check(colorArr[0])+check(colorArr[1])+check(colorArr[2]);
+				liList[0].style.left=colorArr[0]*90/255+"px";
+				liList[1].style.left=colorArr[1]*90/255+"px";
+				liList[2].style.left=colorArr[2]*90/255+"px";
+				bindContent();
+			}
+			///拖拽按钮
+			function bindDrag(){
+				myTxt=$("inTxt");
+				liList=$$("span",$("colorDrag"));
+				for(var i=0;i<liList.length;i++){
+					var tempLi=liList[i];
+					var distance=0;
+					tempLi.index=i;
+					tempLi.onmousedown=function(ev){
+						oEvent=ev || window.event;
+						///得到相对坐标
+						var oldX=oEvent.offsetX || oEvent.layerX;
+						var that=this;
+						var maxLen=this.parentNode.offsetWidth-this.offsetWidth;
+						document.onmousemove=function(ev){
+							oEvent=ev || window.event;
+							////需要处理offsetLeft相对位置需要得到绝对位置坐标
+							distance=oEvent.clientX-offsetLeft(that.parentNode)-oldX;
+							distance<=0 && (distance=0);
+							distance>=maxLen && (distance=maxLen);
+							that.style.left=distance+"px";
+							colorArr[parseInt(that.index)]=Math.ceil((distance)*255/90);
+							bindContent();
+							setInput();
+							////处理默认事件
+							return false;
+						}
+						document.onmouseup=function(ev){
+							document.onmousemove=null;
+							document.onmouseup=null;
+						}
+						return false;
+					}
+
+				}
+			}
+			///得到物体距离页面左侧的绝对位置
+			function offsetLeft(obj){
+				var leng=0;
+				while(obj){
+					leng+=obj.offsetLeft;
+					obj=obj.offsetParent;
+				}
+				return leng;
+			}
+			///设置文本内容
+			function bindContent(){
+				var txt="红色:"+colorArr[0]+"<br/>绿色:"+colorArr[1]+"<br/>蓝色:"+colorArr[2];
+				$("content").innerHTML=txt;
+				////好方法--小明
+				$$$("target")[0].style.background="rgb("+colorArr+")";
+				$("color16").innerHTML="#"+check(colorArr[0])+check(colorArr[1])+check(colorArr[2]);
+			}
+			///1位补0
+			function check(num){
+				var hex=num.toString(16).toLocaleUpperCase();
+				return hex.length<2 ? "0"+hex : hex;
+			}
+			///调试
+			function trace(str){
+				console.log(str);
+			}
+			///获取id
+			function $(id){
+				return typeof id=="string" ? document.getElementById(id) : id; 
+			}
+			//获取tagName
+			function $$(tagName,parent){
+				return	(parent || document).getElementsByTagName(tagName);
+			} 
+			//获取class
+			function $$$(className,parent){
+				var parent=(parent || document);
+				var zong=parent.getElementsByTagName("*");
+				var list=[];
+				for (var i=0;i<zong.length;i++) {
+					if(zong[i].className.indexOf(className)!=-1){
+						list.push(zong[i]);
+					};			
+				};
+				return list;
+			}
+			////动画函数
+			function animate(container,termianl){
+				timeInterval=setInterval(function(){
+					var speed=container.offsetLeft;
+					speed+=(termianl-speed)*0.2
+					speed=termianl-speed>0 ? Math.ceil(speed) : Math.floor(speed);
+					container.style.left=speed+"px";
+					if(speed==termianl){
+						container.style.left=speed+"px";
+						clearInterval(timeInterval);
+					}
+				},40);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div id="colorDrag">
+				<div class="target"></div>
+				<div class="drag">
+					<ul>
+						<li  class="r">
+							<span></span>
+						</li>
+						<li class="g">
+							<span></span>
+						</li>
+						<li  class="b">
+							<span ></span>
+						</li>
+					</ul>
+					<div id="content">
+					</div>
+					<div id="color16">
+					</div>				
+				</div>
+				<div class="myInput" style="clear:both;">
+					<input type="text" id="inTxt"> 
+				</div>
+				<div id="navi"></div>
+			</div>
+			<div id="colorPicker">
+				<div id="colorPicker_container"></div>
+			</div>
+		</div>
+	</body>
+</html>

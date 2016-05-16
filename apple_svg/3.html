@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>js操作SVG键盘事件</title>
+    <meta name="author" content="ningxiao" />
+    <!-- Date: 2014-03-05 -->
+</head>
+<script type="text/javascript">
+    function $(id){
+        return document.getElementById(id) || null;
+    }
+    function type(event){
+        console.log(event);
+    }
+</script>
+<body>
+<svg width="400" height="400" id="canvas">
+    <g id="view" onkeypress="type(event);">
+        <rect x="0" y="0" width="400" height="400" id="rect" style="fill:red;stroke:black;stroke-width:5;opacity:0.5"/>
+        <text id="enter" x="150" y="50" style="text-anchor:middle;font-size: 12; font-family:Arial;fill:red"> Display here</text>
+    </g>
+    <path id="rectBox" d="M0 0" opacity=".2"/>
+</svg>
+<input type="button" value="插入文本" id="addText"/>
+<input type="button" value="获取外部BOX" id="getBBox"/>
+<script type="text/javascript">
+    window.onload=function(){
+        var canvas = $("canvas"),rect=$("rect"),view=$("view"),enter=$("enter"),phrase="";
+        var addText = $("addText"),getBBox=$("getBBox"),rectBox=$("rectBox");
+        addText.addEventListener("click",function(){
+            var text = document.createTextNode("创建文本节点");
+            enter.appendChild(text);
+            console.log(enter.style.getPropertyValue("fill"));
+        },false);
+        getBBox.addEventListener("click",function(event){
+            var txt ="",box;
+            box = rect.getBBox();
+            for(var i in box){
+                txt+=i+"=>"+box[i];
+            }
+            enter.firstChild.nodeValue=txt;
+            //txt = "M"+box.x+" "+box.y+" l"+box.width+" 0 0 "+box.height+" -"+box.width+" 0z";
+            //M 大写字母，表示采用绝对定位。另一种是用小写字母，表示采用相对定位
+            txt = "M"+box.x+" "+box.y+" l"+box.width+" 0 0 "+box.height+" -"+box.width+" 0z";
+            rectBox.setAttribute("d",txt);
+
+        },false);
+        document.addEventListener("keydown",function(event){
+            var key;
+            event = event || window.event;
+            key = String.fromCharCode(event.keyCode);
+            if (key==8)
+            {
+                if (phrase!="")
+                {
+                    phrase=phrase.substring(0,phrase.length-1);
+                }
+            }
+            else
+            {
+                phrase=phrase+key;
+            }
+            //设置文本内容
+            enter.firstChild.nodeValue=phrase;
+        },false);
+    }
+</script>
+</body>
+</html>
+

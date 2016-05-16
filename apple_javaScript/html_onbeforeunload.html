@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>页面刷新与关闭事件</title>
+    <meta name="author" content="leju" />
+    <script type="text/javascript">
+        window.onload = function(){
+            document.body.onbeforeunload = function(){
+                var imgs = new Image();
+                imgs.src = "http://192.168.100.30:8887/SinaPHP/src/Vodata.php?startpage=2"+Math.random();
+            }
+        }
+    </script>
+</head>
+<body>
+<div style="width: 200px;height: 200px;background:#6a3d12"></div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>拖拽高级实例</title>
+		<meta name="author" content="leju" />
+        <style type="text/css">
+            .drag {width:100px;height:100px;z-index:200;}
+            #drag1 {background:red}
+            #drag2 {background:#E8D098;}
+            #drag3 {background:#fff;}
+            #drag4 {background:#E8FFE8;}
+            #drag5 {background:#ff0;}
+            #drag6 {background:#66c;}
+            #parent {width:300px;height:300px;background:blue;}
+        </style>
+        <script type="text/javascript">
+            var getCoords = function(el){/**取得对象X,Y*/
+                var box = el.getBoundingClientRect(),
+                doc = el.ownerDocument,
+                body = doc.body,
+                html = doc.documentElement,
+                clientTop = html.clientTop || body.clientTop || 0,
+                clientLeft = html.clientLeft || body.clientLeft || 0,
+                top  = box.top  + (self.pageYOffset || html.scrollTop  ||  body.scrollTop ) - clientTop,
+                left = box.left + (self.pageXOffset || html.scrollLeft ||  body.scrollLeft) - clientLeft
+                return { 'top': top, 'left': left };
+            };
+            var Drag = function(id){
+                var el = (typeof id == "string" ? document.getElementById(id) : id);
+                var options  = arguments[1] || {};
+                var container = options.container || document.documentElement;
+                var lockX = false || options.lockX;
+                var lockY = false || options.lockY;               
+                var limit = false || options.limit;
+                el.style.position = "absolute";
+                var drag = function(e) {
+                    e = e || window.event;
+                     !+"\v1"? document.selection.empty() : window.getSelection().removeAllRanges();
+                    var _left = e.clientX - el.offset_x;
+                    var _top = e.clientY - el.offset_y;
+                    if(limit){
+                        var _cCoords = getCoords(container);
+                        var _cLeft = _cCoords.left;/**左*/
+                        var _cTop = _cCoords.top;  /**上*/
+                        var _cRight = _cLeft + container.clientWidth;/**右*/
+                        var _cBottom = _cTop + container.clientHeight;/**下*/
+                                                                 	
+                        var _right = _left + el.offsetWidth;/**左边*/
+                        var _bottom = _top + el.offsetHeight;/**右边*/
+                        if(_left < _cLeft){
+                            _left = _cLeft
+                        }
+                        if(_top < _cTop){
+                            _top = _cTop
+                        }
+                        if(_right > _cRight){
+                            _left = _cRight - el.offsetWidth;
+                        }
+                        if(_bottom > _cBottom){
+                            _top = _cBottom - el.offsetHeight;
+                        }
+                    }
+                    if(lockX){
+                        _left = el.lockX;
+                    }
+                    if(lockY){
+                        _top = el.lockY;
+                    }                    
+                    el.style.left = _left  + "px";
+                    el.style.top = _top  + "px";
+                    el.innerHTML = parseInt(el.style.left,10)+ " x "+parseInt(el.style.top,10);
+		            ///阻止火狐的默认事件
+					return false;
+                }
+
+                var dragend = function(){
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                    ///IE下全局捕获释放
+					if (el.releaseCapture) {
+						el.releaseCapture();
+					}                    
+                }
+
+                var dragstart = function(e){
+                    e = e || window.event;
+                    el.offset_x = e.clientX - el.offsetLeft;/**取得鼠标在物体上的差值*/
+                    el.offset_y = e.clientY - el.offsetTop;/**取得鼠标在物体上的差值*/
+                    if(lockX){
+                        el.lockX = getCoords(el).left;
+                    }
+                    if(lockY){
+                        el.lockY = getCoords(el).top;
+                    }
+                    document.onmouseup = dragend;
+                    document.onmousemove = drag;
+                    el.style.cursor = "pointer";
+                    el.style.zIndex = ++Drag.z;
+                    ///IE下全局捕获
+					if (el.setCapture) {
+						el.setCapture();
+					}
+                    return false;
+                }
+                Drag.z = 999;
+                el.onmousedown = dragstart;
+            }
+
+            window.onload = function(){
+                var p = document.getElementById("parent");
+                new Drag("drag1",{container:p,limit:false,lockY:true});
+                new Drag("drag2",{container:p,limit:true,lockY:true});
+                new Drag("drag3",{container:p,limit:true});
+                new Drag("drag4",{container:p,limit:true});
+                new Drag("drag5",{container:p,limit:true});
+                new Drag("drag6",{container:p,limit:true});
+            };
+        </script>
+	</head>
+	<body>
+        <div id="parent">
+            <p>拖动时可能被选中的文本……………………</p>
+            <div id="drag1" class="drag"></div>
+            <div id="drag2" class="drag"></div>
+            <div id="drag3" class="drag"></div>
+            <div id="drag4" class="drag"></div>
+            <div id="drag5" class="drag"></div>
+            <div id="drag6" class="drag"></div>
+        </div>		
+	</body>
+</html>

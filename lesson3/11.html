@@ -1,0 +1,57 @@
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta property="qc:admins" content="2440032737651176637572013"/>
+    <title>js 调用监听CSS3 动画</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+        .sample {
+            width: 200px;
+            height: 200px;
+            border: 1px solid green;
+            background: lightgreen;
+            opacity: 1;
+            margin-bottom: 20px;
+        }
+        .sample.hide {
+            opacity: 0;
+        }
+    </style>
+    <script type="text/javascript" src="js/utils.js"></script>
+</head>
+<body>
+<div class="sample"></div>
+<input type="button" id="button" value="点击我查看下面box的变化"/>
+<script type="text/javascript">
+    (function() {
+        var box = document.getElementsByClassName('sample')[0];
+        var button = document.getElementById("button");
+        var transitionEvent;
+        function whichTransitionEvent(){
+            var t,el = document.createElement('fakeelement');
+            var transitions = {'transition':'transitionend','OTransition':'oTransitionEnd','MozTransition':'transitionend','WebkitTransition':'webkitTransitionEnd'};
+            for(t in transitions){
+                if( el.style[t] !== undefined ){
+                    return transitions[t];
+                }
+            }
+        }
+        transitionEvent = whichTransitionEvent();
+        transitionEvent && box.addEventListener(transitionEvent, function() {
+            alert('Transition complete!  This is the callback, no library needed!');
+        });
+        utils.setStyle(box, {"transition": "all 0.5s"});
+        button.onclick = function(){
+            box.className+= ' hide';
+        }
+    })();
+</script>
+</body>
+</html>

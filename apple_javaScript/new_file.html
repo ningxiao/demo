@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>new_file</title>
+		<meta name="author" content="Administrator" />
+		<script type="text/javascript">
+			window.onload = function(){
+				var barku = document.getElementById('barku');
+				var docut = document;
+				var diva = docut.getElementById('diva');
+				var divb = docut.getElementById('divb');
+				diva.onclick = function(event){
+					event = event||window.event;
+					divb.style.display='block';
+					if(event.stopPropagation){
+						event.stopPropagation();
+					}else{
+						event.cancelBubble = true;
+					}					
+				}
+				divb.onclick = function(event){
+				    event = event||window.event;
+					divb.style.display='block';
+					if(event.stopPropagation){
+						 event.stopPropagation();
+					}else{
+						event.cancelBubble = true;
+					}		
+				}
+				document.onclick = function(){
+					divb.style.display='none';
+					alert(divb.style.display);
+				}
+				barku.style.height = (200/(400/200))+'px';
+			}
+		</script>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body onhashchange="alert(1)">
+		<div id="diva" style="display: block ;width: 200px;height: 200px;background:#0000CC;left:400px; auto;position:absolute">
+		<div id="divb" style="display: none;width: 100px;height: 100px;background:#FF0000;margin: 50px 50px;"></div>
+		</div>
+		<div style="width: 200px;height: 200px;background:#0000CC;position:relative;left: 20px;top: 20px">
+			<div style="width: 10px;height: 200px;background:#666666;float:left">
+				<div id="barku" style="height: 5px;background:#FF0000"></div>
+			</div>
+			<div style="width: 190px;height: 200px;overflow:hidden;float:right">
+				<div style="height:1600px;width: 190px;background:#000000"></div>
+			</div>
+		</div>
+	</body>
+</html>

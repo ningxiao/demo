@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>javascript异常与字符练习</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+			function unloade(event){
+				alert('离开页面');
+			}
+			function message(){
+				var x = 12;
+				try{
+					if(x>10)
+					throw "Err1";
+					else if(x<0)
+					throw "Err2";
+				}catch(error){
+					var txt="是否处理异常。\n\n";
+					txt+="错误描述: " + error+ "\n\n";
+					if(confirm(txt)){
+						if(error == "Err2"){alert("Error! The value is too low");};
+						if(error == "Err1"){alert("Error! The value is too high");};
+				   }
+				}
+			}
+			function messageb(){
+				adddlert("Welcome guest!");
+			}
+			onerror = handleErr;
+			function handleErr(msg,url,l){
+				txt="There was an error on this page.\n\n";
+				txt+="Error: " + msg + "\n";
+				txt+="URL: " + url + "\n";
+				txt+="Line: " + l + "\n\n";
+				txt+="Click OK to continue.\n\n";
+				alert(txt);
+				return true;
+			}
+			var obj = {name:'mxw',agx:25};
+			function getarray(){
+				var key = 'like';
+				obj[key] = obj[key] || 'www.baidu.com';/**检测data是否有对象*/
+				delete obj.name;
+				alert(obj[key]);
+			}
+			function setinputdiv(){
+				var obj = document.getElementById('inputdiv');
+				var str = '四舍五入:'+Math.round(4.7)+'\n生成随机数:'+Math.floor(Math.random()*11);
+				obj.innerHTML = str;
+			}
+			function pageLoad(){
+				var obj = document.getElementById('liui').getElementsByTagName('li');
+				var str = '';
+				alert(( str instanceof String));
+				for(var i=0;i<obj.length;i++){
+					str+=obj[i].innerHTML;
+				}
+				document.getElementById('inputdiv').innerHTML = str;
+			}
+			function StringBuffer(){
+				this.strings = new Array();
+				if(typeof StringBuffer.initbool == 'undefined'){
+					//指向父类空间对象减少内存开支
+					 StringBuffer.prototype.append = function(str){
+					 	this.strings.push(str);
+					 }; 
+					  StringBuffer.prototype.toString = function(){
+					 	return this.strings.join("");
+					 }; 
+					 StringBuffer.initbool = true;
+				}
+			}
+			function joinstr(){
+				var d1 = new Date();
+				var str = '';
+				var buffe = new StringBuffer();
+				for(var i=0;i<50;i++){
+					buffe.append('txet');
+				}
+				var d2 = new Date();
+				document.getElementById('inputdiv').innerHTML = buffe.toString();
+			}
+		</script>
+	</head>
+	<body onload="pageLoad();">
+		方法体内部异常测试<input type="button" value="方法内异常测试" onclick="message();"/>
+	    通用异常测试<input type="button" value="通用异常测试" onclick="messageb();"/><p>
+	    测试动态变量取得object对象值<input type="button" value="取值" onclick="getarray();"/>
+	    调用js数学方法<input type="button" value="调用Math" onclick="setinputdiv();"/><p>
+	    里数组操作字符串提升效率<input type="button" value="合并字符" onclick="joinstr();"/>
+	    <div id="inputdiv"></div>
+	    <ul id="liui">
+	    	<li>替换文档第一个p标签的内容</li>
+	    	<li>li标签2</li>
+	    	<li>li标签3</li>
+	    </ul>
+	</body>
+</html>

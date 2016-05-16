@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>js的Ajax</title>
+		<meta name="author" content="leju" />
+		<script type="text/javascript">
+			var req = window.ActiveXObject?new ActiveXObject('Microsoft.XMLHTTP'): new XMLHttpRequest();
+			var reqajax = new Object();
+			reqajax.ajaxLoaded = function(){
+				if(req.readyState == 4) {/***请求的状态有5个值：0=未初始化；1=正在加载；2=已经加载；3=交互中；4=完成；  */
+					if(req.status == 200) {	/**200对应OK，如404=未找到网页  */
+						var response = eval('(' + req.responseText + ')').data;/**加上圆括号的目的是迫使eval函数在处理转化为对象 里面的data属性值。 返回json对象*/
+						document.getElementById('json').value = req.responseText;
+					} else {
+						alert('There was a problem retrieving the XML data:\n' + req.statusText);
+					}
+				}
+			};
+			reqajax.loadjson = function(data){
+				var type = data.type||'GET',bool = data.bool||true,url = data.url||null,value = data.value||null;
+				req.onreadystatechange = reqajax.ajaxLoaded;
+				req.open(type,url,bool);
+				req.send(value);
+			};
+			reqajax.addURLParam = function(url,name,value){
+				url+=(url.indexof("?")==-1?'?':'&');
+				url+=encodeURIComponent(name)+encodeURIComponent(value);
+				return url;
+			}
+			reqajax.loadjson({type:'GET',bool:false,url:'http://127.0.0.1:8020/front/trunk/sina/js/ads/src/data/adm.json'});
+		</script>
+	</head>
+	<body>
+		<textarea rows="20" id="json"></textarea>
+	</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>05</title>
+		<meta name="author" content="leju" />
+		<style type="text/css">
+			body,p{
+				margin: 0px;
+				padding: 0px;
+			}
+			body{
+				color:#333;
+				font:12px/1.5 Tahoma;
+				padding-top:10px;
+			}
+			p{
+				margin-bottom: 10px;
+			}
+			#outer{
+				width: 300px;
+				margin: 0 auto;
+			}
+			button{
+				margin-right:5px;
+			}
+			label{
+				width:5em;
+				display:inline-block;
+				text-align:right;
+			}
+			input{
+				padding:3px;
+				font-family:inherit;
+				border:1px solid #ccc;
+			}
+			#div1{color:#fff;
+				width:180px;
+				height:180px;
+				background:#000;
+				margin:0 auto;
+				padding:10px;
+			}
+		</style>
+		<script type="text/javascript">
+			window.onload = function(){
+				var inputtext = document.getElementsByTagName('input');
+				var buttonlist = document.getElementsByTagName('button');
+				var mydiv = document.getElementById('div1');
+				function setStyle(obj,key,value){
+					obj.style[key]=value;
+				}
+				buttonlist[0].onclick = function(){
+					setStyle(mydiv,inputtext[0].value,inputtext[1].value);
+				}
+				buttonlist[1].onclick = function(){
+					mydiv.removeAttribute('style');
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="outer">
+			<p><label>属性名:</label><input type="text" value="background" /></p>
+			<p><label>属性值:</label><input type="text" value="blue" /></p>
+			<p><button>确定</button><button>重置</button></p>
+		</div>
+		<div id="div1">在上方输入框输入"属性名"及"属性值"，点击确定按钮查看效果。</div>
+	</body>
+</html>
