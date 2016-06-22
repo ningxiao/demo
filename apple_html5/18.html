@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>图表插件</title>
+	<link rel="stylesheet" type="text/css" href="css/chart.css" />
+	<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="js/chart.js"></script>
+	<script type="text/javascript">
+	$(function(){
+		draw_model.init();
+	});
+	</script>
+</head>
+<body>
+	 <ul class="check_t" id="check_t">
+	 	<li><input type="radio" checked /> <span>周</span></li>
+		<li><input type="radio" /> <span>月</span></li>
+		<li><input type="radio" /> <span>年</span></li>
+	 </ul>
+    <canvas id="canvas" width="450" height="225" _style="border:black solid 1px"></canvas>
+</body>
+</html>

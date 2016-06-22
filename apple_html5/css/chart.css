@@ -1,0 +1,3 @@
+#canvas{ margin:0px; padding: 0px; background: #FFFFFF; margin: 0 auto; /*margin-top: 50px;*/}
+.check_t{width:200px;height: 50px; list-style: none; margin: 0px; padding:0px;}
+.check_t li{ float: left; margin-right: 15px; height: 50px; line-height: 50px; width:45px; cursor:pointer;}

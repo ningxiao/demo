@@ -1,13 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>3D交互视频</title>
-    <script type="text/javascript" src="js/libs.js"></script>
-    <script type="text/javascript" src="js/script.js"></script>
-</head>
-<body style='margin:0px' onload='main()'>
-<canvas id='your_canvas' style='position: absolute; background-color: black;'></canvas>
-<video src="ressources/bunny.webm" id="bunny_video" style='display: none'></video>
-</body>
+	<head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+	    <title>3D交互视频</title>
+	    <script type="text/javascript" src="js/libs.js"></script>
+	    <script type="text/javascript" src="js/script.js"></script>
+	</head>
+	<body style='margin:0px' onload='main()'>
+	<canvas id='your_canvas' style='position: absolute; background-color: black;'></canvas>
+		<video controls="" autoplay="" name="media" id="bunny_video" style="display: none;">
+			<source src="./ressources/bunny.webm" type="video/webm">
+		</video>
+	</body>
 </html>
