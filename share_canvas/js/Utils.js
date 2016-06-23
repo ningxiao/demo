@@ -164,7 +164,7 @@ Utils.Random = function(min, max) {
  * @param  {int} cy   鼠标点击y
  * @return {int}      新的xy坐标
  */
-Utils.localToGobal = function(cw, ch, rect, cx, cy) {
+Utils.LocalToGobal = function(cw, ch, rect, cx, cy) {
     var x = rect.left;
     var y = rect.top;
     x = ((cx - x) - cw) / cw;
@@ -176,7 +176,7 @@ Utils.localToGobal = function(cw, ch, rect, cx, cy) {
  * @param  {canvas} element [description]
  * @return {[type]}         [description]
  */
-Utils.captureMouse = function(element) {
+Utils.CaptureMouse = function(element) {
     var mouse = {
             x: 0,
             y: 0,
@@ -210,7 +210,7 @@ Utils.captureMouse = function(element) {
  * @param  {canvas} element [description]
  * @return {[type]}         [description]
  */
-Utils.captureTouch = function() {
+Utils.CaptureTouch = function() {
     var touch = {
             x: null,
             y: null,
@@ -259,7 +259,7 @@ Utils.captureTouch = function() {
  * @param  {[type]} toNumber [description]
  * @return {[type]}          [description]
  */
-Utils.parseColor = function(color, toNumber) {
+Utils.ParseColor = function(color, toNumber) {
     if (toNumber === true) {
         if (typeof color === 'number') {
             return (color | 0);
@@ -281,7 +281,7 @@ Utils.parseColor = function(color, toNumber) {
  * @param  {[type]} alpha [description]
  * @return {[type]}       [description]
  */
-Utils.colorToRGB = function(color, alpha) {
+Utils.ColorToRGB = function(color, alpha) {
     var r, g, b, a;
     if (typeof color === 'string' && color[0] === '#') {
         color = window.parseInt(color.slice(1), 16);

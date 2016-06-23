@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>向量直线运动</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+            }
+        </style>
+        <script src="./js/Utils.js"></script>
+        <script src="./js/Arrow.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+            var speed,angle,mouse,canvas = document.getElementById('canvas');
+            var dx,dy,vx,vy,arrow,context = Utils.GetContext(canvas);
+            if (context) {
+                mouse = Utils.CaptureMouse(canvas);
+                canvas.setAttribute('width', config.width);
+                canvas.setAttribute('height', config.height);
+                arrow = new Arrow();
+                speed = 3;
+                window.addEventListener('keydown',function(ev){
+                    switch(ev.keyCode){
+                        case 38:
+                            speed+=0.5;
+                        break;
+                    }
+                },false);
+                (function drawFrame(){
+                    dx = mouse.x - arrow.x;
+                    dy = mouse.y - arrow.y;
+                    if(Math.abs(dx)>2 || Math.abs(dy)>2){
+                        context.clearRect(0, 0, config.width, config.height);
+                        angle = Math.atan2(dy,dx);
+                        vx =  Math.cos(angle) * speed;
+                        vy =  Math.sin(angle) * speed;
+                        arrow.rotation = angle;
+                        arrow.x += vx;
+                        arrow.y += vy;
+                        arrow.draw(context);
+                    }
+                    window.requestAnimationFrame(drawFrame,canvas);
+                }());
+            }
+        </script>
+    </body>
+</html>
