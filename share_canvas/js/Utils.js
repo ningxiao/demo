@@ -9,10 +9,15 @@
  *********************************************************************************/
 var Utils = {};
 /**
+ * 检测是否支持touch事件
+ * @param bool true 支持 false 不支持
+ */
+Utils.IsTouch = "ontouchend" in document ? true : false;
+/**
  * 获取cavans的2D绘制对象
  * @param {[type]} canvas [description]
  */
-Utils.GetContext = function(canvas) {
+Utils.GetContext = function (canvas) {
     if (canvas) {
         return canvas.getContext('2d');
     }
@@ -25,16 +30,16 @@ Utils.GetContext = function(canvas) {
  * @param {function} opt_onerror 获取webgl异常是否存在回调函数
  * @return {context} 成功返回 canvas 的webgl对象 失败返回 null
  */
-Utils.GetWebGlContext = function(canvas, opt_debug, opt_onerror) {
+Utils.GetWebGlContext = function (canvas, opt_debug, opt_onerror) {
     var context, config = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-    opt_onerror = opt_onerror || function(event) {
+    opt_onerror = opt_onerror || function (event) {
         console.log(event.statusMessage);
     };
     canvas.addEventListener("webglcontextcreationerror", opt_onerror, false);
     for (var i = 0, len = config.length; i < len; i++) {
         try {
             context = canvas.getContext(config[i]);
-        } catch (err) {}
+        } catch (err) { }
         if (context) {
             break;
         }
@@ -59,7 +64,7 @@ Utils.GetWebGlContext = function(canvas, opt_debug, opt_onerror) {
  * @param {boolean} isbool   false获取顶点片段变量 true获取片源着色器片段域
  * @return {object} 成功返回 object 域里面变量对应的js引用 失败返回 null
  */
-Utils.GetGpuLocation = function(gl, program, name, isbool) {
+Utils.GetGpuLocation = function (gl, program, name, isbool) {
     if (program) {
         if (isbool) {
             return gl.getUniformLocation(program, name);
@@ -76,7 +81,7 @@ Utils.GetGpuLocation = function(gl, program, name, isbool) {
  * @param {[type]} fragmentshader 初始化的片段着色器
  * @return {program} program  成功返回 在js里面的渲染引用 失败返回 null
  */
-Utils.InitShaders = function(gl, vertexshader, fragmentshader) {
+Utils.InitShaders = function (gl, vertexshader, fragmentshader) {
     var program, linked;
     if (!vertexshader || !fragmentshader) {
         return null;
@@ -112,7 +117,7 @@ Utils.InitShaders = function(gl, vertexshader, fragmentshader) {
  * @param {element} id   页面编写着色器代码的元素对象
  * @return {shader} shader  成功返回 对应着色器对象 失败返回 null
  */
-Utils.GetShader = function(webgl, id) {
+Utils.GetShader = function (webgl, id) {
     var child, shader, text = "",
         shaderScript = document.getElementById(id);
     if (!shaderScript) {
@@ -152,7 +157,7 @@ Utils.GetShader = function(webgl, id) {
  * @param {number} min 最小范围
  * @param {number} max 最小范围
  */
-Utils.Random = function(min, max) {
+Utils.Random = function (min, max) {
     return Math.floor(min + Math.random() * (max - min));
 };
 /**
@@ -164,7 +169,7 @@ Utils.Random = function(min, max) {
  * @param  {int} cy   鼠标点击y
  * @return {int}      新的xy坐标
  */
-Utils.LocalToGobal = function(cw, ch, rect, cx, cy) {
+Utils.LocalToGobal = function (cw, ch, rect, cx, cy) {
     var x = rect.left;
     var y = rect.top;
     x = ((cx - x) - cw) / cw;
@@ -176,19 +181,19 @@ Utils.LocalToGobal = function(cw, ch, rect, cx, cy) {
  * @param  {canvas} element [description]
  * @return {[type]}         [description]
  */
-Utils.CaptureMouse = function(element) {
+Utils.CaptureMouse = function (element) {
     var mouse = {
-            x: 0,
-            y: 0,
-            event: null
-        },
+        x: 0,
+        y: 0,
+        event: null
+    },
         body_scrollLeft = document.body.scrollLeft,
         element_scrollLeft = document.documentElement.scrollLeft,
         body_scrollTop = document.body.scrollTop,
         element_scrollTop = document.documentElement.scrollTop,
         offsetLeft = element.offsetLeft,
         offsetTop = element.offsetTop;
-    element.addEventListener('mousemove', function(event) {
+    element.addEventListener('mousemove', function (event) {
         var x, y;
         if (event.pageX || event.pageY) {
             x = event.pageX;
@@ -210,13 +215,13 @@ Utils.CaptureMouse = function(element) {
  * @param  {canvas} element [description]
  * @return {[type]}         [description]
  */
-Utils.CaptureTouch = function() {
+Utils.CaptureTouch = function (element) {
     var touch = {
-            x: null,
-            y: null,
-            isPressed: false,
-            event: null
-        },
+        x: null,
+        y: null,
+        isPressed: false,
+        event: null
+    },
         body_scrollLeft = document.body.scrollLeft,
         element_scrollLeft = document.documentElement.scrollLeft,
         body_scrollTop = document.body.scrollTop,
@@ -224,19 +229,19 @@ Utils.CaptureTouch = function() {
         offsetLeft = element.offsetLeft,
         offsetTop = element.offsetTop;
 
-    element.addEventListener('touchstart', function(event) {
+    element.addEventListener('touchstart', function (event) {
         touch.isPressed = true;
         touch.event = event;
     }, false);
 
-    element.addEventListener('touchend', function(event) {
+    element.addEventListener('touchend', function (event) {
         touch.isPressed = false;
         touch.x = null;
         touch.y = null;
         touch.event = event;
     }, false);
 
-    element.addEventListener('touchmove', function(event) {
+    element.addEventListener('touchmove', function (event) {
         var x, y, touch_event = event.touches[0];
         if (touch_event.pageX || touch_event.pageY) {
             x = touch_event.pageX;
@@ -247,10 +252,12 @@ Utils.CaptureTouch = function() {
         }
         x -= offsetLeft;
         y -= offsetTop;
+
         touch.x = x;
         touch.y = y;
         touch.event = event;
     }, false);
+
     return touch;
 };
 /**
@@ -259,7 +266,7 @@ Utils.CaptureTouch = function() {
  * @param  {[type]} toNumber [description]
  * @return {[type]}          [description]
  */
-Utils.ParseColor = function(color, toNumber) {
+Utils.ParseColor = function (color, toNumber) {
     if (toNumber === true) {
         if (typeof color === 'number') {
             return (color | 0);
@@ -281,7 +288,7 @@ Utils.ParseColor = function(color, toNumber) {
  * @param  {[type]} alpha [description]
  * @return {[type]}       [description]
  */
-Utils.ColorToRGB = function(color, alpha) {
+Utils.ColorToRGB = function (color, alpha) {
     var r, g, b, a;
     if (typeof color === 'string' && color[0] === '#') {
         color = window.parseInt(color.slice(1), 16);
@@ -298,10 +305,19 @@ Utils.ColorToRGB = function(color, alpha) {
     };
 };
 /**
+ * 检测某个点是否在指定矩形区域内
+ * @param {object} rect {x:0,y:0,width:50,height:50}
+ * @param {int} x
+ * @param {int} y
+ */
+Utils.ContainsPoint = function (rect, x, y) {
+    return !(x < rect.x || x > rect.x + rect.width || y < rect.y || y > rect.y + rect.height);
+};
+/**
  * 浏览器帧频对象 获取
  * @return {requestAnimationFrame}           requestAnimationFrame
  */
-window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(callback) {
+window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
     setTimeout(callback, 1000 / 60);
 });
 

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>仿真宇宙飞船</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+                background-color: #000000;
+            }
+        </style>
+        <script src="./js/Utils.js"></script>
+        <script src="./js/Ship.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+            var ship,canvas = document.getElementById('canvas');
+            var vr,vx,vy,angle,thrust,friction,context = Utils.GetContext(canvas);
+            if (context) {
+                vr = vx = vy = 0;
+                thrust = 0.1;
+                canvas.setAttribute('width', config.width);
+                canvas.setAttribute('height', config.height);
+                friction = 0.97;
+                ship = new Ship();
+                ship.x = config.width / 2;
+                ship.y = config.height /2;
+                window.addEventListener("keydown",function(ev){
+                    switch (event.keyCode) {
+                        case 37:      //左
+                          vr = -3;
+                          break;
+                        case 39:      //右
+                          vr = 3;
+                          break;
+                        case 38:      //加速
+                          thrust = 0.1;
+                          ship.showflame = true;//喷射火焰
+                          break;
+                    }
+                },false);
+                window.addEventListener('keyup', function(ev){
+                    //停止加速
+                    vr = 0;
+                    thrust = 0;
+                    ship.showflame = false;
+                }, false);
+                (function drawFrame(){
+                    window.requestAnimationFrame(drawFrame,canvas);
+                    context.clearRect(0, 0, config.width, config.height);
+                    ship.rotation += vr * Math.PI / 180;
+                    angle = ship.rotation;
+                    vx += Math.cos(angle) * thrust;
+                    vy += Math.sin(angle) * thrust;
+                    vx *= friction;
+                    vy *= friction;
+                    ship.x += vx;
+                    ship.y += vy;
+                    if(ship.x - ship.width/2 > config.width){
+                        ship.x = 0 - ship.width / 2;
+                    }else if(ship.x + ship.width/2 < 0){
+                        ship.x = config.width + ship.width / 2;
+                    }
+                    if(ship.y - ship.height/2 > config.height){
+                        ship.y = 0 - ship.height / 2;
+                    }else if(ship.y + ship.height/2 < 0){
+                        ship.y = config.height + ship.height / 2;
+                    }
+                    ship.draw(context);
+                }());
+            }
+        </script>
+    </body>
+</html>

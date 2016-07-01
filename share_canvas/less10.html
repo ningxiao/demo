@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>投掷小球</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+                background-color: #000000;
+            }
+        </style>
+        <script src="./js/Utils.js"></script>
+        <script src="./js/Ball.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+            var isdown,ball,canvas = document.getElementById('canvas');
+            var vx,vy,mx,my,oldx,oldy,bounce,gravity,mouse,context = Utils.GetContext(canvas);
+            if (context) {
+                isdown = false;
+                vx = Math.random() * 10 - 5;
+                vy = -10;
+                bounce = -0.7;
+                gravity = 0.2;
+                mouse = Utils.CaptureMouse(canvas);
+                canvas.setAttribute('width', config.width);
+                canvas.setAttribute('height', config.height);
+                ball = new Ball();
+                ball.x = config.width / 2;
+                ball.y = config.height / 2;
+                function mouseup(ev){
+                    isdown = false;
+                    mx = my = 0;
+                    canvas.removeEventListener('mouseup',mouseup,false);
+                    canvas.removeEventListener('mouseout',mouseup,false);
+                    canvas.removeEventListener('mousemove',mousemove,false);
+                };
+                function mousemove(ev){
+                    ball.x = mouse.x - mx;
+                    ball.y = mouse.y - my;
+                };
+                function trackvelocity(){
+                    vx = ball.x - oldx;//鼠标在单位响应时间内移动的距离转为速度
+                    vy = ball.y - oldy;
+                    oldx = ball.x;
+                    oldy = ball.y
+                };
+                function checkboundaries(){
+                    vy += gravity;
+                    ball.x += vx;
+                    ball.y += vy;
+                    if(ball.x + ball.radius>config.width){
+                        ball.x = config.width - ball.radius;
+                        vx *= bounce;
+                    }else if(ball.x - ball.radius<0){
+                        ball.x = 0 + ball.radius;
+                        vx *= bounce;
+                    };
+                    if(ball.y + ball.radius>config.height){
+                        ball.y = config.height - ball.radius;
+                        vy *= bounce;
+                    }else if(ball.y - ball.radius<0){
+                        ball.y = 0 + ball.radius;
+                        vy *= bounce;
+                    };
+                }
+                canvas.addEventListener("mousedown",function(ev){
+                    if(Utils.ContainsPoint(ball.getBounds(),mouse.x,mouse.y)){
+                        isdown = true;
+                        oldx = ball.x;
+                        oldy = ball.y;
+                        mx = mouse.x - ball.x;
+                        my = mouse.y - ball.y;
+                        canvas.addEventListener('mouseup',mouseup,false);
+                        canvas.addEventListener('mouseout',mouseup,false);
+                        canvas.addEventListener('mousemove',mousemove,false);
+                    }
+                },false);
+                (function drawframe(){
+                    window.requestAnimationFrame(drawframe,canvas);
+                    context.clearRect(0, 0, config.width, config.height);
+                    if(isdown){
+                        trackvelocity();
+                    }else{
+                        checkboundaries();
+                    };
+                    ball.draw(context);
+                }())
+            }
+        </script>
+    </body>
+</html>

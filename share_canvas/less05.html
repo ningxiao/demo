@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>边界移除</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+            }
+        </style>
+        <script src="./js/Utils.js"></script>
+        <script src="./js/Ball.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+            var tid,balls,canvas = document.getElementById('canvas');
+            var ball,numBalls,context = Utils.GetContext(canvas);
+            if (context) {
+                balls = [];
+                numballs = 10;
+                canvas.setAttribute('width', config.width);
+                canvas.setAttribute('height', config.height);
+                for (var i = 0; i < numballs; i++) {
+                    ball = new Ball(20);
+                    ball.id = "ball"+i;
+                    ball.x = Math.random() * config.width;
+                    ball.y = Math.random() * config.height;
+                    ball.vx = Math.random() * 2 -1;
+                    ball.vy = Math.random() * 2 -1;
+                    balls.push(ball);
+                }
+                function draw(ball,pos){
+                    var radius = ball.radius;
+                    ball.x += ball.vx;
+                    ball.y += ball.vy;
+                    if(ball.x - radius > config.width || ball.x + radius < 0 || ball.y - radius > config.height || ball.y + radius < 0){//进行边界判断检测
+                        balls.splice(pos,1);
+                        if(balls.length){
+                            console.log("删除"+ball.id)
+                        }else{
+                            console.log("全部删除");
+                            window.cancelAnimationFrame(tid);
+                        }
+                    }
+                    ball.draw(context);
+                }
+                (function drawFrame(){
+                    var i = balls.length;
+                    tid = window.requestAnimationFrame(drawFrame,canvas);
+                    context.clearRect(0, 0, config.width, config.height);
+                    while(i--){
+                        draw(balls[i],i);
+                    }
+                }());
+            }
+        </script>
+    </body>
+</html>
