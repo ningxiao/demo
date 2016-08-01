@@ -73,7 +73,7 @@
         </script>
         <script type="text/javascript">
             var arrow, mouse, canvas = document.getElementById('canvas');
-            var context = Utils.GetContext(canvas);
+            var easing,context = Utils.GetContext(canvas);
 
             function drawframe() {
                 var dx, dy;
@@ -82,6 +82,7 @@
                 dx = mouse.x - arrow.x;
                 dy = mouse.y - arrow.y;
                 arrow.rotation = Math.atan2(dy, dx);
+                //arrow.rotation += (Math.atan2(dy, dx) - arrow.rotation) * 0.05;
                 arrow.draw(context);
             };
 

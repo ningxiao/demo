@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>绘制小方块</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+            }
+        </style>
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_Position;
+            attribute float a_PointSize;
+            void main(){
+                gl_Position = a_Position;
+                gl_PointSize = a_PointSize;
+            }
+        </script>
+        <!-- 片段着色器 -->
+        <script id="shader-fs" type="x-shader/x-fragment">
+            //精度限制
+            precision mediump float;
+            uniform vec4 u_FragColor;
+            void main(){
+                gl_FragColor = u_FragColor;
+            }
+        </script>
+        <script src="./js/Utils.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+            var gl,canvas = document.getElementById('canvas');
+            canvas.setAttribute('width', config.width);
+            canvas.setAttribute('height', config.height);
+            gl = Utils.GetWebGlContext(canvas);
+            window.onload = function(){
+                var program,shadervs,shaderfs,a_Position,a_PointSize;
+                var u_FragColor,rgba = new Float32Array();
+                var g_points = [new Float32Array([0.0,0.0])];
+                var g_colors = [new Float32Array([1.0,0.0,0.0,1.0])];
+                if(!gl){
+                    console.log("创建webgl失败！");
+                    return;
+                };
+                //获取顶点着色代码并且编译生成
+                shadervs = Utils.GetShader(gl,'shader-vs');
+                //获取片元着色代码并且编译生成
+                shaderfs = Utils.GetShader(gl,'shader-fs');
+                //将顶点着色与片元着色交由着色器生成
+                program = Utils.InitShaders(gl,shadervs,shaderfs);
+                if(!program){
+                    console.log("生成着色器失败！");
+                    return;
+                };
+                //获取顶点着色公布的变量a_Position 引用地址;
+                a_Position = Utils.GetGpuLocation(gl,program,'a_Position');
+                if(a_Position < 0){
+                    console.log("获取WebGl顶点变量a_Position失败");
+                    return;
+                };
+                a_PointSize = Utils.GetGpuLocation(gl,program,'a_PointSize');
+                if(a_PointSize < 0){
+                    console.log("获取WebGl顶点变量a_PointSize失败");
+                    return;
+                };
+                u_FragColor = Utils.GetGpuLocation(gl,program,'u_FragColor',true);
+                if(u_FragColor < 0){
+                    console.log("获取WebGl片源变量u_FragColor失败");
+                    return;
+                };
+                var rect = canvas.getBoundingClientRect();
+                canvas.onmousedown = function(ev){
+                    var x,y,arr = Utils.LocalToGobal(config.width/2,config.height/2,rect,ev.clientX,ev.clientY);
+                    console.time('small loop');
+                    x = arr[0];
+                    y = arr[1];
+                    g_points.push(arr);
+                    if(x>=0.0 && y>=0.0){
+                        g_colors.push(new Float32Array([1.0,0.0,0.0,1.0]));
+                    }else if(x<0.0 && y<0.0){
+                        g_colors.push(new Float32Array([0.0,1.0,0.0,1.0]));
+                    }else{
+                        g_colors.push(new Float32Array([1.0,1.0,1.0,1.0]));
+                    };
+                    //清楚上次颜色
+                    gl.clear(gl.COLOR_BUFFER_BIT);
+                    for (var i = 0,l = g_points.length; i < l; i++) {
+                        gl.vertexAttrib2fv(a_Position,g_points[i]);
+                        gl.uniform4fv(u_FragColor,g_colors[i]);
+                        gl.drawArrays(gl.POINTS,0,1);
+                    };
+                    console.timeEnd('small loop');
+                };
+                //设置gl背景色
+                gl.clearColor(0.0,0.0,0.0,1.0);
+                //清楚上次颜色
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                //设置顶点着色变量a_Position的值
+                //gl.vertexAttrib3f(a_Position,0.0,0.0,0.0);
+                //也可以是浮点32位数组
+                gl.vertexAttrib2fv(a_Position,g_points[0]);
+                //设置方块大小
+                gl.vertexAttrib1f(a_PointSize,50);
+                //设置方块颜色
+                gl.uniform4fv(u_FragColor,g_colors[0]);
+                //绘制一个点
+                gl.drawArrays(gl.POINTS,0,1);
+            };
+        </script>
+    </body>
+</html>

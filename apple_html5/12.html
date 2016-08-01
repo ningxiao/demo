@@ -64,16 +64,17 @@
             }
         }
         function init(){
-            prize = $("prize");
-            canvas = $("canvas");
+            prize = document.getElementById("prize");
+            canvas = document.getElementById("canvas");
             ctx = canvas.getContext('2d');
-            area = new Rectangle(0,0,216,114);
-            color = new Color(0,0,0,0);
+            area = {x:0,y:0,width:216,height:144};//new Rectangle(0,0,216,114);
+            color = {r:0,g:0,b:0,a:0};//new Color(0,0,0,0);
             ctx.drawImage(bitmaps["prize"],area.x,area.y,area.width,area.height,area.x,area.y,area.width,area.height);
             imgBitmap = ctx.getImageData(area.x,area.y,area.width,area.height);
             ctx.clearRect(area.x,area.y,area.width,area.height);
+            //ctx.createRadialGradient(75,50,5,90,60,100);
             canvas.onmousemove = function(event){
-                area.x =  event.layerX-offsetX;
+                area.x =  event.layerX - offsetX;
                 area.y =  event.layerY-offsetX;
                 if(area.x<0){
                     area.x = 0;

@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
-        <title>跟随缓动</title>
+        <title>链式弹性运动</title>
         <style type="text/css">
             *{
                 margin: 0;
@@ -24,7 +24,6 @@
             }
             #canvas{
                 position: absolute;
-                background-color: #000000;
             }
         </style>
         <script src="./js/Utils.js"></script>
@@ -47,20 +46,47 @@
             })(typeof exports === 'object' ? exports : window);
         </script>
         <script type="text/javascript">
-            var canvas = document.getElementById('canvas');
-            var mouse,ball,easing,context = Utils.GetContext(canvas);
+            var balls,gravity,friction,numballs,canvas = document.getElementById('canvas');
+            var vx,vy,mouse,ball,spring,context = Utils.GetContext(canvas);
             if (context) {
                 mouse = Utils.CaptureMouse(canvas);
                 canvas.setAttribute('width', config.width);
                 canvas.setAttribute('height', config.height);
-                ball = new Ball();
-                easing = 0.05;
+                balls = [];
+                numballs = 3;
+                while(numballs--){
+                    ball = new Ball();
+                    ball.radius = 30;
+                    balls.push(ball);
+                }
+                spring = 0.03;
+                friction = 0.7;
+                gravity = 2;
+                vx = vy = 0;
+                function move(ball,x,y){
+                    ball.vx += (x - ball.x) * spring;
+                    ball.vy += (y - ball.y) * spring;
+
+                    ball.vy += gravity;
+
+                    ball.vx *= friction;
+                    ball.vy *= friction;
+
+                    ball.x += ball.vx;
+                    ball.y += ball.vy;
+                };
                 (function drawframe(){
                     window.requestAnimationFrame(drawframe,canvas);
                     context.clearRect(0, 0, config.width, config.height);
-                    ball.x += (mouse.x - ball.x) * easing;
-                    ball.y += (mouse.y - ball.y) * easing;
-                    ball.draw(context);
+                    context.beginPath();
+                    for (var i = 0,l = balls.length; i < l; i++) {
+                        ball = balls[i-1] || {x:mouse.x,y:mouse.y};
+                        context.moveTo(ball.x , ball.y);
+                        context.lineTo(balls[i].x , balls[i].y);
+                        context.stroke();
+                        move(balls[i],ball.x , ball.y);
+                        balls[i].draw(context);
+                    };
                 }());
             }
         </script>

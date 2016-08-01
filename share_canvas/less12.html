@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>3D透视</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+            }
+        </style>
+        <script src="./js/Utils.js"></script>
+        <script src="./js/Ball.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+            var vpx,vpy,ball,canvas = document.getElementById('canvas');
+            var scale,xpos,ypos,zpos,fl,mouse,context = Utils.GetContext(canvas);
+            var vx,vy,vz,top,bottom,left,right,front,back;
+            if (context) {
+                canvas.setAttribute('width', config.width);
+                canvas.setAttribute('height', config.height);
+                ball = new Ball();
+                mouse = Utils.CaptureMouse(canvas);
+                xpos = ypos = zpos = 0;
+                fl = 250;
+                vpx = config.width / 2;
+                vpy = config.height / 2;
+                vx = Math.random() * 10 - 5;
+                vy = Math.random() * 10 - 5;
+                vz = Math.random() * 10 - 5;
+                ty = -200;
+                by = 200;
+                lx = -200;
+                rx = 200;
+                fz = -200;
+                bz = 200;
+                // document.addEventListener("mousewheel",function(ev){
+                //     var type = ev.type;
+                //     if (type == 'DOMMouseScroll' || type == 'mousewheel') {
+                //         ev.delta = (ev.wheelDelta) ? ev.wheelDelta / 120 : -(ev.detail || 0) / 3;
+                //     };
+                //     if(ev.delta == 1){
+                //         zpos += 2;
+                //     }else{
+                //         zpos -= 2;
+                //     };
+                // },false);
+                (function drawframe(){
+                    window.requestAnimationFrame(drawframe,canvas);
+                    context.clearRect(0, 0, config.width, config.height);
+                    xpos += vx;
+                    ypos += vy;
+                    zpos += vz;
+                    if(xpos + ball.radius>rx){
+                        xpos = rx - ball.radius;
+                        vx *= -1;
+                    }else if(xpos - ball.radius<lx){
+                        xpos = lx + ball.radius;
+                        vx *=-1;
+                    };
+                    if(ypos + ball.radius>by){
+                        ypos = by - ball.radius;
+                        vy *= -1;
+                    }else if(ypos - ball.radius<ty){
+                        ypos = ty + ball.radius;
+                        vy *= -1;
+                    };
+                    if(zpos + ball.radius>bz){
+                        zpos = bz - ball.radius;
+                        vz *= -1;
+                    }else if(zpos - ball.radius<fz){
+                        zpos = fz + ball.radius;
+                        vz *= -1;
+                    };
+                    if(zpos > -fl){//超出焦点
+                        scale = fl / (fl + zpos);
+                        // xpos = mouse.x - vpx;//添加偏移量为视窗中心点 不然会成为左上角0 0 点
+                        // ypos = mouse.y - vpy;
+                        ball.scaleX = ball.scaleY = scale;
+                        ball.x = vpx + xpos * scale;//根据缩放系数进行坐标的对于系数计算
+                        ball.y = vpy + ypos * scale;
+                        ball.visible = true;
+                    }else{
+                        ball.visible = false;
+                    };
+                    context.beginPath();
+                    context.moveTo(0 , vpy);
+                    context.lineTo(config.width,vpy);
+                    context.moveTo(vpx , 0);
+                    context.lineTo(vpx,config.height);
+                    //绘制碰撞区域矩形
+                    context.moveTo(vpx + lx , vpy + ty);
+                    context.lineTo(vpx + rx,vpy + ty);
+                    context.lineTo(vpx + rx,vpy + by);
+                    context.lineTo(vpx + lx,vpy + by);
+                    context.lineTo(vpx + lx,vpy + ty);
+                    context.stroke();
+                    ball.visible && ball.draw(context);
+                }());
+            }
+        </script>
+    </body>
+</html>

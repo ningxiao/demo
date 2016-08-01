@@ -1,7 +1,7 @@
 function Ball(radius, color) {
 	this.id;
-	this.vx;
-	this.vy;
+	this.vx = 0;
+	this.vy = 0;
 	this.x = 0;
 	this.y = 0;
 	this.radius = radius || 40;
@@ -10,6 +10,7 @@ function Ball(radius, color) {
 	this.scaleY = 1;
 	this.color = Utils.ParseColor(color || "#ff0000");
 	this.lineWidth = 1;
+	this.visible = true;
 };
 Ball.prototype.draw = function(context) {
 	if (context) {
