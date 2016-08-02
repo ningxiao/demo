@@ -100,11 +100,12 @@ Utils.InitShaders = function(gl, vertexshader, fragmentshader) {
  * @return {int} n  成功返回 渲染点的数量 失败返回 0
  */
 Utils.InitVertexBuffers = function(gl, program, vertices, size, name) {
-    var n, position, vertexbuffer;
+    var n, fsize, position, vertexbuffer;
     if (!(gl && vertices.length > 0 && size && name)) {
         console.log("传入参数错误");
         return 0;
     };
+    fsize = vertices.BYTES_PER_ELEMENT;
     n = vertices.length / size;
     //创建一个gl的缓冲区对象
     vertexbuffer = gl.createBuffer();
@@ -124,7 +125,7 @@ Utils.InitVertexBuffers = function(gl, program, vertices, size, name) {
         return 0;
     };
     //将缓冲区对象分配给着色器变量
-    gl.vertexAttribPointer(position, size, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(position, size, gl.FLOAT, false, fsize * size, 0);
     //将顶点变量与分配的缓冲区对象连接起来
     gl.enableVertexAttribArray(position);
     return n;

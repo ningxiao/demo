@@ -71,7 +71,7 @@
             gl = Utils.GetWebGlContext(canvas);
             window.onload = function(){
                 var program,shadervs,shaderfs;
-                var n,matrix,u_ModelMatrix,u_FragColor,vertices = new Float32Array([-0.2,0.2,-0.2,-0.2,0.2,0.2,0.2,-0.2]);
+                var n,angle,rotatematrix,translatematrix,u_ModelMatrix,u_FragColor,vertices = new Float32Array([-0.2,0.2,-0.2,-0.2,0.2,0.2,0.2,-0.2]);
                 if(!gl){
                     console.log("创建webgl失败！");
                     return;
@@ -97,46 +97,31 @@
                     console.log("获取WebGl顶点矩阵变量u_ModelMatrix失败");
                     return;
                 };
-                matrix = mat4.create(); //视图矩阵
+                rotatematrix = mat4.create(); //旋转矩阵
+                translatematrix = mat4.create(); //平移矩阵
+                angle = -1
                 function draw(){
+                    angle--;
                     //设置gl背景色
                     gl.clearColor(0.0,0.0,0.0,1.0);
                     //清楚上次颜色
                     gl.clear(gl.COLOR_BUFFER_BIT);
                     //设置方块颜色
                     gl.uniform4fv(u_FragColor,new Float32Array([1.0,0.0,0.0,1.0]));
-                    //位移两个点
-                    //mat4.translate(matrix, matrix, vec3.fromValues(0.2, 0.0, 1.0));
-                    //旋转60度
-                    mat4.rotate(matrix, matrix, Math.PI * 60 / 180, vec3.fromValues(0.0, 0.0, 1.0));
-                    gl.uniformMatrix4fv(u_ModelMatrix,false,matrix);
+                    //将平移与旋转叠加 实现平移之后并且保持旋转角度不会被重置
+                    mat4.rotate(rotatematrix, translatematrix, Math.PI * angle / 180, vec3.fromValues(0.0, 0.0, 1.0));
+                    gl.uniformMatrix4fv(u_ModelMatrix,false,rotatematrix);
                     //绘制一个点
                     gl.drawArrays(gl.TRIANGLE_STRIP,0,n);
+                    requestAnimationFrame(draw, canvas);
                 };
                 var rect = canvas.getBoundingClientRect();
                 canvas.onmousedown = function(ev){
                     var arr = Utils.LocalToGobal(config.width/2,config.height/2,rect,ev.clientX,ev.clientY);
-                    mat4.identity(matrix); //视图矩阵
-                    mat4.translate(matrix, matrix, new Float32Array([arr[0], arr[1], 1.0]));
-                    draw();
+                    mat4.identity(translatematrix); //重置视图矩阵
+                    mat4.translate(translatematrix, translatematrix, new Float32Array([arr[0], arr[1], 1.0]));
                 };
                 draw();
-                /*
-                //设置gl背景色
-                gl.clearColor(0.0,0.0,0.0,1.0);
-                //清楚上次颜色
-                gl.clear(gl.COLOR_BUFFER_BIT);
-                //设置方块颜色
-                gl.uniform4fv(u_FragColor,new Float32Array([1.0,0.0,0.0,1.0]));
-                matrix = mat4.create(); //视图矩阵
-                //位移两个点
-                mat4.translate(matrix, matrix, vec3.fromValues(0.2, 0.0, 1.0));
-                //旋转60度
-                mat4.rotate(matrix, matrix, Math.PI * 60 / 180, vec3.fromValues(0.0, 0.0, 1.0));
-                gl.uniformMatrix4fv(u_ModelMatrix,false,matrix);
-                //绘制一个点
-                gl.drawArrays(gl.TRIANGLE_STRIP,0,n);
-                */
             };
         </script>
     </body>

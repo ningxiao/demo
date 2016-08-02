@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>颜色与纹理</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+            }
+        </style>
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_Position;
+            attribute vec2 a_TexCoord;
+            varying vec2 v_TexCoord;
+            uniform mat4 u_ModelMatrix;
+            void main(){
+                gl_Position = u_ModelMatrix * a_Position;
+                v_TexCoord = a_TexCoord;
+            }
+        </script>
+        <!-- 片段着色器 -->
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision mediump float;//精度限制
+            #endif
+            uniform sampler2D u_Sampler;
+            varying vec2 v_TexCoord;
+            void main(){
+                gl_FragColor = texture2D(u_Sampler,v_TexCoord);
+            }
+        </script>
+        <script src="./js/Utils.js"></script>
+        <script src="./js/glmatrix.min.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+            var gl,canvas = document.getElementById('canvas');
+            canvas.setAttribute('width', config.width);
+            canvas.setAttribute('height', config.height);
+            gl = Utils.GetWebGlContext(canvas);
+            function initvertexbuffers(gl,program, vertices,size){
+                var n, fsize, position, texcoord,vertexbuffer;
+                if (!(gl && vertices.length > 0 && size)) {
+                    console.log("传入参数错误");
+                    return 0;
+                };
+                n = vertices.length / size;
+                fsize = vertices.BYTES_PER_ELEMENT;
+                //创建一个gl的缓冲区对象
+                vertexbuffer = gl.createBuffer();
+                if (!vertexbuffer) {
+                    console.log("创建缓冲区对象失败");
+                    return 0;
+                };
+                //将缓冲区对象绑定到gl
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexbuffer);
+                //将数据写入缓冲区对象
+                gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+                //获取顶点着色器变量
+                position = Utils.GetGpuLocation(gl, program, "a_Position");
+                if (position < 0) {
+                    gl.deleteBuffer(vertexbuffer);
+                    console.log("获取WebGl顶点变量a_Position失败");
+                    return 0;
+                };
+                //将缓冲区对象分配给着色器变量
+                gl.vertexAttribPointer(position, 3, gl.FLOAT, false, fsize * size, 0);
+                //将顶点变量与分配的缓冲区对象连接起来
+                gl.enableVertexAttribArray(position);
+                //获取着色器变量
+                texcoord = Utils.GetGpuLocation(gl, program, "a_TexCoord");
+                if (texcoord < 0) {
+                    gl.deleteBuffer(vertexbuffer);
+                    console.log("获取WebGl顶点变量texcoord失败");
+                    return 0;
+                };
+                //将缓冲区对象分配给着色器变量
+                gl.vertexAttribPointer(texcoord, 2, gl.FLOAT, false, fsize * size, fsize * 3);
+                //将顶点变量与分配的缓冲区对象连接起来
+                gl.enableVertexAttribArray(texcoord);
+                return n;
+            };
+            function inittextures(gl,program,callback){
+                //创建纹理对象
+                var image,u_sampler,texture = gl.createTexture();
+                if(!texture){
+                    console.log("创建纹理对象失败");
+                    callback();
+                    return;
+                };
+                u_sampler = Utils.GetGpuLocation(gl, program, "u_Sampler",true);
+                if(u_sampler<0){
+                    gl.deleteTexture(texture);
+                    console.log("获取WebGl片源变量u_Sampler失败");
+                    callback();
+                    return;
+                };
+                image = new Image();
+                image.onload = function(){
+                    //将纹理图片反转
+                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+                    //开启0号纹理单元
+                    gl.activeTexture(gl.TEXTURE0);
+                    //将创建的纹理单元绑定
+                    gl.bindTexture(gl.TEXTURE_2D, texture);
+                    //配置纹理参数
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                    //将img绑定到纹理
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+                    //将0号纹理传递给着色器
+                    gl.uniform1i(u_sampler, 0);
+                    callback(true);
+                };
+                image.onerror = callback;
+                image.src = "./image/sky.jpg";
+            };
+            window.onload = function(){
+                var program,shadervs,shaderfs;
+                var n,angle,rotatematrix,translatematrix,u_ModelMatrix;
+                var vertices = new Float32Array([
+                    //x    y     z      s    t
+                    -0.5,  0.5,  0.0,   0.0, 1.0,
+                    -0.5, -0.5,  0.0,   0.0, 0.0,
+                     0.5,  0.5,  0.0,   1.0, 1.0,
+                     0.5, -0.5,  0.0,   1.0, 0.0,
+                ]);
+                // 纹理填充反转
+                // var vertices = new Float32Array([
+                //     //x    y     z      s    t
+                //     -0.5,  0.5,  0.0,   0.0, 0.0,
+                //     -0.5, -0.5,  0.0,   1.0, 0.0,
+                //      0.5,  0.5,  0.0,   0.0, 1.0,
+                //      0.5, -0.5,  0.0,   1.0, 1.0,
+                // ]);
+                if(!gl){
+                    console.log("创建webgl失败！");
+                    return;
+                };
+                //获取顶点着色代码并且编译生成
+                shadervs = Utils.GetShader(gl,'shader-vs');
+                //获取片元着色代码并且编译生成
+                shaderfs = Utils.GetShader(gl,'shader-fs');
+                //将顶点着色与片元着色交由着色器生成
+                program = Utils.InitShaders(gl,shadervs,shaderfs);
+                if(!program){
+                    console.log("生成着色器失败！");
+                    return;
+                };
+                n = initvertexbuffers(gl,program,vertices,5);
+                u_ModelMatrix = Utils.GetGpuLocation(gl,program,'u_ModelMatrix',true);
+                if(u_ModelMatrix < 0){
+                    console.log("获取WebGl顶点矩阵变量u_ModelMatrix失败");
+                    return;
+                };
+                rotatematrix = mat4.create(); //旋转矩阵
+                translatematrix = mat4.create(); //平移矩阵
+                angle = -1
+                function draw(){
+                    angle--;
+                    //设置gl背景色
+                    gl.clearColor(0.0,0.0,0.0,1.0);
+                    //清楚上次颜色
+                    gl.clear(gl.COLOR_BUFFER_BIT);
+                    //设置方块颜色
+                    //将平移与旋转叠加 实现平移之后并且保持旋转角度不会被重置
+                    mat4.rotate(rotatematrix, translatematrix, Math.PI * angle / 180, vec3.fromValues(0.0, 0.0, 1.0));
+                    gl.uniformMatrix4fv(u_ModelMatrix,false,rotatematrix);
+                    //绘制一个点
+                    gl.drawArrays(gl.TRIANGLE_STRIP,0,n);
+                    requestAnimationFrame(draw, canvas);
+                };
+                var rect = canvas.getBoundingClientRect();
+                canvas.onmousedown = function(ev){
+                    var arr = Utils.LocalToGobal(config.width/2,config.height/2,rect,ev.clientX,ev.clientY);
+                    mat4.identity(translatematrix); //重置视图矩阵
+                    mat4.translate(translatematrix, translatematrix, new Float32Array([arr[0], arr[1], 1.0]));
+                };
+                var bitmap,gltexture,usampler;
+                inittextures(gl,program,function(bool){
+                    if(bool){
+                        draw();
+                    }else{
+                        console.log("获取纹理失败");
+                    };
+                });
+            };
+        </script>
+    </body>
+</html>
