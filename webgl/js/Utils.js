@@ -14,6 +14,38 @@ var Utils = {};
  */
 Utils.IsTouch = "ontouchend" in document ? true : false;
 /**
+ * 图片队列加载
+ * @param  {[type]} srcs     [description]
+ * @param  {[type]} imgs     [description]
+ * @param  {[type]} complete [description]
+ * @param  {[type]} progress [description]
+ * @return {[type]}          [description]
+ */
+Utils.QueueImg = function(urls, complete, progress) {
+    var key, url, index = arguments[3] || 0;
+    var data = urls[index];
+    var img = new Image();
+    var bitmap = arguments[4] || {};
+    for (key in data) {
+        url = data[key];
+    };
+    img.onload = function() {
+        bitmap[key] = img;
+        index++;
+        progress && progress.call(this, {
+            "total": urls.length,
+            "loaded": index
+        });
+        if (index != urls.length) {
+            Utils.QueueImg.call(this, urls, complete, progress, index, bitmap);
+        } else {
+            complete.call(this, bitmap);
+        };
+    };
+    img.crossOrigin = "Anonymous";
+    img.src = url;
+};
+/**
  * 获取cavans的2D绘制对象
  * @param {[type]} canvas [description]
  */

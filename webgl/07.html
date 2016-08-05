@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
-        <title>双图片纹理叠加</title>
+        <title>控制正射投影旋转</title>
         <style type="text/css">
             *{
                 margin: 0;
@@ -30,12 +30,14 @@
         <!-- 顶点着色器代码 -->
         <script id="shader-vs" type="x-shader/x-vertex">
             attribute vec4 a_Position;
-            attribute vec2 a_TexCoord;
-            varying vec2 v_TexCoord;
+            attribute vec4 a_Color;
+            varying vec4 v_Color;
+            uniform mat4 u_ViewMatrix;
             uniform mat4 u_ModelMatrix;
+            uniform mat4 u_ProjMatrix;
             void main(){
-                gl_Position = u_ModelMatrix * a_Position;
-                v_TexCoord = a_TexCoord;
+                gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
+                v_Color = a_Color;
             }
         </script>
         <!-- 片段着色器 -->
@@ -43,13 +45,9 @@
             #ifdef GL_ES
             precision mediump float;//精度限制
             #endif
-            uniform sampler2D u_Sampler0;
-            uniform sampler2D u_Sampler1;
-            varying vec2 v_TexCoord;
+            varying vec4 v_Color;
             void main(){
-                vec4 color0 = texture2D(u_Sampler0,v_TexCoord);
-                vec4 color1 = texture2D(u_Sampler1,v_TexCoord);
-                gl_FragColor = color0 * color1;
+                gl_FragColor = v_Color;
             }
         </script>
         <script src="./js/Utils.js"></script>
@@ -108,52 +106,17 @@
                 //将顶点变量与分配的缓冲区对象连接起来
                 gl.enableVertexAttribArray(position);
                 //获取着色器变量
-                texcoord = Utils.GetGpuLocation(gl, program, "a_TexCoord");
-                if (texcoord < 0) {
+                a_Color = Utils.GetGpuLocation(gl, program, "a_Color");
+                if (a_Color < 0) {
                     gl.deleteBuffer(vertexbuffer);
                     console.log("获取WebGl顶点变量texcoord失败");
                     return 0;
                 };
                 //将缓冲区对象分配给着色器变量
-                gl.vertexAttribPointer(texcoord, 2, gl.FLOAT, false, fsize * size, fsize * 3);
+                gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, fsize * size, fsize * 3);
                 //将顶点变量与分配的缓冲区对象连接起来
-                gl.enableVertexAttribArray(texcoord);
+                gl.enableVertexAttribArray(a_Color);
                 return n;
-            };
-            /**
-             * [inittextures description]
-             * @param  {[type]}   gl       [description]
-             * @param  {[type]}   program  [description]
-             * @param  {Function} callback [description]
-             * @return {[type]}            [description]
-             */
-            function inittextures(gl,program,name,bitmap,index){
-                //创建纹理对象
-                var u_sampler,texture = gl.createTexture();
-                var index = index || 0;
-                if(!texture){
-                    console.log("创建纹理对象失败");
-                    return;
-                };
-                u_sampler = Utils.GetGpuLocation(gl, program, name,true);
-                if(u_sampler<0){
-                    gl.deleteTexture(texture);
-                    console.log("获取WebGl片源变量u_Sampler失败");
-                    return;
-                };
-                //将纹理图片反转
-                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-                //开启0号纹理单元
-                gl.activeTexture(gl["TEXTURE" + index]);
-                //将创建的纹理单元绑定
-                gl.bindTexture(gl.TEXTURE_2D, texture);
-                //配置纹理参数
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                //将img绑定到纹理
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, bitmap);
-                //将0号纹理传递给着色器
-                gl.uniform1i(u_sampler, index);
-                return true;
             };
         </script>
         <script type="text/javascript">
@@ -161,25 +124,26 @@
             canvas.setAttribute('width', config.width);
             canvas.setAttribute('height', config.height);
             gl = Utils.GetWebGlContext(canvas);
-            Utils.QueueImg([{"sky":"./image/sky.jpg"},{"circle":"./image/circle.gif"}],function(data){
+            Utils.QueueImg([{"sky":"./image/sky.jpg"}],function(data){
                 var program,shadervs,shaderfs,bitmaps = data;
                 var dots,angle,rotatematrix,translatematrix,u_ModelMatrix;
+                var viewmatrix,u_ViewMatrix;
+                var projmatrix,u_ProjMatrix;
                 var vertices = new Float32Array([
-                    //x    y     z      s    t
-                    -0.5,  0.5,  0.0,   0.0, 1.0,
-                    -0.5, -0.5,  0.0,   0.0, 0.0,
-                     0.5,  0.5,  0.0,   1.0, 1.0,
-                     0.5, -0.5,  0.0,   1.0, 0.0,
+                    //x    y     z      r     g     b
+                     0.0,  0.5,  -0.4,  0.4,  1.0,  0.4, // 后面绿色三角形
+                    -0.5, -0.5,  -0.4,  0.4,  1.0,  0.4,
+                     0.5, -0.5,  -0.4,  1.0,  0.4,  0.4,
+
+                     0.5,  0.4,  -0.2,  1.0,  0.4,  0.4, // 中间黄色三角形
+                    -0.5,  0.4,  -0.2,  1.0,  1.0,  0.4,
+                     0.0, -0.6,  -0.2,  1.0,  1.0,  0.4,
+
+                     0.0,  0.5,   0.0,  0.4,  0.4,  1.0,  // 前面蓝色三角形
+                    -0.5, -0.5,   0.0,  0.4,  0.4,  1.0,
+                     0.5, -0.5,   0.0,  1.0,  0.4,  0.4
                 ]);
                 var rect = canvas.getBoundingClientRect();
-                // 纹理填充反转
-                // var vertices = new Float32Array([
-                //     //x    y     z      s    t
-                //     -0.5,  0.5,  0.0,   0.0, 0.0,
-                //     -0.5, -0.5,  0.0,   1.0, 0.0,
-                //      0.5,  0.5,  0.0,   0.0, 1.0,
-                //      0.5, -0.5,  0.0,   1.0, 1.0,
-                // ]);
                 if(!gl){
                     console.log("创建webgl失败！");
                     return;
@@ -194,23 +158,29 @@
                     console.log("生成着色器失败！");
                     return;
                 };
-                dots = initvertexbuffers(gl,program,vertices,5);
-                if(!inittextures(gl,program,"u_Sampler0",bitmaps["sky"],0)){
-                    console.log("设置纹理0号失败");
-                    return;
-                };
-                if(!inittextures(gl,program,"u_Sampler1",bitmaps["circle"],1)){
-                    console.log("设置纹理1号失败");
-                    return;
-                };
+                dots = initvertexbuffers(gl,program,vertices,6);
                 u_ModelMatrix = Utils.GetGpuLocation(gl,program,'u_ModelMatrix',true);
                 if(u_ModelMatrix < 0){
-                    console.log("获取WebGl顶点矩阵变量u_ModelMatrix失败");
+                    console.log("获取WebGl顶点模型矩阵变量u_ModelMatrix失败");
+                    return;
+                };
+                u_ViewMatrix = Utils.GetGpuLocation(gl,program,'u_ViewMatrix',true);
+                if(u_ModelMatrix < 0){
+                    console.log("获取WebGl顶点视图矩阵变量u_ViewMatrix失败");
+                    return;
+                };
+                u_ProjMatrix = Utils.GetGpuLocation(gl,program,'u_ProjMatrix',true);
+                if(u_ProjMatrix < 0){
+                    console.log("获取WebGl顶点正射投影矩阵变量u_ProjMatrix失败");
                     return;
                 };
                 rotatematrix = mat4.create(); //旋转矩阵
                 translatematrix = mat4.create(); //平移矩阵
-                angle = -1
+                viewmatrix = mat4.create(); //视图矩阵
+                mat4.lookAt(viewmatrix,new Float32Array([0.25, 0.25, 0.25]),new Float32Array([0.0,0.0,0.0]),new Float32Array([0.0, 1.0, 0.0]));
+                projmatrix = mat4.create(); //正射投影矩阵
+                mat4.ortho(projmatrix,-1.0, 1.0, -1.0, 1.0, -0.25, 2.0);
+                angle = 1;
                 function draw(){
                     angle--;
                     //设置gl背景色
@@ -219,15 +189,48 @@
                     gl.clear(gl.COLOR_BUFFER_BIT);
                     //将平移与旋转叠加 实现平移之后并且保持旋转角度不会被重置
                     mat4.rotate(rotatematrix, translatematrix, Math.PI * angle / 180, vec3.fromValues(0.0, 0.0, 1.0));
+                    //设置模型矩阵
                     gl.uniformMatrix4fv(u_ModelMatrix,false,rotatematrix);
+                    //设置视图矩阵
+                    gl.uniformMatrix4fv(u_ViewMatrix,false,viewmatrix);
+                    //正射投影矩阵
+                    gl.uniformMatrix4fv(u_ProjMatrix,false,projmatrix);
                     //绘制一个点
-                    gl.drawArrays(gl.TRIANGLE_STRIP,0,dots);
+                    gl.drawArrays(gl.TRIANGLES,0,dots);
                     requestAnimationFrame(draw, canvas);
                 };
-                canvas.onmousedown = function(ev){
-                    var arr = Utils.LocalToGobal(config.width/2,config.height/2,rect,ev.clientX,ev.clientY);
-                    mat4.identity(translatematrix); //重置视图矩阵
-                    mat4.translate(translatematrix, translatematrix, new Float32Array([arr[0], arr[1], 1.0]));
+                // canvas.onmousedown = function(ev){
+                //     var arr = Utils.LocalToGobal(config.width/2,config.height/2,rect,ev.clientX,ev.clientY);
+                //     mat4.identity(translatematrix); //重置视图矩阵
+                //     mat4.translate(translatematrix, translatematrix, new Float32Array([arr[0], arr[1], 1.0]));
+                // };
+                var g_eyeX = 0.25,g_eyeY = 0.25;
+                document.onkeydown = function(ev){
+                    var bool = false;
+                    switch(ev.keyCode){
+                        case 39:
+                          g_eyeX+=0.01;
+                          bool = true;
+                          break;
+                        case 37:
+                          g_eyeX-=0.01;
+                          bool = true;
+                          break;
+                        case 38:
+                          g_eyeY+=0.01;
+                          bool = true;
+                          break;
+                        case 40:
+                          g_eyeY-=0.01;
+                          bool = true;
+                          break;
+                        default:
+                    };
+                    if(bool){
+                        console.log(g_eyeX,g_eyeY);
+                        mat4.identity(viewmatrix); //重置视图矩阵
+                        mat4.lookAt(viewmatrix,new Float32Array([g_eyeX, g_eyeY, 0.25]),new Float32Array([0.0,0.0,0.0]),new Float32Array([0.0, 1.0, 0.0]));
+                    };
                 };
                 draw();
             });
