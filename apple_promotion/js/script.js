@@ -177,6 +177,7 @@ gl_FragColor = texture2D(sampler, vUV);\n\
     var VIEWMATRIX = LIBS.get_I4();
 
     LIBS.translateZ(VIEWMATRIX, -6);
+    console.log(PROJMATRIX);
     var THETA = 0.43940853454859624,
         PHI = -0.712687691043783;
 
@@ -249,6 +250,7 @@ gl_FragColor = texture2D(sampler, vUV);\n\
             THETA += dX, PHI += dY;
         }
         LIBS.set_I4(MOVEMATRIX);
+
         LIBS.rotateY(MOVEMATRIX, THETA);
         LIBS.rotateX(MOVEMATRIX, PHI);
         time_old = time;
