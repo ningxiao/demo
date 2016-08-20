@@ -1,15 +1,14 @@
 var gl, dots, video, bitmapdata, canvas = document.getElementById('canvas');
-var gltexture, angle = -15;
-var AMORTIZATION = 0.95;
+var gltexture, AMORTIZATION = 0.95;
 var dY = 0;
 var dX = 0;
 var old_x, old_y, drag = false;
-var THETA = 0.43940853454859624;
-var PHI = -0.712687691043783;
+var THETA = 0.0;
+var PHI = 0.0;
 var v_matrix, m_matrix, p_matrix;
 
 function createplay() {
-	var videodata, webmsource, mp4source;
+var videodata, webmsource, mp4source;
 	video = document.createElement("video");
 	video.autoplay = "autoplay";
 	video.controls = "controls";
@@ -125,7 +124,6 @@ function inittextures(gl, program, name, bitmap, index) {
 };
 
 function drawgl() {
-	angle--;
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	//清理之前颜色和深度模型
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -194,60 +192,36 @@ function createpgl() {
 	vertices = new Float32Array([
 		//x  y  z   u  v
 		//底部
-		-1, -1, -1, 0, 0,
-		1, -1, -1, 1, 0,
-		1, 1, -1, 1, 1, -1, 1, -1, 0, 1,
+		-10, -10, -10, 0, 0,
+		10, -10, -10, 1, 0,
+		10, 10, -10, 1, 1,
+		-10, 10, -10, 0, 1,
 		//  顶部
-		-1, -1, 1, 0, 0,
-		1, -1, 1, 1, 0,
-		1, 1, 1, 1, 1, -1, 1, 1, 0, 1,
+		-10, -10, 10, 0, 0,
+		10, -10, 10, 1, 0,
+		10, 10, 10, 1, 1,
+		-10, 10, 10, 0, 1,
 		//左边
-		-1, -1, -1, 0, 0, -1, 1, -1, 1, 0, -1, 1, 1, 1, 1, -1, -1, 1, 0, 1,
+		-10, -10, -10, 0, 0, 
+		-10, 10, -10, 1, 0,
+		 -10, 10, 10, 1, 1,
+		  -10, -10, 10, 0, 1,
 		//右边
-		1, -1, -1, 0, 0,
-		1, 1, -1, 1, 0,
-		1, 1, 1, 1, 1,
-		1, -1, 1, 0, 1,
+		10, -10, -10, 0, 0,
+		10, 10, -10, 1, 0,
+		10, 10, 10, 1, 1,
+		10, -10, 10, 0, 1,
 		//前面
-		-1, -1, -1, 0, 0, -1, -1, 1, 1, 0,
-		1, -1, 1, 1, 1,
-		1, -1, -1, 0, 1,
+		-10, -10, -10, 0, 0,
+		 -10, -10, 10, 1, 0,
+		10, -10, 10, 1, 1,
+		10, -10, -10, 0, 1,
 		//后面
-		-1, 1, -1, 0, 0, -1, 1, 1, 1, 0,
-		1, 1, 1, 1, 1,
-		1, 1, -1, 0, 1
+		-10, 10, -10, 0, 0,
+		-10, 10, 10, 1, 0,
+		10, 10, 10, 1, 1,
+		10, 10, -10, 0, 1
 	]);
-	// vertices = new Float32Array([
-	// 	//x  y  z   u  v
-	// 	//底部
-	// 	-1, -1, -1, 0, 0,
-	// 	1, -1, -1, 1, 0,
-	// 	1, 1, -1, 1, 1, -1, 1, -1, 0, 1,
-	// 	//  顶部
-	// 	-1, -1, 1, 0, 0.66,
-	// 	1, -1, 1, 0.25, 0.66,
-	// 	1, 1, 1, 0.25, 1,
-	// 	-1, 1, 1, 0, 1,
-	// 	//左边
-	// 	-1, -1, -1,  0, 0.33,
-	// 	 -1, 1, -1, 0.25, 0.33,
-	// 	  -1, 1, 1, 0.25, 0.66,
-	// 	  -1, -1, 1,  0, 0.66,
-	// 	//右边
-	// 	1, -1, -1, 0, 0,
-	// 	1, 1, -1, 1, 0,
-	// 	1, 1, 1, 1, 1,
-	// 	1, -1, 1, 0, 1,
-	// 	//前面
-	// 	-1, -1, -1, 0, 0.33,
-	// 	-1, -1, 1, 0.25, 0.33,
-	// 	1, -1, 1, 0.25, 0.66,
-	// 	1, -1, -1, 0, 0.66,
-	// 	//后面
-	// 	-1, 1, -1, 0, 0, -1, 1, 1, 1, 0,
-	// 	1, 1, 1, 1, 1,
-	// 	1, 1, -1, 0, 1
-	// ]);
 	//顶点索引数据
 	indices = new Uint8Array([
 		0, 1, 2,
@@ -288,7 +262,7 @@ function createpgl() {
 	pmatrix = mat4.create(); //投影矩阵
 	mat4.rotateY(mmatrix, mmatrix, THETA);
 	mat4.rotateX(mmatrix, mmatrix, PHI);
-	//mat4.lookAt(vmatrix, new Float32Array([3.0, 3.0, 4.0]), new Float32Array([0.0, 0.0, 0]), new Float32Array([0.0, 0.0, 1.0]));
+	//mat4.lookAt(vmatrix, new Float32Array([3.0, 3.0, 0.0]), new Float32Array([0.0, 0.0, 0.0]), new Float32Array([0.0, 1.0, 0.0]));
 	mat4.translate(vmatrix, vmatrix, new Float32Array([0.0, 0.0, -6]));
 	mat4.perspective(pmatrix, Math.PI * 40 / 180, config.width / config.height, 1, 100);
 
@@ -304,12 +278,13 @@ canvas.setAttribute('width', config.width);
 canvas.setAttribute('height', config.height);
 gl = Utils.GetWebGlContext(canvas);
 if (gl) {
-	Utils.QueueImg([{
-		"qj": "./image/qj.jpg"
-	}], function(bitmaps) {
-		bitmapdata = bitmaps["qj"];
-		createplay();
-	});
+	// Utils.QueueImg([{
+	// 	"qj": "./image/qj.jpg"
+	// }], function(bitmaps) {
+	// 	bitmapdata = bitmaps["qj"];
+	// 	createplay();
+	// });
+	createplay();
 } else {
 	console.log("开始webgl失败");
 };

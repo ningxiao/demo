@@ -84,7 +84,7 @@ Utils.GetWebGlContext = function(canvas, opt_debug, opt_onerror) {
     if (!gl) {
         return null;
     };
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     return gl;
 };
 /**
@@ -147,8 +147,14 @@ Utils.InitVertexBuffers = function(gl, program, vertices, size, name) {
     };
     //将缓冲区对象绑定到gl
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexbuffer);
-    //将数据写入缓冲区对象
+    //创建一个缓冲区并且将数据写入
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    /**
+        //创建一个指定内存大小的缓冲区 只有大小没有数据
+        gl.bufferData(gl.ARRAY_BUFFER, fsize * vertices.length, gl.STATIC_DRAW);
+        //更新指定区域数据 更新数据类型   更新偏移位置 数据
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
+    */
     //获取顶点着色器变量
     position = this.GetGpuLocation(gl, program, name);
     if (position < 0) {
@@ -176,7 +182,7 @@ Utils.GetShader = function(gl, id) {
     };
     child = shaderScript.firstChild;
     while (child) {
-        if (child.nodeType == 3) {
+        if (child.nodeType == child.TEXT_NODE) {
             text += child.textContent;
         };
         child = child.nextSibling;

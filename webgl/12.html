@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>WebGL摄像机操作</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+            }
+        </style>
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_position;
+            attribute vec2 uv;
+            varying vec2 vuv;
+            uniform mat4 v_matrix;
+            uniform mat4 p_matrix;
+            void main(){
+                gl_Position = p_matrix * v_matrix * a_position;
+                vuv = uv;
+            }
+        </script>
+        <!-- 片段着色器 -->
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision mediump float;//精度限制
+            #endif
+            varying vec2 vuv;
+            uniform sampler2D sampler;
+            void main(){
+                gl_FragColor = texture2D(sampler,vuv);
+            }
+        </script>
+        <script src="./js/Utils.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var i,j,k,data=[];
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                //绘制32*32的数据 一三象限白色，二四象限黑色，用作平铺国际象棋棋盘
+                for(i=0;i<32;i++){
+                    for(j=0;j<32;j++){
+                        k = i<16^j<16?0xCC:0x66;
+                        data.push(k,k,k);
+                    };
+                };
+                exports.config = {
+                    'width': 400,
+                    'height': 400,
+                    'vertices': new Float32Array([
+                        //x  y   z  s  t
+                        -8, -1, -1, 0, 0,
+                        -8, -1, -12,0, 32,
+                         8, -1, -1, 32,0,
+                         8, -1, -1, 32,0,
+                        -8, -1, -12,0,32,
+                         8, -1, -12,32,32
+                    ]),
+                    'bitmapdata':new Uint8Array(data)
+                };
+            })(typeof exports === 'object' ? exports : window);
+        </script>
+        <script type="text/javascript">
+        var gl, dots, canvas = document.getElementById('canvas');
+        var v_matrix,p_matrix;
+        var LEFT=37,UP=38,RIGHT=39,DOWN=40,KEYS={};
+        /*摄像机对象化*/
+        var camera={
+          rot:0,x:0,y:0,z:0,move:function(e){
+            //移动时需要做朝向计算
+            camera.x+=Math.sin(-camera.rot)*e;
+            camera.z+=Math.cos(-camera.rot)*e;
+          },toMatrix:function(){
+            var s=Math.sin(camera.rot),c=Math.cos(camera.rot),x=camera.x,z=camera.z;
+            //先平移，后旋转
+            return [
+              c,0,-s,0, 0,1,0,0, s,0,c,0, 
+              c*x+s*z,camera.y,c*z-s*x,1
+            ];
+          }
+        };
+        function drawgl() {
+            if(KEYS[LEFT])camera.rot-=0.02;
+            if(KEYS[RIGHT])camera.rot+=0.02;
+            if(KEYS[UP])camera.move(0.05);
+            if(KEYS[DOWN])camera.move(-0.05);
+
+            //清理之前颜色和深度模型
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.uniformMatrix4fv(p_matrix, false, new Float32Array(camera.toMatrix()));
+            //绘制一个点
+            gl.drawArrays(gl.TRIANGLES,0,dots);
+            requestAnimationFrame(drawgl, canvas);
+        };
+        function initvertexbuffers(gl, program, vertices,size) {
+            var n, uv, fsize, position,vertexbuffer;
+            if (!(gl && vertices.length > 0)) {
+                console.log("传入参数错误");
+                return 0;
+            };
+            n = vertices.length/size;
+            //获取元素字节大小
+            fsize = vertices.BYTES_PER_ELEMENT;
+            //创建一个gl的顶点坐标与颜色缓冲区
+            vertexbuffer = gl.createBuffer();
+            if (!vertexbuffer) {
+                console.log("创建缓冲区对象失败");
+                return 0;
+            };
+            //将顶点坐标与颜色缓冲区对象绑定到gl
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexbuffer);
+            //将顶点坐标与颜色写入缓冲区对象
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+            //获取顶点着色器变量
+            position = Utils.GetGpuLocation(gl, program, "a_position");
+            uv = Utils.GetGpuLocation(gl, program, "uv");
+            if (position < 0 || uv < 0) {
+                gl.deleteBuffer(vertexbuffer);
+                console.log("获取WebGl顶点变量失败");
+                return 0;
+            };
+            //将缓冲区对象分配给着色器变量 坐标数据
+            gl.vertexAttribPointer(position, 3, gl.FLOAT, false, fsize * size, 0);
+            //将顶点变量与分配的缓冲区对象连接起来
+            gl.enableVertexAttribArray(position);
+            //将缓冲区对象分配给着色器变量
+            gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, fsize * size, fsize * 3);
+            //将顶点变量与分配的缓冲区对象连接起来
+            gl.enableVertexAttribArray(uv);
+            return n;
+        };
+        function inittextures(gl, program, name, bitmap, index) {
+            //创建纹理对象
+            var u_sampler, texture = gl.createTexture();
+            var index = index || 0;
+            if (!texture) {
+                console.log("创建纹理对象失败");
+                return;
+            };
+            u_sampler = Utils.GetGpuLocation(gl, program, name, true);
+            if (u_sampler < 0) {
+                gl.deleteTexture(texture);
+                console.log("获取WebGl片源变量u_Sampler失败");
+                return;
+            };
+            //将纹理图片反转
+            //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+            //开启0号纹理单元
+            gl.activeTexture(gl["TEXTURE" + index]);
+            //将创建的纹理单元绑定
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            //配置纹理参数
+            //
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            //将img绑定到纹理
+            gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,32,32,0,gl.RGB,gl.UNSIGNED_BYTE,bitmap);
+            //将0号纹理传递给着色器
+            gl.uniform1i(u_sampler, index);
+            return texture;
+        };
+        function createplay(){
+            //获取顶点着色代码并且编译生成
+            var shadervs = Utils.GetShader(gl, 'shader-vs');
+            //获取片元着色代码并且编译生成
+            var shaderfs = Utils.GetShader(gl, 'shader-fs');
+            //将顶点着色与片元着色交由着色器生成
+            var program = Utils.InitShaders(gl, shadervs, shaderfs);
+            if (!program) {
+                console.log("生成着色器失败！");
+                return;
+            };
+            //返回渲染顶点数量
+            dots = initvertexbuffers(gl, program, config.vertices, 5);
+            //渲染视频纹理
+            gltexture = inittextures(gl, program, "sampler", config.bitmapdata, 0);
+            if (!gltexture) {
+                console.log("设置纹理0号失败");
+                return;
+            };
+            v_matrix = Utils.GetGpuLocation(gl, program, 'v_matrix', true);
+            p_matrix = Utils.GetGpuLocation(gl, program, 'p_matrix', true);
+            if (v_matrix < 0 || p_matrix < 0) {
+                console.log("获取WebGl顶点矩阵变量失败");
+                return;
+            };
+            gl.uniformMatrix4fv(v_matrix, false,new Float32Array([ 1.7,0,0,0, 0,1.7,0,0, 0,0,-1,-1, 0,0,-2,0]));
+            //开启隐藏面消除
+            gl.enable(gl.DEPTH_TEST);
+            drawgl();
+        };
+        canvas.setAttribute('width', config.width);
+        canvas.setAttribute('height', config.height);
+        gl = Utils.GetWebGlContext(canvas);
+        if (gl) {
+            createplay();
+            //在KEYS中储存按键状态
+            document.onkeydown=function(e){KEYS[e.keyCode]=true};
+            document.onkeyup=function(e){KEYS[e.keyCode]=false};
+        } else {
+            console.log("开始webgl失败");
+        };
+        </script>
+    </body>
+</html>
