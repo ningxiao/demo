@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+        <title>控制正射投影2D旋转</title>
+        <style type="text/css">
+            *{
+                margin: 0;
+                padding: 0;
+            }
+            html,body{
+                width: 100%;
+                height: 100%;
+                background-color: #000;
+            }
+            .panel{
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 0;
+            }
+            #canvas{
+                position: absolute;
+            }
+        </style>
+        <!-- 顶点着色器代码 -->
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec4 a_position;
+            attribute vec4 a_color;
+            varying vec4 out_color;
+            uniform mat4 u_vmatrix;
+            uniform mat4 u_mmatrix;
+            void main(){
+                gl_Position =  u_vmatrix * u_mmatrix * a_position;
+                out_color = a_color;
+            }
+        </script>
+        <!-- 片段着色器 -->
+        <script id="shader-fs" type="x-shader/x-fragment">
+            #ifdef GL_ES
+            precision mediump float;//精度限制
+            #endif
+            varying vec4 out_color;
+            void main(){
+                gl_FragColor = out_color;
+            }
+        </script>
+        <script src="./js/Utils.js"></script>
+        <script src="./js/glmatrix.min.js"></script>
+    </head>
+    <body>
+        <div class="panel">
+            <canvas id="canvas" width="100%" height="100%"></canvas>
+        </div>
+        <script type="text/javascript">
+            (function(exports) {
+                var clientrect = document.documentElement.getBoundingClientRect();
+                document.addEventListener('touchmove', function(event) {
+                    event.preventDefault();
+                });
+                exports.config = {
+                    'width': clientrect.width,
+                    'height': clientrect.height
+                };
+            })(typeof exports === 'object' ? exports : window);
+
+            function initvertexbuffer(gl, program, vertices, indices, size) {
+                var n, color, fsize, position, indexbuffer, vertexbuffer;
+                if (!(gl && vertices.length > 0 && indices.length > 0)) {
+                    console.log("传入参数错误");
+                    return 0;
+                };
+                n = indices.length;
+                //获取元素字节大小
+                fsize = vertices.BYTES_PER_ELEMENT;
+                //创建一个gl的顶点坐标与颜色缓冲区
+                vertexbuffer = gl.createBuffer();
+                //创建一个gl顶点索引缓冲区
+                indexbuffer = gl.createBuffer();
+                if (!vertexbuffer || !indexbuffer) {
+                    console.log("创建缓冲区对象失败");
+                    return 0;
+                };
+                //将顶点坐标与颜色缓冲区对象绑定到gl
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexbuffer);
+                //将顶点坐标与颜色写入缓冲区对象
+                gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+                //获取顶点着色器变量
+                position = Utils.GetGpuLocation(gl, program, "a_position");
+                color = Utils.GetGpuLocation(gl, program, "a_color");
+                if (position < 0 || color < 0) {
+                    gl.deleteBuffer(vertexbuffer);
+                    gl.deleteBuffer(indexbuffer);
+                    console.log("获取WebGl顶点变量失败");
+                    return 0;
+                };
+                //将缓冲区对象分配给着色器变量 坐标数据
+                gl.vertexAttribPointer(position, 3, gl.FLOAT, false, fsize * size, 0);
+                //将顶点变量与分配的缓冲区对象连接起来
+                gl.enableVertexAttribArray(position);
+                //将缓冲区对象分配给着色器变量
+                gl.vertexAttribPointer(color, 3, gl.FLOAT, false, fsize * size, fsize * 3);
+                //将顶点变量与分配的缓冲区对象连接起来
+                gl.enableVertexAttribArray(color);
+                //将顶点索引缓冲区对象绑定到gl
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexbuffer);
+                //将顶点索引写入缓冲区对象
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+                return n;
+            };
+        </script>
+        <script type="text/javascript">
+            var gl, dots, canvas = document.getElementById('canvas');
+            canvas.setAttribute('width', config.width);
+            canvas.setAttribute('height', config.height);
+            gl = Utils.GetWebGlContext(canvas);
+
+            function createpgl() {
+                var u_vmatrix, u_mmatrix, vmatrix, mmatrix;
+                var vertices, indices, shadervs, shaderfs, program;
+                vertices = new Float32Array([
+                    //X     Y     Z     R     G     B
+                    -0.5,  0.5, 0.0, 0.4, 1.0, 0.4,
+                     0.5,  0.5, 0.0, 0.4, 1.0, 0.4,
+                     0.5, -0.5, 0.0, 1.0, 0.4, 0.4,
+                    -0.5, -0.5, 0.0, 1.0, 0.4, 0.4
+                ]);
+                indices = new Uint16Array([
+                    0, 1, 2,
+                    0, 2, 3
+                ]);
+                //获取顶点着色代码并且编译生成
+                shadervs = Utils.GetShader(gl, 'shader-vs');
+                //获取片元着色代码并且编译生成
+                shaderfs = Utils.GetShader(gl, 'shader-fs');
+                //将顶点着色与片元着色交由着色器生成
+                program = Utils.InitShaders(gl, shadervs, shaderfs);
+                if (!program) {
+                    console.log("生成着色器失败！");
+                    return;
+                };
+                dots = initvertexbuffer(gl, program, vertices, indices, 6);
+                u_vmatrix = Utils.GetGpuLocation(gl, program, 'u_vmatrix', true);
+                u_mmatrix = Utils.GetGpuLocation(gl, program, 'u_mmatrix', true);
+                vmatrix = mat4.create(); //视图矩阵
+                //设置视点为屏幕中心点
+                mat4.ortho(vmatrix, -1, 1, -1, 1, 1, -2);
+                //设置视点为屏幕左上角
+                //mat4.ortho(vmatrix, 0, 1, 1, 0, 1, -2);
+                mmatrix = mat4.create(); //模型矩阵
+                mat4.translate(mmatrix, mmatrix, new Float32Array([0.0, 0.0, 0.0]));
+                gl.uniformMatrix4fv(u_vmatrix, false, vmatrix);
+                gl.uniformMatrix4fv(u_mmatrix, false, mmatrix);
+                gl.enable(gl.DEPTH_TEST);
+                drawgl();
+            };
+
+            function drawgl(){
+                gl.clearColor(0.0, 0.0, 0.0, 1.0);
+                //清理之前颜色和深度模型
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                //绘制一个点
+                gl.drawElements(gl.TRIANGLES, dots, gl.UNSIGNED_SHORT, 0);
+                //requestAnimationFrame(drawgl, canvas);
+            };
+            if (gl) {
+                createpgl();
+            } else {
+                console.log("创建WebGL失败");
+            };
+        </script>
+    </body>
+</html>

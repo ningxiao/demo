@@ -58,11 +58,13 @@ var rotx = 0;
 var roty = 0;
 
 function createplay() {
-    var videodata, mp4source;
+    var videodata, mp4source, playbutton;
+    playbutton = document.getElementById("playbutton");
     video = document.createElement("video");
     video.autoplay = "autoplay";
     video.controls = "controls";
-    video.setAttribute("webkit-playsinline", "true"); //解决微信可以不用全屏播放
+    //video.setAttribute("playsinline", "true"); //ios 10 支持非全屏播放
+    //video.setAttribute("webkit-playsinline", "true"); //解决微信可以不用全屏播放
     mp4source = document.createElement("source");
     mp4source.type = "video/mp4";
     mp4source.src = "./video/utvr.mp4";
@@ -82,6 +84,7 @@ function createplay() {
         };
     };
     video.addEventListener("play", function(event) {
+        playbutton.style.display = "none";
         videodata["win"]["length"] = this.duration - 31;
     });
     video.addEventListener("ended", function(event) {
@@ -89,7 +92,10 @@ function createplay() {
         // video.play();
     });
     video.addEventListener("timeupdate", timeupdatefun);
-    video.play();
+    playbutton.addEventListener("touchend", function(ev) {
+        video.play();
+    });
+    //video.play();
 };
 
 function initvertexbuffers(gl, program, vertices, indices, size) {
@@ -232,10 +238,15 @@ function mousecall() {
     };
 
     function resizecall(ev) {
-        var clientrect = document.documentElement.getBoundingClientRect();
-        canvas.setAttribute('width', clientrect.width);
-        canvas.setAttribute('height', clientrect.height);
-        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        setTimeout(function() {
+            var clientrect = document.documentElement.getBoundingClientRect();
+            canvas.setAttribute('width', clientrect.width);
+            canvas.setAttribute('height', clientrect.height);
+            gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+            mat4.identity(pmatrix); //重置模型矩阵
+            mat4.perspective(pmatrix, Math.PI * 60 / 180, clientrect.width / clientrect.height, 1, 800);
+            gl.uniformMatrix4fv(p_matrix, false, pmatrix);
+        }, 200);
     };
 
     function orientationhandler(ev) {
@@ -311,6 +322,12 @@ canvas.setAttribute('width', config.width);
 canvas.setAttribute('height', config.height);
 gl = Utils.GetWebGlContext(canvas);
 if (gl) {
+    // Utils.QueueImg([{
+    //     "bfvr": "./image/bfvr.jpg"
+    // }], function(bitmaps) {
+    //     video = bitmaps["bfvr"];
+    //     createpgl();
+    // });
     createplay();
 } else {
     console.log("开始webgl失败");
