@@ -505,8 +505,20 @@
                 audio.analyser.getByteFrequencyData(audio.frequencyData);
                 var bar_width = Math.ceil(canvas.width / (audio.analyser.frequencyBinCount * .85));
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                var freq, x, y, w, h;
-                ctx.fillStyle = ctx.createPattern(img, "repeat");
+                var freq, x, y, w, h, line = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                line.addColorStop(1, '#FF0000');
+                line.addColorStop(0.9, '#FF5A00');
+                line.addColorStop(0.8, '#FF7700');
+                line.addColorStop(0.7, '#FFB900');
+                line.addColorStop(0.6, '#E7FF00');
+                line.addColorStop(0.5, '#88FF00');
+                line.addColorStop(0.4, '#75FF00');
+                line.addColorStop(0.3, '#00FF47');
+                line.addColorStop(0.2, '#00FFAF');
+                line.addColorStop(0.1, '#00FAFF');
+                line.addColorStop(0, '#00C1FF');
+                ctx.fillStyle = line;
+                //ctx.fillStyle = ctx.createPattern(img, "repeat");
                 for (var i = 0; i < audio.analyser.frequencyBinCount; i++) {
                     freq = audio.frequencyData[i] || 0;
                     x = bar_width * i;
@@ -521,7 +533,7 @@
                     requestAnimationFrame(drawSpectrum)
                 } else {
                     ctx.clearRect(0, 0, canvas.width, canvas.height)
-                }
+                };
             }
             audio.analyser = audio.context.createAnalyser();
             audio.analyser.smoothingTimeConstant = .85;
