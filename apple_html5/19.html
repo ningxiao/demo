@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>iframe预览页面</title>
+    <style>
+        .btn-run {
+            height: 32px;
+            font-size: 16px;
+            width: 120px;
+            background-color: #cd0000;
+            color: #fff;
+            border: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea id="codeArea" style="height: 357px;width: 100%;">
+<style>
+	html {
+		height: 100vh;
+		overflow: hidden;
+	}
+	
+	body {
+		height: inherit;
+		background: #2e576b;
+		display: -ms-grid;
+		display: grid;
+	}
+	
+	.container {
+		margin: auto;
+	}
+	
+	.card {
+		position: relative;
+		width: 300px;
+		height: 350px;
+		background: #fff;
+		border-radius: 2px;
+		box-shadow: 0 2px 15px 3px rgba(0, 0, 0, 0.08);
+		overflow: hidden;
+	}
+	
+	.card::after {
+		content: '';
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: -webkit-linear-gradient(top, #0065a8, rgba(221, 238, 255, 0.4) 46%, rgba(255, 255, 255, 0.5));
+		background: linear-gradient(to bottom, #0065a8, rgba(221, 238, 255, 0.4) 46%, rgba(255, 255, 255, 0.5));
+	}
+	
+	.wave {
+		position: absolute;
+		top: 3%;
+		left: 50%;
+		width: 400px;
+		height: 400px;
+		margin-top: -200px;
+		margin-left: -200px;
+		background: #0af;
+		border-radius: 40%;
+		opacity: .4;
+		-webkit-animation: shift 3s infinite linear;
+		animation: shift 3s infinite linear;
+	}
+	
+	.wave.w2 {
+		background: yellow;
+		opacity: .1;
+		-webkit-animation: shift 7s infinite linear;
+		animation: shift 7s infinite linear;
+	}
+	
+	.wave.w3 {
+		-webkit-animation: shift 5s infinite linear;
+		animation: shift 5s infinite linear;
+		background: crimson;
+		opacity: 0.1;
+	}
+	
+	@-webkit-keyframes shift {
+		from {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+		}
+	}
+	
+	@keyframes shift {
+		from {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+		}
+	}
+</style>
+<div class="container">
+	<div class="card">
+		<div class="wave w1"></div>
+		<div class="wave w2"></div>
+		<div class="wave w3"></div>
+	</div>
+</div>
+    </textarea>
+    <input id="btnrun" type="button" value="点击生成" class="btn-run">
+    <script>
+        var btnrun = document.querySelector("#btnrun");
+        var iframe, htmlCode = document.querySelector("#codeArea").value;
+        btnrun.addEventListener("click", () => {
+            if (iframe) {
+                document.body.removeChild(iframe);
+            };
+            iframe = document.createElement("iframe");
+            iframe.style.cssText = 'width:600px;max-width:98%;max-height:600px;height:98vh;position:fixed;border:1px solid;outline:9999px solid rgba(0,0,0,.6);top:0;right:0;left:0;bottom:0;margin:auto;overflow:hidden;';
+            iframe.src = URL.createObjectURL(new Blob([htmlCode], {
+                'type': 'text/html'
+            }));
+            document.body.appendChild(iframe);
+        });
+    </script>
+</body>
+
+</html>
