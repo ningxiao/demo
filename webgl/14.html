@@ -549,7 +549,7 @@
 
             if (Hls.isSupported()) {
                 var hls = new Hls();
-                hls.loadSource('http://127.0.0.1/video/utvr.m3u8');
+                hls.loadSource('/video/utvr.m3u8');
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
                     video.play();
