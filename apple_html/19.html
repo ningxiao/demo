@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>弹性视觉布局</title>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+			color: #fff;
+			background-color: #0a1048;
+		}
+
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			font-family: sans-serif;
+			line-height: 1.15;
+			-webkit-text-size-adjust: 100%;
+		}
+
+		#grid {
+			display: grid;
+			width: 100%;
+			/*
+			* 表示有4列，第一列100px固定尺寸，第三列 max-content 代表刚好包含元素不溢出不换行的尺寸，剩下的2列都是弹性尺寸
+			*/
+			grid-template-columns: 100px 1fr max-content minmax(min-content, 1fr);
+		}
+
+		#title {
+			background-color: lime;
+		}
+
+		#score {
+			background-color: yellow;
+		}
+
+		#stats {
+			background-color: lime;
+		}
+
+		#message {
+			background-color: orange;
+		}
+
+		#grid>div {
+			height: 80px;
+			line-height: 80px;
+			text-align: center;
+		}
+		.box{
+			width: 100%;
+			padding-left: 20px;
+			position: relative;
+		}
+		.box h6{
+			font-size: 16px;
+		}
+		.box li{
+			list-style: none;
+			font-size: 12px;
+			text-indent:24px;
+		}
+		.screen-select{
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			grid-template-rows: repeat(2, 15vw);
+			grid-column-gap: 1.5rem;
+			grid-row-gap: 1.5rem;
+		}
+		h2{
+			font-size: 3rem;
+			box-sizing: border-box;
+			text-align: center;
+			color: #fff;
+			line-height: 1.15;
+
+		}
+		.screen{
+			display: block;
+			color: #fff;
+			height: 100%;
+			width: 100%;
+			padding: 2rem;
+			text-decoration: none;
+			background-color: #0cf;
+			font-size: 2rem;
+			box-sizing: border-box;
+			transition: all 0.35s ease-in-out;
+		}
+		.screen:hover{
+			color: #feadac;
+			background-color: #fae395;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="grid">
+		<div id="title">Site Logo</div>
+		<div id="score">Slogan</div>
+		<div id="stats">User Zone</div>
+		<div id="message">Message</div>
+	</div>
+	<h2>五屏组合</h2>
+	<div class="screen-select">
+		<a class="screen" style="grid-column:1 / 2;grid-row:1 / 2;" href="/portal/screen/1" >1号屏幕</a>
+		<a class="screen" style="grid-column:1 / 2;grid-row:2 / 3;" href="/portal/screen/2" >2号屏幕</a>
+		<a class="screen" style="grid-column:2 / 4;grid-row:1 / 3;" href="/portal/screen/3" >3号屏幕</a>
+		<a class="screen" style="grid-column:4 / 5;grid-row:1 / 2;" href="/portal/screen/4" >4号屏幕</a>
+		<a class="screen" style="grid-column:4 / 5;grid-row:2 / 3;" href="/portal/screen/5" >5号屏幕</a>
+	</div>
+	<p>备注:表示有4列，第一列100px固定尺寸，第三列 max-content 代表刚好包含元素不溢出不换行的尺寸，剩下的2列都是弹性尺寸</p>
+	<div class="box">
+		<h6>minmax()函数接受两个参数，一个最小值和一个最大值</h6>
+		<ul>
+			<li>长度值
+				<code>&lt;length&gt;</code>
+			</li>
+			<li>百分比值(网格容器宽度的比例)</li>
+			<li>弹性值1fr</li>
+			<li>max-contentmax-content关键词是一个特殊的值，它代表了单元格“最理想的大小”。网格单元格最小的宽度围绕它的</li>
+			<li>min-content</li>
+			<li>auto</li>
+		</ul>
+	</div>
+</body>
+
+</html>

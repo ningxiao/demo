@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>利用视口单位实现适配布局</title>
+	<meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+		}
+		html,body {
+			width: 100%;
+			height: 100%;
+			/**font-size: 50px; 不支持vw单位时，回退到px单位*/
+			/* font-size: 13.333333333333332vw; */
+			overflow: hidden;
+		}
+		/* @media screen and (orientation: landscape) {
+			html {
+				font-size: 50px;
+				font-size: 13.333333333333332vh;
+			}
+		} */
+		div[el-id="d5s69k"]{
+			background: red;
+			margin-top: calc(10%);
+			height: 0.84rem;
+			font-size: 12px;
+			text-align: center;
+			line-height: 0.84rem;
+		}
+	</style>
+	<script>
+		var dpr = 0;
+		var rem = 12;
+		var devicePixelRatio = window.devicePixelRatio;
+		var isIPhone = window.navigator.appVersion.match(/iphone/gi);
+		var isAndroid = window.navigator.appVersion.match(/android/gi);
+		var width = document.documentElement.getBoundingClientRect().width;
+		if (isIPhone) {
+            // iOS下，对于2和3的屏，用2倍的方案，其余的用1倍方案
+            if (devicePixelRatio >= 3 && (!dpr || dpr >= 3)) {                
+                dpr = 3;
+            } else if (devicePixelRatio >= 2 && (!dpr || dpr >= 2)){
+                dpr = 2;
+            } else {
+                dpr = 1;
+            }
+        } else {
+            // 其他设备下，仍旧使用1倍的方案
+            dpr = 1;
+        }
+        if (width / dpr > 540) {
+            width = 540 * dpr;
+        }
+		rem = parseInt(width / 7.5);
+		document.documentElement.style.fontSize = rem/(width/100) + 'vw';
+		console.log(devicePixelRatio,width,rem);
+	</script>
+</head>
+
+<body>
+	<div el-id="d5s69k">
+		margin-top值为宽度10%
+	</div>
+</body>
+
+</html>

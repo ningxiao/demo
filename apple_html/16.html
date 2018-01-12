@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>CSS选择器</title>
+	<style>
+		p{
+			display: inline;
+			color:blue;
+		}
+		em{
+			display: block;
+		}
+		.warning{
+			color: chartreuse;
+			font-style: italic;
+		}
+		/**
+		* class 为warning的P元素 
+		*/
+		p.warning{
+			color: red;
+		}
+
+		.tl{
+			font-size: 24px;
+			color: aqua;
+			font-style:italic;
+		}
+
+		span{
+			color: red;
+			font-size: 12px;
+		}
+		span.warning{
+			font-weight: bold;
+		}
+		/**
+		* 属性data-id="h8s9t201j" 的span元素生效
+		*/		
+		span[data-id="h8s9t201j"]{
+			color: black;
+			font-size: 16px;
+		}
+		/**
+		* 包含class属性的H1标签
+		*/
+		h1[class]{
+			color: silver;
+		}
+		/**
+		*选择子元素span
+		**/
+		h1[class] > span{
+			color: rgb(22, 7, 243);
+			font-size: 18px;
+		}
+		/**
+		*选h1的兄弟节点p
+		**/
+		h1 + p{
+			color: aqua;
+		}
+		a[data-id="h8s7w0q1k"]:link,a[data-id="h8s7w0q1k"]:visited{
+			font-size: 13px;
+		}
+		a[data-id="h8s7w0q1k"]:hover{
+			font-size: 20px;
+		}
+		h2{
+			color: rgb(2, 2, 2);
+		}
+		h2::first-letter{
+			color: red;
+			font-size: 200%;
+		}
+		p::first-line{
+			color: purple;
+		}
+		p[data-id="k8s7d0"]::before{
+			content: "{{";
+			color:silver
+		}
+		p[data-id="k8s7d0"]::after{
+			content: "}}";
+			color:silver
+		}
+		h1{
+			color: chartreuse;
+			font-size: 12px;
+		}
+		/**
+		*后者权限高于前者
+		**/
+		h1{
+			color: rgb(255, 166, 0);
+		}
+	</style>
+</head>
+
+<body>
+	<em><p>开始尝试样式继承的概念</p></em>
+	<p class="warning">
+		红色
+	</p>
+	<p>
+		蓝色
+	</p>
+	<div class="warning">
+			chartreuse
+	</div>
+	<span class="warning">
+		说三道四
+	</span>
+	<h1 class="tl">
+		上帝视角看人间<span>充满疾苦</span>
+	</h1>
+	<p>h1的兄弟节点</p>
+	<span data-id="h8s9t201j">
+		自定义属性选择样式
+	</span>
+	<div></div>
+	<a data-id="h8s7w0q1k" href="https://www.baidu.com/">https://www.baidu.com/</a>
+	<h2><h2:first-letter>设</h2:first-letter> 置首个字变红色</h2>
+	<p data-id="k8s7d0">
+		明月几时有？把酒问青天。不知天上宫阙、今夕是何年？我欲乘风归去，惟恐琼楼玉宇，高处不胜寒．起舞弄清影，何似在人间？  转朱阁，低绮户，照无眠。不应有恨、何事长向别时圆？人有悲欢离合，月有阴晴圆缺，此事古难全。但愿人长久，千里共蝉娟。
+	</p>
+	<h1>非块级元素<em>继承(如果不继承应该为黑色)</em></h1>
+</body>
+
+</html>
