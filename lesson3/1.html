@@ -13,6 +13,8 @@
 
         html, body {
             height: 100%;
+            background: url('./image/stone-art.jpg');
+            overflow: hidden;
         }
 
         .test {
@@ -34,6 +36,33 @@
             background-color: #fffc0e;
             box-shadow: 10px 10px 5px #888888;
         }
+        .box{
+            border: 10px solid hsla(0,0%,100%,.5);
+            background: white;
+            background-clip: padding-box;
+            /* styling */
+            max-width: 20em;
+            padding: 2em;
+            margin: 2em auto 0;
+            font: 100%/1.5 sans-serif;
+        }
+        div[data-id="x7s8w9"]{
+            clear: both;
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: #252453;
+            text-align: center;
+            line-height: 200px;
+            border-radius: 50%;
+            color: #ffffff;
+            box-shadow: 0 0 0 10px #655,
+                        0 0 0 20px deeppink,
+                        0 2px 5px 15px rgba(0, 0, 0, 0.6);
+            transform: translate(-50%,-50%);
+            left: 50%;
+            top: 50%;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +72,12 @@
     </div>
     <div class="test shadow">
         css3 box-shadow: 10px 10px 5px #888888; 阴影
+    </div>
+    <div class="test box">
+        css3 边框透明 
+    </div>
+    <div data-id="x7s8w9">
+        css3 多个边框 
     </div>
 </div>
 </body>
