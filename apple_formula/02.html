@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <title>矩形像素碰撞</title>
+    <style type="text/css">
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background-color: #eee;
+        }
+
+        canvas {
+            box-shadow: 0 0 10px #777;
+            width: 600px;
+            height: 400px;
+        }
+    </style>
+    <canvas></canvas>
+    <script>
+        const utils = {
+            ctx: null,
+            canvas: null,
+            ratio: 1,
+            hitTest(rect1, rect2, bool) {
+                let half1Width = rect1.width / 2;
+                let half1Height = rect1.height / 2;
+                let half2Width = rect2.width / 2;
+                let half2Height = rect2.height / 2;
+                let cen1 = {
+                    x: rect1.x + half1Width,
+                    y: rect1.y + half1Height
+                };
+                let cen2 = {
+                    x: rect2.x + half2Width,
+                    y: rect2.y + half2Height
+                };
+                let hit = Math.abs(cen2.x - cen1.x) <= half1Width + half2Width && Math.abs(cen2.y - cen1.y) <= half1Height + half2Height;
+                if (bool && hit) {
+                    let X1 = Math.max(rect1.x, rect2.x);
+                    let Y1 = Math.max(rect1.y, rect2.y);
+                    let X2 = Math.min(cen1.x, cen2.x);
+                    let Y2 = Math.min(cen1.y, cen1.y);
+                    hit = new Rect(X1,Y1,X2,Y2);                    
+                };
+                return hit;
+            },
+            bitbuffer: function (data, width, height) { //根据像素点生成透明png图片
+                if (!utils.ctx) {
+                    utils.canvas = document.createElement("canvas");
+                    utils.ctx = utils.canvas.getContext('2d');
+                }
+                utils.canvas.setAttribute("width", width * utils.ratio);
+                utils.canvas.setAttribute("height", height * utils.ratio);
+                utils.ctx.clearRect(0, 0, utils.canvas.width, utils.canvas.height);
+                return utils.ctx.getImageData(0, 0, utils.canvas.width, utils.canvas.height);
+            }
+        }
+        window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+            setTimeout(callback, 1000 / 60);
+        });
+        window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);
+    </script>
+    <script>
+        class Rect {
+            constructor(x = 0, y = 0, width = 0, height = 0) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.top = this.y;
+                this.left = this.x;
+                this.right = this.x + this.width;
+                this.bottom = this.y + this.height;
+            }
+        }
+        class Ball {
+            constructor() {
+                this.x = 0;
+                this.y = 0;
+                this.r = 60;
+                this.width = this.r * 2;
+                this.height = this.r * 2;
+                this.color = 'red';
+                this.box = true;
+                this.rect = new Rect(this.x, this.y, this.width, this.height);
+            }
+            draw() {
+                ctx.save(); //保存画布的状态
+                //ctx.beginPath(); //不开起的时候不会只显示相交区
+                ctx.translate(this.r, this.r); //重新映射画布上的 (0,0) 位置
+                ctx.lineWidth = 2; //设置当前的线条宽度
+                ctx.fillStyle = this.color //设置或返回用于填充绘画的颜色、渐变或模式
+                ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, true);
+                ctx.fill();
+                //ctx.stroke(); // 只开启它回形成连线并且相交区域显示黄色
+                ctx.restore(); //返回之前保存过的路径状态和属性 
+                if (this.box) {
+                    ctx.beginPath(); //不开起的时候不会只显示相交区
+                    this.rect.x = this.x;
+                    this.rect.y = this.y;
+                    ctx.rect(this.x, this.y, this.width, this.height);
+                    ctx.stroke(); // 只开启它回形成连线并且相交区域显示黄色
+                }
+            }
+        }
+        class Arrow {
+            constructor() {
+                this.x = 0;
+                this.y = 0;
+                this.width = 104;
+                this.height = 104;
+                this.color = '#ffff00';
+                this.box = true;
+                this.rect = new Rect(this.x, this.y, this.width, this.height);
+            }
+            draw() {
+                if (this.box) {
+                    ctx.beginPath(); //不开起的时候不会只显示相交区
+                    ctx.rect(this.x, this.y, this.width, this.height);
+                    ctx.stroke(); // 只开启它回形成连线并且相交区域显示黄色
+                }
+                this.rect.x = this.x;
+                this.rect.y = this.y;
+                ctx.save(); //保存画布的状态
+                ctx.lineWidth = 2; //设置当前的线条宽度
+                ctx.fillStyle = this.color //设置或返回用于填充绘画的颜色、渐变或模式
+                ctx.beginPath(); //起始一条路径，或重置当前路径
+                ctx.moveTo(this.x, 25 + this.y); //把路径移动到画布中的指定点，不创建线条
+                ctx.lineTo(50 + this.x, 25 + this.y); //添加一个新点，然后在画布中创建从该点到最后指定点的线条
+                ctx.lineTo(50 + this.x, this.y);
+                ctx.lineTo(100 + this.x, 50 + this.y);
+                ctx.lineTo(50 + this.x, 100 + this.y);
+                ctx.lineTo(50 + this.x, 75 + this.y);
+                ctx.lineTo(this.x, 75 + this.y);
+                ctx.lineTo(this.x, 25 + this.y);
+                ctx.closePath(); //创建从当前点回到起始点的路径
+                ctx.fill(); //填充当前绘图（路径）
+                ctx.stroke(); //绘制已定义的路径
+                ctx.restore(); //返回之前保存过的路径状态和属性 
+            }
+        }
+    </script>
+    <script>
+        let ball, arrow;
+        let hit,ratio = 1;
+        let dpr = window.devicePixelRatio || 1;
+        let end, start = Date.now();
+        let bsr, ctx, buffer, image, canvas = document.getElementsByTagName('canvas')[0];
+        let width = canvas.offsetWidth;
+        let height = canvas.offsetHeight;
+        ctx = canvas.getContext('2d');
+        if (true) {//高清屏幕下面使用
+            bsr = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
+            ratio = dpr / bsr;
+            utils.ratio = ratio;
+        };
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        ctx.scale(ratio, ratio);
+        function drawframe() {
+            let dx, dy;
+            requestAnimationFrame(drawframe);
+            ctx.clearRect(0, 0, width, height);
+            arrow.draw(ctx);
+            ball.draw(ctx);
+            // if (hit) {
+            //     ctx.beginPath(); //不开起的时候不会只显示相交区
+            //     ctx.rect(hit.x, hit.y, hit.width, hit.height);
+            //     ctx.stroke(); // 只开启它回形成连线并且相交区域显示黄色
+            // }
+        };
+        if (ctx) {
+            arrow = new Arrow();
+            arrow.x = (width - arrow.width) / 2;
+            arrow.y = (height - arrow.height) / 2;
+            arrow.draw(ctx);
+            ball = new Ball();
+            ball.x = width / 2;
+            ball.y = height / 2;
+            ball.draw(ctx);
+            canvas.addEventListener('mousemove', (ev) => {
+                let r = ball.r;
+                ball.x = ev.offsetX - r;
+                ball.y = ev.offsetY - r;
+               
+                hit = utils.hitTest(arrow.rect, ball.rect,true);
+              console.log(hit);
+            }, false);
+            drawframe();
+        }
+    </script>
+    </body>
+
+</html>

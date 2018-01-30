@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #stage {
+            width: 600px;
+            height: 400px;
+            background-color: #f0f0f0;
+            box-shadow: inset 0 0 3px rgba(0, 0, 0, .35);
+            perspective: 600px;
+            position: relative;
+            display: flex;
+            flex-flow: column;
+            background: rgba(2, 2, 2, 1);
+            overflow: hidden;
+        }
+
+        #container {
+            width: 128px;
+            height: 100px;
+            margin: auto;
+            transition: transform 2s ease-out;
+            transform-style: preserve-3d;
+        }
+
+        .play {
+            animation: play 10s linear infinite;
+        }
+
+        @keyframes play {
+            from {
+                transform: rotateY(0);
+            }
+            to {
+                transform: rotateY(360deg);
+            }
+        }
+
+        .piece {
+            width: 128px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+            transition: transform 1s;
+            transition-delay: 0ms;
+            position: absolute;
+        }
+
+        .piece:hover {
+            box-shadow: 0 0 10px white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stage">
+        <div id="container"></div>
+    </div>
+    <script>
+        const utils = {
+            transform(el, value, key) {
+                key = key || "Transform";
+                ["Moz", "O", "Ms", "Webkit", ""].forEach((prefix) => {
+                    el.style[prefix + key] = value;
+                });
+                return el;
+            }
+        }
+    </script>
+    <script>
+        const dom = document.querySelector('#container');
+        let pics, htmlPic = "";
+        [1, 8, 3, 4, 6, 7, 10, 13, 15].forEach((i) => {
+            htmlPic += `<img src="http://image.zhangxinxu.com/image/study/s/s128/mm${i}.jpg" class="piece" />`;
+        });
+        dom.innerHTML = htmlPic;
+        pics = Array.from(dom.querySelectorAll('img'));
+        rotate = 360 / pics.length;
+        //利用正切求出距离
+        transZ = 64 / Math.tan((rotate / 2 / 180) * Math.PI);
+        console.time("渲染间隔");
+        requestAnimationFrame(() => {
+            console.timeEnd("渲染间隔");
+            pics.forEach((el, i) => {
+                el.style.cssText = `transform: rotateY(${i * rotate}deg) translateZ(${transZ + 20}px);transition-delay: ${i * 200}ms; `;
+            });
+        });
+        setTimeout(() => {
+            //dom.classList.add('play');
+            dom.style.transform = 'rotateY(180deg)';
+        }, 3000);
+    </script>
+</body>
+
+</html>
