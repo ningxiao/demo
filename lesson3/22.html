@@ -76,37 +76,110 @@
     </div>
     <script>
         const utils = {
-            transform(el, value, key) {
-                key = key || "Transform";
-                ["Moz", "O", "Ms", "Webkit", ""].forEach((prefix) => {
-                    el.style[prefix + key] = value;
+            prefixes: ["", "-ms-", "-moz-", "-webkit-", "-o-"],
+            pfx: ["", "MS", "moz", "webkit", "o"],
+            cssMap: {},
+            upperCase($0, $1) {
+                return $1.toUpperCase();
+            },
+            cssName(name) {
+                let target = document.documentElement.style, test, css;
+                for (let i = 0, l = utils.prefixes.length; i < l; i++) {
+                    css = utils.prefixes[i];
+                    test = (css + name).replace(/-([a-z])/g, utils.upperCase);
+                    if (test in target) {
+                        utils.cssName = (name) => {
+                            test = utils.cssMap[name];
+                            if (!test) {
+                                utils.cssMap[name] = test = (name in target) ? name : (css + name).replace(/-([a-z])/g, utils.upperCase);
+                            };
+                            return test;
+                        };
+                        return test;
+                    };
+                };
+                return null;
+            },
+            setStyle(obj, json) {
+                for (let key in json) {
+                    obj.style[utils.cssName(key)] = json[key];
+                }
+            },
+            prefixedEvent(element, type, callback) {
+                utils.pfx.forEach(key => {
+                    element.addEventListener(key + type, callback, false);
                 });
-                return el;
             }
         }
     </script>
     <script>
         const dom = document.querySelector('#container');
-        let pics, htmlPic = "";
+        let tid, pics, htmlPic = "";
+        let speedX = 0;
+        let speedY = 0;
+        let x = 0;
+        let y = 180;
         [1, 8, 3, 4, 6, 7, 10, 13, 15].forEach((i) => {
-            htmlPic += `<img src="http://image.zhangxinxu.com/image/study/s/s128/mm${i}.jpg" class="piece" />`;
+            htmlPic += `<img src="./image/mm${i}.jpg" class="piece" />`;
         });
         dom.innerHTML = htmlPic;
         pics = Array.from(dom.querySelectorAll('img'));
         rotate = 360 / pics.length;
         //利用正切求出距离
         transZ = 64 / Math.tan((rotate / 2 / 180) * Math.PI);
-        console.time("渲染间隔");
         requestAnimationFrame(() => {
-            console.timeEnd("渲染间隔");
             pics.forEach((el, i) => {
-                el.style.cssText = `transform: rotateY(${i * rotate}deg) translateZ(${transZ + 20}px);transition-delay: ${i * 200}ms; `;
+                utils.setStyle(el, { "transform": `rotateY(${i * rotate}deg) translateZ(${transZ + 20}px)`, "transitionDelay": `${i * 200}ms` });
+                //el.style.cssText = `transform: rotateY(${i * rotate}deg) translateZ(${transZ + 20}px);transition-delay: ${i * 200}ms; `;
             });
         });
+        function startMove() {
+            tid = requestAnimationFrame(() => {
+                x -= speedY;
+                y += speedX;
+                speedY *= 0.93;
+                speedX *= 0.93;
+                utils.setStyle(dom, { "transform": `rotateX(${x}deg) rotateY(${y}deg)` });
+                if (Math.abs(speedX) < 0.1 && Math.abs(speedY) < 0.1) {
+                    console.log("结束");
+                    cancelAnimationFrame(tid);
+                } else {
+                    startMove();
+                }
+            });
+        }
         setTimeout(() => {
             //dom.classList.add('play');
             dom.style.transform = 'rotateY(180deg)';
+            utils.prefixedEvent(dom, "TransitionEnd", (ev) => {
+                document.addEventListener('mousedown', (ev) => {
+                    let startX = x;
+                    let startY = y;
+                    let mouseStartX = ev.clientX;
+                    let mouseStartY = ev.clientY;
+                    let lastX = mouseStartX;
+                    let lastY = mouseStartY;
+                    let movefc = (ev) => {
+                        y = startY + (ev.clientX - mouseStartX) / 10;
+                        x = startX - (ev.clientY - mouseStartY) / 10;
+                        speedX = (ev.clientX - lastX) / 5;
+                        speedY = (ev.clientY - lastY) / 5;
+                        lastX = ev.clientX;
+                        lastY = ev.clientY;
+                        utils.setStyle(dom, { "transition": "none", "transform": `rotateX(${x}deg) rotateY(${y}deg)` });
+                    };
+                    let upfc = (ev) => {
+                        startMove();
+                        document.removeEventListener('mouseup', upfc);
+                        document.removeEventListener('mousemove', movefc);
+                    };
+                    document.addEventListener('mouseup', upfc);
+                    document.addEventListener('mousemove', movefc);
+                    ev.preventDefault();
+                });
+            });
         }, 3000);
+
     </script>
 </body>
 
