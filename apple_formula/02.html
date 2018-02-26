@@ -13,6 +13,9 @@
             padding: 0;
             margin: 0;
             background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         canvas {
@@ -46,11 +49,11 @@
                     let Y1 = Math.max(rect1.y, rect2.y);
                     let X2 = Math.min(cen1.x, cen2.x);
                     let Y2 = Math.min(cen1.y, cen1.y);
-                    hit = new Rect(X1,Y1,X2,Y2);                    
+                    hit = new Rect(X1, Y1, X2, Y2);
                 };
                 return hit;
             },
-            bitbuffer: function (data, width, height) { //根据像素点生成透明png图片
+            bitbuffer(data, width, height) { //根据像素点生成透明png图片
                 if (!utils.ctx) {
                     utils.canvas = document.createElement("canvas");
                     utils.ctx = utils.canvas.getContext('2d');
@@ -59,6 +62,20 @@
                 utils.canvas.setAttribute("height", height * utils.ratio);
                 utils.ctx.clearRect(0, 0, utils.canvas.width, utils.canvas.height);
                 return utils.ctx.getImageData(0, 0, utils.canvas.width, utils.canvas.height);
+            },
+            getOffset(el) {
+                let mouse = { x: 0, y: 0 };
+                el.addEventListener('mousemove', (ev) => {
+                    let { x, y } = utils.eventWrapper(ev);
+                    mouse.x = x;
+                    mouse.y = y;
+                }, false)
+                return mouse;
+            },
+            eventWrapper(ev) {
+                let { pageX, pageY, target } = ev;
+                let { left, top } = target.getBoundingClientRect();
+                return { x: pageX - left, y: pageY - top };
             }
         }
         window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
@@ -148,7 +165,7 @@
     </script>
     <script>
         let ball, arrow;
-        let hit,ratio = 1;
+        let hit, ratio = 1;
         let dpr = window.devicePixelRatio || 1;
         let end, start = Date.now();
         let bsr, ctx, buffer, image, canvas = document.getElementsByTagName('canvas')[0];
@@ -163,6 +180,7 @@
         canvas.width = width * ratio;
         canvas.height = height * ratio;
         ctx.scale(ratio, ratio);
+        const mouse = utils.getOffset(canvas);
         function drawframe() {
             let dx, dy;
             requestAnimationFrame(drawframe);
@@ -186,11 +204,10 @@
             ball.draw(ctx);
             canvas.addEventListener('mousemove', (ev) => {
                 let r = ball.r;
-                ball.x = ev.offsetX - r;
-                ball.y = ev.offsetY - r;
-               
-                hit = utils.hitTest(arrow.rect, ball.rect,true);
-              console.log(hit);
+                ball.x = mouse.x - r;
+                ball.y = mouse.y - r;
+                hit = utils.hitTest(arrow.rect, ball.rect, true);
+                console.log(hit);
             }, false);
             drawframe();
         }
