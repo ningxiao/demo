@@ -73,7 +73,9 @@
                 return mouse;
             },
             eventWrapper(ev) {
+                // 点击位置到浏览器可视区的位置 offsetX 鼠标相当于元素的坐标
                 let { pageX, pageY, target } = ev;
+                // 元素到浏览器的距离
                 let { left, top } = target.getBoundingClientRect();
                 return { x: pageX - left, y: pageY - top };
             }
@@ -207,7 +209,6 @@
                 ball.x = mouse.x - r;
                 ball.y = mouse.y - r;
                 hit = utils.hitTest(arrow.rect, ball.rect, true);
-                console.log(hit);
             }, false);
             drawframe();
         }
