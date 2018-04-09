@@ -1,11 +1,99 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
         "http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>CSS3 文本特效</title>
-    <meta name="author" content="baofeng"/>
+    <meta name="author" content="baofeng" />
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hover-underline-animation {
+            display: inline-block;
+            position: relative;
+            color: #0087ca;
+        }
+
+        .hover-underline-animation::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: #0087ca;
+            transform-origin: bottom right;
+            transition: transform 0.25s ease-out;
+        }
+
+        .hover-underline-animation:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        .mouse-cursor-gradient-tracking {
+            position: relative;
+            background: #7983ff;
+            padding: 0.5rem 1rem;
+            font-size: 1.2rem;
+            border: none;
+            color: white;
+            cursor: pointer;
+            outline: none;
+            overflow: hidden;
+        }
+
+        .mouse-cursor-gradient-tracking span {
+            position: relative;
+        }
+
+        .mouse-cursor-gradient-tracking::before {
+            --size: 0;
+            content: '';
+            position: absolute;
+            left: var(--x);
+            top: var(--y);
+            width: var(--size);
+            height: var(--size);
+            background: radial-gradient(circle closest-side, pink, transparent);
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease;
+        }
+
+        .mouse-cursor-gradient-tracking:hover::before {
+            --size: 200px;
+        }
+    </style>
 </head>
+
 <body>
+    <p class="hover-underline-animation">悬停此文本以查看效果!</p>
+    <button class="mouse-cursor-gradient-tracking">
+        <span>Hover me</span>
+    </button>
+    <script>
+        const btn = document.querySelector('.mouse-cursor-gradient-tracking')
+        btn.onmousemove = function (e) {
+            let x = e.pageX - btn.offsetLeft
+            let y = e.pageY - btn.offsetTop
+            btn.style.setProperty('--x', x + 'px')
+            btn.style.setProperty('--y', y + 'px')
+        }
+    </script>
 </body>
+
 </html>
