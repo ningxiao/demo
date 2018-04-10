@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>zip实现高效缓存</title>
+</head>
+
+<body>
+    <h6>将资源文件压缩zip下载浏览器端缓存indexedDB提示加载响应效率</h6>
+    <script type='text/javascript' src='./js/jszip.js'></script>
+    <script type='text/javascript' src='./js/jszip-utils.js'></script>
+    <script>
+        const DOMURL = window.URL || window.webkitURL || window;
+        const readZip = (db, zip) => {
+            new JSZip.external.Promise((resolve, reject) => {
+                if (zip) {//直接使用数据库缓存数据
+                    console.log('使用缓存');
+                    resolve(zip);
+                } else {//下载文件然后缓存到数据库
+                    JSZipUtils.getBinaryContent('./libs.zip', (err, content) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            const tx = db.transaction('zips', 'readwrite');//readonly 时只能对对象仓库进行读操作
+                            const store = tx.objectStore('zips');
+                            tx.addEventListener('complete', ev => {
+                                console.log('事务结束了');
+                            });
+                            tx.addEventListener('abort', ev => {
+                                console.log('事务被中止了');
+                            });
+                            const req = store.put({
+                                'zipid': 1,
+                                'data': content,
+                                'date': Date.now()
+                            }); // 保存数据
+                            req.addEventListener('success', () => {
+                                resolve(content);
+                                console.log('成功保存id为' + req.result + '的数据');    // linxin
+                            });
+                        }
+                    });
+                }
+            }).then(JSZip.loadAsync).then(zip => {
+                zip.file("libs/banner.png").async("arraybuffer").then(blob => {
+                    const img = document.createElement('img');
+                    const url = DOMURL.createObjectURL(new Blob([blob], { type: "image/png" }));
+                    img.onload = () => {
+                        document.body.appendChild(img);
+                        DOMURL.revokeObjectURL(url);
+                    }
+                    img.src = url;
+                }, err => {
+                    console.log(err);
+                });
+                return zip.file("libs/zepto.min.js").async("string");
+            }).then(text => {
+                const script = document.createElement('script');
+                script.setAttribute('type', 'text/javascript');
+                script.innerHTML = text;
+                document.body.appendChild(script);
+                console.log($(window).height());
+                console.timeEnd('ZIP耗时');
+            }, err => {
+                console.log(err);
+            });
+        }
+        const maxdate = 24 * 60 * 60 * 10000;
+        console.time('DB打开');
+        const zipdb = indexedDB.open('zipdb', 1);  // 打开 zipdb 数据库
+        zipdb.addEventListener('error', err => {
+            console.log('连接数据库失败', err);
+        });
+        zipdb.addEventListener('success', ev => {
+            console.timeEnd('DB打开');
+            console.time('ZIP耗时');
+            const db = ev.target.result;
+            const tx = db.transaction('zips', 'readwrite');//readonly 时只能对对象仓库进行读操作
+            const store = tx.objectStore('zips');
+            tx.addEventListener('complete', ev => {
+                console.log('事务结束了');
+            });
+            tx.addEventListener('abort', ev => {
+                console.log('事务被中止了');
+            });
+            const req = store.get(1);
+            //const req = store.delete(1);
+            req.addEventListener('success', () => {
+                if (req.result) {
+                    let sdate = req.result.date;
+                    let edate = Date.now() - maxdate;
+                    if (sdate > edate) {
+                        readZip(db, req.result.data);
+                    } else {
+                        readZip(db);
+                    }
+                } else {
+                    readZip(db);
+                }
+            });
+        });
+        zipdb.addEventListener('upgradeneeded', ev => {
+            const db = ev.target.result;
+            if (!db.objectStoreNames.contains('zips')) { // 如果不存在zips对象仓库则创建
+                const store = db.createObjectStore('zips', {
+                    keyPath: 'zipid',
+                    autoIncrement: false //设置主键
+                });
+                console.log('创建zips数据库,版本号为=' + ev.newVersion);
+            }
+        });
+    </script>
+</body>
+
+</html>
