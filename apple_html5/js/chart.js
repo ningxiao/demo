@@ -3,7 +3,7 @@
  * 图表案例
  *
  * @version: 1.1
- * @author: yuanshuang yuandouble@qq.com
+ * @author: 363305175@qq.com
  * @namespace: chart
  *********************************************************************************/
 
