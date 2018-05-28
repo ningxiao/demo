@@ -29,41 +29,47 @@
         const dpr = window.devicePixelRatio || 1;
         const canvas = document.querySelector('canvas');
         const scraper = (width, height, callback) => {
-            let canvas = document.createElement('canvas');
-            let ctx = canvas.getContext('2d');
+            let cans = document.createElement('canvas');
+            let ctx = cans.getContext('2d');
             let img = new Image();
-            canvas.style.cssText = `width:${width}px;height:${height}px`;
-            canvas.width = width;
-            canvas.height = height;
+            cans.style.cssText = `width:${width}px;height:${height}px`;
+            cans.width = width;
+            cans.height = height;
             ctx.drawImage(photo, 0, 0, photo.width, photo.height, 0, 0, width, height);
             img.onload = () => {
               callback(img);
             }
-            img.src = canvas.toDataURL('image/jpeg'); //转换图片为dataURL
+            img.src = cans.toDataURL('image/jpeg'); //转换图片为dataURL
+            // cans.toBlob(blob => { // 使用二进制地址 清理URL.revokeObjectURL(url);
+            //     canvas.style.background = `url(${URL.createObjectURL(blob)})`;
+            // });
         }
         photo.onload = () => {
             let bsr, ratio = 1;
             let fontsize, width, height;
             let gradient, txt = '刮您家蛙的明信片';
             let ctx = canvas.getContext('2d');
-            let rw, rh, requireLoop = true;
-            if (false) {//高清屏幕下面使用
+            let rw, rh, requireLoop = false;
+            //设备像素比 = 物理像素 / 设备独立像素dip
+            if (true) {//高清屏幕下面使用
                 bsr = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
                 ratio = dpr / bsr;
             };
-            fontsize = 60 / ratio;
-            width = photo.width / ratio;
-            height = photo.height / ratio;
+            fontsize = 60;
+            width = photo.width ;
+            height = photo.height;
+            // 设置显示的实际尺寸
             canvas.style.cssText = `width:${width}px;height:${height}px`;
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             ctx.scale(ratio, ratio);
             ctx.drawImage(photo, 0, 0, photo.width, photo.height, 0, 0, width, height);
-            rw = 58 / ratio;
-            rh = 90 / ratio;
+            rw = 58;
+            rh = 90;
             ctx.fillRect(rw, rh, width - 2 * rw, height - 2 * rh);
             ctx.font = `${fontsize}px Arial`;
             gradient = ctx.createLinearGradient(0, 0, width, 0);
+            // 填充彩色文字
             gradient.addColorStop("0", "magenta");
             gradient.addColorStop("0.5", "blue");
             gradient.addColorStop("1.0", "red");
