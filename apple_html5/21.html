@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
     <title>九宫格解锁</title>
     <style type="text/css">
         * {
@@ -28,6 +28,17 @@
             background-size: 100% 100%;
         }
     </style>
+    <script>
+        document.addEventListener('touchstart', function (event) {
+            // 判断默认行为是否可以被禁用
+            if (event.cancelable) {
+                // 判断默认行为是否已经被禁用
+                if (!event.defaultPrevented) {
+                    event.preventDefault();
+                }
+            }
+        }, { passive: false });
+    </script>
 </head>
 
 <body>
@@ -61,6 +72,7 @@
                 this.y = 0;
                 this.ex = 0;
                 this.ey = 0;
+                this.end = false;
                 this.lineWidth = 3;
             }
             draw(ctx) {
@@ -122,12 +134,11 @@
             };
             window.requestAnimationFrame(engine);
         }
-        let circle, curLine;
+        let curLine;
         const mobile = (ev) => {
-            let dx, dy;
+            let dx, dy,circle;
             const x = ev.touches[0].pageX;
             const y = ev.touches[0].pageY;
-            circle = null;
             for (let i = 0; i < displays.length; i++) {
                 const ui = displays[i];
                 if (ui.name === 'circle' && !ui.active) {
@@ -145,6 +156,7 @@
                 if (curLine) {
                     curLine.ex = dx;
                     curLine.ey = dy;
+                    curLine.end = true;
                     curLine = new Line(dx, dy);
                     curLine.x = dx;
                     curLine.y = dy;
@@ -186,10 +198,12 @@
             canvas.addEventListener('touchstart', () => {
                 canvas.addEventListener('touchmove', mobile);
             });
-            canvas.addEventListener('touchend', () => {
-                if (circle === null) {
-                    console.log('---');
+            canvas.addEventListener('touchend', (ev) => {
+                ev.stopPropagatijion();
+                if(curLine && !curLine.end){
+                    displays.shift();
                 }
+ 
                 canvas.removeEventListener('touchmove', mobile);
             });
             layout();
