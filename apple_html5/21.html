@@ -199,7 +199,7 @@
                 canvas.addEventListener('touchmove', mobile);
             });
             canvas.addEventListener('touchend', (ev) => {
-                ev.stopPropagatijion();
+                ev.stopPropagation();
                 if(curLine && !curLine.end){
                     displays.shift();
                 }
