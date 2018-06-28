@@ -190,7 +190,6 @@
                     ui.y = dy;
                     displays.push(ui);
                 }
-
             }
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
@@ -203,7 +202,6 @@
                 if(curLine && !curLine.end){
                     displays.shift();
                 }
- 
                 canvas.removeEventListener('touchmove', mobile);
             });
             layout();

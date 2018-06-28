@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>百度地图</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+    <script>
+        document.addEventListener('touchstart', function (event) {
+            // 判断默认行为是否可以被禁用
+            if (event.cancelable) {
+                // 判断默认行为是否已经被禁用
+                if (!event.defaultPrevented) {
+                    event.preventDefault();
+                }
+            }
+        }, { passive: false });
+    </script>
+</head>
+<div id="main" style="width: 100%;height:100%;"></div>
+
+<body>
+    <script type="text/javascript" src="./js/map.js"></script>
+    <script type="text/javascript" src="http://gallerybox.echartsjs.com/dep/echarts/3.8.0/echarts.min.js"></script>
+    <script type="text/javascript" src="http://gallerybox.echartsjs.com/dep/echarts/map/js/china.js"></script>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        const myChart = echarts.init(document.getElementById('main'));
+        const scale = 0.5;
+        const DEFAULT_FONTSIZE = scale * 24;
+        // 指定图表的配置项和数据
+        const maps = [];
+        const option = {
+            geo: [{
+                map: 'china',
+                roam: true,
+                nameTextStyle: {
+                    color: 'rgba(255, 255, 255, 0)',
+                },
+                label: {
+                    normal: {
+                        show: false,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        fontSize: DEFAULT_FONTSIZE,
+                    },
+                    emphasis: {
+                        show: false,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                    },
+                },
+                itemStyle: {
+                    normal: {
+                        show: true,
+                        areaColor: 'rgba(84, 176, 255, 0.15)',
+                        borderColor: '#345C91',
+                        borderWidth: Math.round(scale * 3),
+                    },
+                    emphasis: {
+                        areaColor: 'rgba(50, 100, 200, 0.8)',
+                        shadowColor: 'rgba(0, 0, 0, 0.5)',
+                        shadowBlur: Math.round(scale * 8),
+                    },
+                },
+            }],
+            series: [{
+                name: '中国',
+                type: 'map',
+                mapType: 'china',
+                selectedMode: 'multiple',
+                label: {
+                    normal: {
+                        show: true
+                    },
+                    emphasis: {
+                        show: true
+                    }
+                },
+                data: [
+                    {
+                        name: '广东',
+                        selected: false
+                    }
+                ]
+            }, {
+                name: '区域',
+                type: 'lines',
+                coordinateSystem: 'geo',
+                geoIndex: 0,
+                polyline: true,
+                silent: true,
+                animation: false,
+                lineStyle: {
+                    normal: {
+                        color: '#f91504',
+                        width: Math.round(scale * 4),
+                    }
+                },
+                data: maps,
+            }]
+        };
+        const area = {
+            华北: ['北京市', '天津市', '河北省', '山西省', '内蒙古'],
+            东北: ['辽宁省', '吉林省', '黑龙江省'],
+            华东: ['江苏省', '浙江省', '安徽省', '福建省', '江西省', '山东省', '上海市'],
+            西北: ['陕西省', '甘肃省', '宁夏回族自治区', '青海省', '新疆维吾尔自治区'],
+            西南: ['重庆市', '贵州省', '四川省', '云南省', '西藏自治区'],
+            华中: ['河南省', '湖南省', '湖北西', '湖北东'],
+            华南: ['广东省', '广西壮族自治区', '海南省']
+        }
+        const cityName = key => vo => {
+            const name = vo.properties.name;
+            const coords = vo.geometry.coordinates[0][0];
+            if (name.indexOf(key) !== -1) {
+                return {
+                    name,
+                    coords
+                }
+            }
+            return null;
+        }
+        const cityMap = mymap.features;
+        const cityMapSize = cityMap.length;
+        Object.keys(area).forEach(name => {
+            area[name].forEach(key => {
+                for (let i = 0; i < cityMapSize; i++) {
+                    const vo = cityMap[i];
+                    const data = cityName(key)(vo);
+                    if (data) {
+                        maps.push(data);
+                        break;
+                    }
+                }
+            })
+        });
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+
+</html>
