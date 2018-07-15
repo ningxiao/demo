@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <title>线段裁剪算法</title>
+    <style type="text/css">
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            border: 1px red solid;
+            width: 800px;
+            height: 600px;
+        }
+    </style>
+    <div>
+        <canvas></canvas>
+    </div>
+    <script>
+        const rect = document.documentElement.getBoundingClientRect();
+        const utils = {
+            get width() {
+                return rect.width;
+            },
+            get height() {
+                return rect.height;
+            },
+            get dpr() {
+                return window.devicePixelRatio || 1;
+            },
+            ratio(ctx) {
+                return utils.dpr / (ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1);
+            },
+            eventWrapper(ev) {
+                // 点击位置到浏览器可视区的位置 offsetX 鼠标相当于元素的坐标
+                let { pageX, pageY, target } = ev;
+                // 元素到浏览器的距离
+                let { left, top } = target.getBoundingClientRect();
+                return { x: pageX - left, y: pageY - top };
+            }
+        }
+        window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+            setTimeout(callback, 1000 / 60);
+        });
+        window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);
+    </script>
+    <script>
+        class MapRect {
+            constructor() {
+                this.x = 0;
+                this.y = 0;
+                this.width = 400;
+                this.height = 400;
+            }
+            draw(ctx) {
+                ctx.save(); //保存画笔状态
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#0000ff';
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                ctx.restore(); //绘制结束以后，恢复画笔状态  
+            }
+        }
+        class Line {
+            constructor() {
+                this.x = 0;
+                this.y = 0;
+                this.ex = 0;
+                this.ey = 0;
+                this.strokeStyle = 'rgba(255, 0, 0, 1)';
+                this.end = false;
+                this.lineWidth = 1;
+            }
+            draw(ctx) {
+                ctx.save(); //保存画笔状态
+                ctx.beginPath();
+                ctx.strokeStyle = this.strokeStyle;
+                ctx.lineWidth = this.lineWidth;
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.ex, this.ey);
+                ctx.stroke();
+                ctx.restore(); //绘制结束以后，恢复画笔状态  
+            }
+        }
+        class Button {
+            constructor() {
+                this.x = 10;
+                this.y = 10;
+                this.width = 100;
+                this.height = 40;
+            }
+            draw(ctx) {
+                ctx.save(); //保存画笔状态
+                ctx.strokeStyle = '#ff0000';
+                ctx.strokeRect(this.x, this.y, this.width, this.height);
+                ctx.font = "20px Arial";
+                ctx.textBaseline = "top";
+                ctx.fillText("点击剪裁", this.x + 10, this.y + 10);
+                ctx.restore(); //绘制结束以后，恢复画笔状态  
+            }
+        }
+    </script>
+    <script>
+        const Cutting = (line, mapUi) => {
+            const TOP = 8; // 0001
+            const RIGHT = 2; // 0010
+            const BOTTOM = 4; // 0100
+            const LEFT = 1; //1000
+            /**
+             * 判断顺序
+             * 1、完全在内
+             * 2、完全在外
+             * 3、剩余情况按窗口 左右上下的顺序一段一段的裁剪
+             * 矩形位置0000
+             * 1001 1000 1010
+             * 0001 0000 0010
+             * 0101 0100 0110
+             * 大体思路确定区域范围然后通过三角函数计算出交点重新绘制
+             */
+            const rect = {
+                XL: mapUi.x,
+                XR: mapUi.x + mapUi.width,
+                YT: mapUi.y,
+                YB: mapUi.y + mapUi.height
+            }
+            const encode = (p, re) => {
+                let c = 0;
+                const { x, y } = p;
+                const { XL, XR, YB, YT } = re;
+                if (x < XL) c |= LEFT;
+                if (x > XR) c |= RIGHT;
+                if (y > YB) c |= BOTTOM;
+                if (y < YT) c |= TOP;
+                return c;
+            }
+            const inside = code => !code;// 判断点是否在裁剪区内  
+            const reject = (code1, code2) => code1 & code2; //线段与区域不相交
+            const accept = (code1, code2) => !(code1 | code2); //线段完全包裹在区域内
+            const swapPT = (p1, p2) => [p1, p2] = [p2, p1] //交换两个点  
+            const swapCode = (code1, code2) => [code1, code2] = [code2, code1]; //交换区域码
+            let p1 = {
+                x: line.x,
+                y: line.y
+            }
+            let p2 = {
+                x: line.ex,
+                y: line.ey
+            }
+            let code1;
+            let code2;
+            let done = false;
+            let plotLine = false;
+            let k = 0;
+            let sum = 0;
+            while (!done) {
+                sum++;
+                code1 = encode(p1, rect);
+                code2 = encode(p2, rect);
+                if (accept(code1, code2)) { // 不需要裁剪
+                    done = true;
+                    plotLine = true;
+                } else {
+                    if (reject(code1, code2)) {//线段与区域不相交
+                        done = true;
+                    } else {
+                        if (inside(code1)) {//起点在剪裁区域内 需要交换起点和终点
+                            let short = swapPT(p1, p2);
+                            p1 = short[0];
+                            p2 = short[1];
+                            short = swapCode(code1, code2);
+                            code1 = short[0];
+                            code2 = short[1];
+                        }
+                        if (p1.x != p2.x) {
+                            k = (p2.y - p1.y) / (p2.x - p1.x);
+                        }
+                        if (code1 & LEFT) {
+                            p1.y += (rect.XL - p1.x) * k;
+                            p1.x = rect.XL;
+                        }
+                        else if (code1 & RIGHT) {
+                            p1.y += (rect.XR - p1.x) * k;
+                            p1.x = rect.XR;
+                        }
+                        else if (code1 & BOTTOM) {
+                            if (p1.x != p2.x) {
+                                p1.x += (rect.YB - p1.y) / k;
+                            }
+                            p1.y = rect.YB;
+                        }
+                        else if (code1 & TOP) {
+                            if (p1.x != p2.x) {
+                                p1.x += (rect.YT - p1.y) / k;
+                            }
+                            p1.y = rect.YT;
+                        }
+                    }
+                }
+                if (plotLine) {
+                    line.x = p1.x;
+                    line.y = p1.y;
+                    line.ex = p2.x;
+                    line.ey = p2.y;
+                }
+            }
+            return plotLine;
+        }
+    </script>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        const ratio = utils.ratio(ctx);
+        const childNode = [];
+        const mapUi = new MapRect();
+        const button = new Button();
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        ctx.scale(ratio, ratio);
+        mapUi.x = (width - mapUi.width) / 2;
+        mapUi.y = (height - mapUi.height) / 2;
+        childNode.unshift(mapUi);
+        childNode.unshift(button);
+        const datas = [[426, 313, 571, 566], [130, 268, 426, 313], [200, 198, 130, 268], [252, 66, 200, 198], [655, 199, 252, 66], [431, 553, 655, 199], [114, 367, 431, 553], [467, 63, 114, 367], [467, 63, 467, 63]];
+        datas.forEach(vo => {
+            const line = new Line();
+            line.x = vo[0];
+            line.y = vo[1];
+            line.ex = vo[2];
+            line.ey = vo[3];
+            childNode.unshift(line);
+        });
+        canvas.addEventListener('mousedown', (ev) => {
+            const { layerX, layerY } = ev;
+            if (!(layerX < button.x || layerX > button.x + button.width || layerY < button.y || layerY > button.y + button.height)) {
+                datas.forEach(vo => {
+                    const line = new Line();
+                    line.x = vo[0];
+                    line.y = vo[1];
+                    line.ex = vo[2];
+                    line.ey = vo[3];
+                    line.strokeStyle = '#030303';
+                    if(Cutting(line,mapUi)){
+                        childNode.unshift(line);
+                    };
+                });
+            }
+        });
+        const engine = () => {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = childNode.length - 1; i >= 0; i--) {
+                childNode[i].draw(ctx);
+            };
+            window.requestAnimationFrame(engine);
+        }
+        window.requestAnimationFrame(engine);
+    </script>
+    </body>
+
+</html>
