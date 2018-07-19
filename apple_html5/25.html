@@ -1,0 +1,214 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>图表调研</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .main {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            box-sizing: border-box;
+            padding-top: 10px;
+        }
+
+        .box {
+            flex: 1;
+            display: flex;
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .box>span {
+            text-align: center;
+        }
+
+        .box>canvas {
+            width: 100%;
+            height: 400px;
+        }
+
+        div[data-type="editor"] {
+            flex: 1;
+        }
+
+        i {
+            font-style: normal;
+            cursor: pointer;
+            color: red;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            height: 22px;
+            padding: 0 20px;
+        }
+
+        #ecview,
+        #antview,
+        #d3view {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+    <script>
+        document.addEventListener('touchstart', function (event) {
+            // 判断默认行为是否可以被禁用
+            if (event.cancelable) {
+                // 判断默认行为是否已经被禁用
+                if (!event.defaultPrevented) {
+                    event.preventDefault();
+                }
+            }
+        }, { passive: false });
+    </script>
+</head>
+
+<body>
+    <div class="main">
+        <div class="box">
+            <div class="nav">
+                <i id="back">后退</i>Echarts
+                <i id="front">前进</i>
+            </div>
+            <div id="ecview"></div>
+            <div data-type="editor"></div>
+        </div>
+    </div>
+    <script src="./js/md5.js"></script>
+    <script src="https://cdn.bootcss.com/ace/1.3.3/ace.js"></script>
+    <script src="https://cdn.bootcss.com/ace/1.3.3/ext-language_tools.js"></script>
+    <script type="js">
+        const myChart = echarts.init(document.querySelector('#charts'));
+        const option = {
+            xAxis: { type: 'category', data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                type: 'line',
+                data: [820, 932, 901, 934, 1290, 1330, 1320]
+            }]
+        };
+        myChart.setOption(option);
+    </script>
+    <textarea id="codeArea" style="height: 357px;width: 100%;display: none">
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0
+                }
+
+                html,
+                body {
+                    width: 100%;
+                    height: 100%;
+                }
+                #charts{
+                    width: 100%;
+                    height: 100%;
+                }
+            </style>
+            <script src="http://echarts.baidu.com/examples/vendors/echarts/echarts.min.js"></script>
+            <div id="charts"></div>
+            <script>{ code }</script>
+            <script>{ test }</script>
+    </textarea>
+    <script>
+        const doms = Array.from(document.querySelectorAll('[data-type="editor"]'));
+        const jses = Array.from(document.querySelectorAll('[type="js"]'));
+        const htmlCode = document.querySelector('#codeArea').value;
+        const iframe = document.createElement("iframe");
+        const logs = [];
+        let cursor = 0;
+        let md5Key = "";
+        iframe.setAttribute('frameborder', 'no');
+        iframe.setAttribute('border', '0');
+        iframe.style.cssText = 'width: 100%;height: 100%;';
+        document.querySelector('#ecview').appendChild(iframe);
+        const render = (source) => {
+            const key = hex_md5(JSON.stringify(source));
+            if (md5Key !== key) {
+                const tmpl = htmlCode.replace(/\{(.*?)\}/ig, (...args) => {
+                    const key = args[1].replace(/(^\s*)|(\s*$)/g, '');
+                    if (typeof source[key] == "undefined") {
+                        return '';
+                    }
+                    return source[key];
+                });
+                logs.push(iframe.src);
+                iframe.src = URL.createObjectURL(new Blob([tmpl], {
+                    'type': 'text/html'
+                }));
+                md5Key = key;
+            }else{
+                console.log('没有数据更改');
+            }
+        }
+        const destroy = () => {
+            logs.forEach(url => {
+                URL.revokeObjectURL(url);
+            });
+            logs.length = 0;
+            cursor = 0;
+        }
+        document.querySelector('#back').addEventListener('click', ev => {
+            cursor--;
+            if (cursor <= 0) {
+                cursor = 0;
+            } else {
+                iframe.src = logs[cursor];
+            }
+        });
+        document.querySelector('#front').addEventListener('click', ev => {
+            cursor++;
+            if (cursor >= logs.length) {
+                cursor = logs.length - 1;
+            } else {
+                iframe.src = logs[cursor];
+            }
+        });
+        const createEdit = () => {
+            return (el, key) => {
+                ace.require("ace/ext/language_tools");
+                const editor = ace.edit(el);
+                editor.setFontSize(14);
+                editor.on("blur", ev => {
+                    render({ code: editor.getValue(), test: `console.log('执行更新')` });
+                    cursor = logs.length - 1;
+                    if (logs.length > 10) {
+                        destroy();
+                    }
+                })
+                editor.setOptions({
+                    enableLiveAutocompletion: true,//只能补全
+                });
+                editor.setTheme("ace/theme/monokai");//monokai模式是自动显示补全提示
+                editor.setTheme("ace/theme/twilight");
+                editor.session.setMode("ace/mode/javascript");
+                editor.setValue(jses[key].innerText);
+                render({ code: editor.getValue(), test: `console.log('执行更新')` });
+            }
+        }
+        doms.forEach(createEdit());
+    </script>
+</body>
+
+</html>

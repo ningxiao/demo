@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>path路径动画</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #060b48;
+        }
+
+        .path {
+            stroke-dasharray: 320;
+            stroke-dashoffset: 0;
+            animation: dash 3s linear;
+        }
+
+        .arrow {
+            stroke-dasharray: 20;
+            stroke-dashoffset: 0;
+            animation: arrow 0.5s linear;
+            fill: #ff0000;
+        }
+
+        @keyframes arrow {
+            0% {
+                fill: #000000;
+            }
+            100% {
+                fill: #ff0000;
+            }
+        }
+
+        @keyframes dash {
+            0% {
+                stroke-dashoffset: 320;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="drawing"></div>
+    <svg dth="300px" height="175px" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto">
+                <path d="M2,2 L10,6 L2,10 L6,6 L2,2" />
+            </marker>
+        </defs>
+        <path fill="transparent" stroke="#000000" stroke-width="5" d="M10 80 Q 77.5 10, 145 80 T 280 80"></path>
+        <path id="last" fill="transparent" stroke="#ff0000" stroke-width="5" d="M10 80 Q 77.5 10, 145 80 T 280 80"></path>
+    </svg>
+    <script>
+        const last = document.querySelector('#last');
+        const reference = (el, key) => {
+            const res = window.getComputedStyle(el, null).getPropertyValue(key).match(/\"(.*?)\"/i);
+            if (res) {
+                return document.querySelector(res[1]);
+            }
+            return null;
+        }
+        last.style.markerEnd = "url(#arrow)";
+        const marker = reference(last, 'marker-end');
+        console.log(marker.children);
+        last.addEventListener('webkitAnimationEnd', (ev) => {
+            marker && (marker.style.fill = '#ff0000');
+            console.log('--');
+        });
+        last.classList.add('path');
+    </script>
+</body>
+
+</html>
