@@ -217,6 +217,25 @@
         }
     </script>
     <script>
+        const tpl = `
+            const solve = function (MAX) {
+                let k = MAX + 1;
+                let sum = 0;
+                while (k) {
+                    k--;
+                    sum += Math.random();
+                }
+                return sum / MAX;
+            };
+            onmessage = function (e) {
+                postMessage(solve(e.data));
+            };
+            `
+        const createWorker = () => {
+            return new Worker(window.URL.createObjectURL(new Blob([tpl])))
+        }
+    </script>
+    <script>
         const canvas = document.querySelector('canvas');
         const ctx = canvas.getContext('2d');
         const ratio = utils.ratio(ctx);
@@ -225,6 +244,7 @@
         const button = new Button();
         const width = canvas.offsetWidth;
         const height = canvas.offsetHeight;
+        const sumWorker = createWorker();
         canvas.width = canvas.offsetWidth * ratio;
         canvas.height = canvas.offsetHeight * ratio;
         ctx.scale(ratio, ratio);
@@ -241,9 +261,14 @@
             line.ey = vo[3];
             childNode.unshift(line);
         });
+        sumWorker.addEventListener('message', ev => {
+            console.log(ev);
+        });
         canvas.addEventListener('mousedown', (ev) => {
             const { layerX, layerY } = ev;
             if (!(layerX < button.x || layerX > button.x + button.width || layerY < button.y || layerY > button.y + button.height)) {
+                console.time('裁剪耗时');
+                sumWorker.postMessage(4000000);
                 datas.forEach(vo => {
                     const line = new Line();
                     line.x = vo[0];
@@ -251,10 +276,11 @@
                     line.ex = vo[2];
                     line.ey = vo[3];
                     line.strokeStyle = '#030303';
-                    if(Cutting(line,mapUi)){
+                    if (Cutting(line, mapUi)) {
                         childNode.unshift(line);
                     };
                 });
+                console.timeEnd('裁剪耗时');
             }
         });
         const engine = () => {

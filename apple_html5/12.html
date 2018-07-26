@@ -50,7 +50,6 @@
             let gradient, txt = '刮您家蛙的明信片';
             let ctx = canvas.getContext('2d');
             let rw, rh, requireLoop = false;
-            //设备像素比 = 物理像素 / 设备独立像素dip
             if (true) {//高清屏幕下面使用
                 bsr = ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1;
                 ratio = dpr / bsr;
@@ -60,8 +59,17 @@
             height = photo.height;
             // 设置显示的实际尺寸
             canvas.style.cssText = `width:${width}px;height:${height}px`;
+            /**
+            * 设备像素比 = 物理像素 / 设备独立像素dip
+            * 添加包含像素 css设置的100px时实际渲染的是200px的物理像素
+            * canvas 绘图时，会从两个物理像素的中间位置开始绘制并向两边扩散 0.5 个物理像素。
+            * 当设备像素比为 1 时，一个 1px 的线条实际上占据了两个物理像素（每个像素实际上只占一半）
+            * 由于不存在 0.5 个像素，所以这两个像素本来不应该被绘制的部分也被绘制了
+            * 于是 1 物理像素的线条变成了 2 物理像素，视觉上就造成了模糊
+            */
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
+            // canvas 的绘制是基于上下文状态的
             ctx.scale(ratio, ratio);
             ctx.drawImage(photo, 0, 0, photo.width, photo.height, 0, 0, width, height);
             rw = 58;

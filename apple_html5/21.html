@@ -191,6 +191,7 @@
                     displays.push(ui);
                 }
             }
+            // 添加包含像素 css设置的100px时实际渲染的是200px的物理像素
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             ctx.scale(ratio, ratio);
