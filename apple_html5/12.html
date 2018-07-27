@@ -28,7 +28,7 @@
         const photo = new Image();
         const dpr = window.devicePixelRatio || 1;
         const canvas = document.querySelector('canvas');
-        const scraper = (width, height, callback) => {
+        const scraperImage = (width, height, callback) => {
             let cans = document.createElement('canvas');
             let ctx = cans.getContext('2d');
             let img = new Image();
@@ -37,12 +37,44 @@
             cans.height = height;
             ctx.drawImage(photo, 0, 0, photo.width, photo.height, 0, 0, width, height);
             img.onload = () => {
-              callback(img);
+                callback(img);
             }
             img.src = cans.toDataURL('image/jpeg'); //转换图片为dataURL
             // cans.toBlob(blob => { // 使用二进制地址 清理URL.revokeObjectURL(url);
             //     canvas.style.background = `url(${URL.createObjectURL(blob)})`;
             // });
+        }
+        const scraperCanvas = (width, height, callback) => {
+            let cans = document.createElement('canvas');
+            let ctx = cans.getContext('2d');
+            cans.style.cssText = `width:${width}px;height:${height}px`;
+            cans.width = width;
+            cans.height = height;
+            ctx.drawImage(photo, 0, 0, photo.width, photo.height, 0, 0, width, height);
+            callback(cans);
+        }
+        const scraperVideo = (width, height, callback, ctx) => {
+            const video = document.createElement("video");
+            const mp4source = document.createElement("source");
+            const webmsource = document.createElement("source");
+            video.width = width;
+            video.height = height;
+            mp4source.type = "video/mp4";
+            mp4source.src = "../apple_promotion/ressources/640.mp4";
+            webmsource.type = "video/webm";
+            webmsource.src = "../apple_promotion/ressources/bunny.webm";
+            video.appendChild(webmsource);
+            video.appendChild(mp4source);
+            video.addEventListener("play", ev => {
+                callback(video);
+                console.log('开始播放');
+            });
+            video.addEventListener("timeupdate", ev => {
+                ctx.strokeStyle = ctx.createPattern(video, 'no-repeat'); //设置或返回用于笔触的颜色、渐变或模式
+            });
+            video.autoplay = "autoplay";
+            video.controls = "controls";
+            video.load();
         }
         photo.onload = () => {
             let bsr, ratio = 1;
@@ -55,7 +87,7 @@
                 ratio = dpr / bsr;
             };
             fontsize = 60;
-            width = photo.width ;
+            width = photo.width;
             height = photo.height;
             // 设置显示的实际尺寸
             canvas.style.cssText = `width:${width}px;height:${height}px`;
@@ -84,11 +116,11 @@
             // 用渐变填色
             ctx.fillStyle = gradient;
             ctx.fillText(txt, (width - ctx.measureText(txt).width) / 2, (height + fontsize) / 2);
-            scraper(width, height, (img) => {
+            scraperCanvas(width, height, (img) => {
                 let pat = ctx.createPattern(img, 'no-repeat');
-                ctx.strokeStyle = pat;
-                ctx.lineCap = "round";
-                ctx.lineJoin = "round";
+                ctx.strokeStyle = pat; //设置或返回用于笔触的颜色、渐变或模式
+                ctx.lineCap = "round"; //设置或返回线条的结束端点样式
+                ctx.lineJoin = "round"; //设置或返回两条线相交时，所创建的拐角类型
                 ctx.lineWidth = "25";
                 canvas.addEventListener('mousedown', (ev) => {
                     ev.preventDefault();
@@ -107,7 +139,7 @@
                     ev.preventDefault();
                     requireLoop = false;
                 });
-            });
+            }, ctx);
         };
         photo.src = './images/photo.jpeg';
     </script>
