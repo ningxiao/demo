@@ -1,0 +1,260 @@
+﻿<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    html,
+    body {
+        width: 100%;
+        height: 100%
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    canvas {
+        height: 100%;
+        width: 100%;
+    }
+</style>
+
+<body>
+    <canvas></canvas>
+    <script src="./script/libs/d3.v5.min.js"></script>
+    <script src="./script/libs/createjs-1.0.min.js"></script>
+    <script>
+        const utils = {
+            get width() {
+                return rect.width;
+            },
+            get height() {
+                return rect.height;
+            },
+            get dpr() {
+                return window.devicePixelRatio || 1;
+            },
+            ratio(ctx) {
+                return utils.dpr / (ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1);
+            }
+        }
+        window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+            setTimeout(callback, 1000 / 60);
+        });
+        window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);
+    </script>
+    <script>
+        class Link extends createjs.Container {
+            constructor(opts) {
+                super();
+                this.opts = Object.assign({
+                    source: {
+                        x: 0,
+                        y: 0
+                    },
+                    target: {
+                        x: 0,
+                        y: 0
+                    },
+                    text: ''
+                }, opts || {});
+                this.shape = new createjs.Shape();
+                this.text = new createjs.Text(this.opts.text, '20px Arial', '#ff7700');
+                this.text.textAlign = 'center';
+                this.text.textBaseline = 'middle';
+                this.addChild(this.shape, this.text);
+                this.drawLink();
+            }
+            drawLink() {
+                const color = this.opts.color || '#F00';
+                const graphics = this.shape.graphics;
+                const source = this.opts.source;
+                const target = this.opts.target;
+                const x = Math.abs(source.x - target.x);
+                const y = Math.abs(source.y - target.y);
+                const angle = (this.countRotation(source, target) + 360) % 360;
+                this.x = source.x;
+                this.y = source.y;
+                if (angle > 90 && angle < 270) {
+                    this.x = target.x;
+                    this.y = target.y;
+                }
+                console.log(angle, angle % 90);
+                graphics.beginStroke(color);
+                graphics.moveTo(0, 0);
+                graphics.lineTo(x, y);
+                this.text.rotation = angle;
+                this.text.x = x / 2;
+                this.text.y = y / 2;
+            }
+            upOpts(opts) {
+                this.opts = Object.assign(this.opts, opts);
+                return this;
+            }
+            rotatePoint(point, angle) {
+                const cx = 0;
+                const cy = 0;
+                const x = point.x;
+                const y = point.y;
+                const radians = (Math.PI / 180) * angle;
+                const cos = Math.cos(radians);
+                const sin = Math.sin(radians);
+                const nx = (cos * (x - cx)) + (sin * (y - cy)) + cx;
+                const ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+                return { x: nx, y: ny };
+            }
+            countRotation(source, target) {
+                return Math.atan2(target.y - source.y, target.x - source.x) * 180 / Math.PI;
+            }
+        }
+    </script>
+    <script>
+        // const canvas = document.querySelector('canvas');
+        // const stage = new createjs.Stage(canvas);
+        // const context = canvas.getContext('2d');
+        // const ratio = utils.ratio(context);
+        // const width = canvas.offsetWidth;
+        // const height = canvas.offsetHeight;
+        // canvas.width = width * ratio;
+        // canvas.height = height * ratio;
+        // context.scale(ratio, ratio);
+        // const link = new Link(
+        //     {
+        //         source: {
+        //             x: 440,
+        //             y: 440
+        //         },
+        //         target: {
+        //             x: 440,
+        //             y: 640
+        //         },
+        //         text: '微信好友'
+        //     }
+        // );
+        // link.on('click', (ev) => {
+        //     console.log(ev);
+        // })
+        // stage.addChild(link);
+        // createjs.Ticker.addEventListener("tick", () => {
+        //     stage.update();
+        // });
+    </script>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const context = canvas.getContext('2d');
+        const ratio = utils.ratio(context);
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        context.scale(ratio, ratio);
+        var nodes = [
+            { name: "桂林" },
+            { name: "广州" },
+            { name: "厦门" },
+            { name: "杭州" },
+            { name: "上海" },
+            { name: "青岛" },
+            { name: "天津" }];
+        var links = [{ source: 0, target: 1 }, { source: 0, target: 2 },
+        { source: 0, target: 3 }, { source: 1, target: 4 },
+        { source: 1, target: 5 }, { source: 1, target: 6 }];
+        var simulation = d3.forceSimulation(nodes)
+            .force("charge", d3.forceManyBody())// 节点间的作用力
+            .force('center', d3.forceCenter(width / 2, height / 2))//中心点作用力
+            .force('collide', d3.forceCollide(nodes).radius((node) => {//设置节点半径
+                console.log('半径', node);
+                return 50;
+            }))
+            .force("link", d3.forceLink(links).distance(20).strength(1))
+            .force("x", d3.forceX())
+            .force("y", d3.forceY())
+            .on("tick", ticked);
+        d3.select(canvas)
+            .call(d3.drag()
+                .container(canvas)
+                .subject(dragsubject)
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended))
+            .call(d3.zoom().on('zoom', () => {
+                const scale = d3.event.transform.k;
+                const x = d3.event.transform.x;
+                const y = d3.event.transform.y;
+                context.translate(x, y);
+                context.scale(scale, scale);
+            }));
+
+        function ticked() {
+            context.clearRect(0, 0, width, height);
+            context.save();
+
+            context.beginPath();
+            links.forEach(drawLink);
+            context.strokeStyle = "#aaa";
+            context.stroke();
+
+            context.beginPath();
+            nodes.forEach(drawNode);
+            context.fill();
+            context.strokeStyle = "#fff";
+            context.stroke();
+
+
+            context.beginPath();
+            context.arc(100, 100, 20, 0, 2 * Math.PI);
+            context.fillStyle = "#ff0000";
+            context.strokeStyle = "#ff0000";
+            context.fill();
+            context.stroke();
+
+            context.restore();
+        }
+
+        function dragsubject() {
+            return simulation.find(d3.event.x, d3.event.y);
+        }
+
+        function dragstarted() {
+            if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+            d3.event.subject.fx = d3.event.subject.x;
+            d3.event.subject.fy = d3.event.subject.y;
+        }
+
+        function dragged() {
+            d3.event.subject.fx = d3.event.x;
+            d3.event.subject.fy = d3.event.y;
+        }
+
+        function dragended() {
+            if (!d3.event.active) simulation.alphaTarget(0);
+            d3.event.subject.fx = null;
+            d3.event.subject.fy = null;
+        }
+
+        function drawLink(d) {
+            context.moveTo(d.source.x, d.source.y);
+            context.lineTo(d.target.x, d.target.y);
+        }
+
+        function drawNode(d) {
+            context.moveTo(d.x + 20, d.y);
+            context.arc(d.x, d.y, 20, 0, 2 * Math.PI);
+        }
+        canvas.addEventListener('click',()=>{
+            nodes.push({ name: "北京" }, { name: "三河" });
+            links.push({ source: 6, target: 7 }, { source: 6, target: 8 }, { source: 7, target: 8 });
+            simulation.nodes(nodes);
+            simulation.force("link").links(links);
+            console.log('添加节点');
+        });
+        setTimeout(() => {
+            nodes.push({ name: "北京" }, { name: "三河" });
+            links.push({ source: 6, target: 7 }, { source: 6, target: 8 }, { source: 7, target: 8 });
+            simulation.nodes(nodes);
+            simulation.force("link").links(links);
+            console.log('添加节点');
+        }, 2000)
+    </script>
+</body>
+
+</html>

@@ -40,9 +40,9 @@
                 callback(img);
             }
             img.src = cans.toDataURL('image/jpeg'); //转换图片为dataURL
-            // cans.toBlob(blob => { // 使用二进制地址 清理URL.revokeObjectURL(url);
-            //     canvas.style.background = `url(${URL.createObjectURL(blob)})`;
-            // });
+            cans.toBlob(blob => { // 使用二进制地址 清理URL.revokeObjectURL(url);
+                cans.style.background = `url(${URL.createObjectURL(blob)})`;
+            });
         }
         const scraperCanvas = (width, height, callback) => {
             let cans = document.createElement('canvas');
@@ -116,7 +116,7 @@
             // 用渐变填色
             ctx.fillStyle = gradient;
             ctx.fillText(txt, (width - ctx.measureText(txt).width) / 2, (height + fontsize) / 2);
-            scraperCanvas(width, height, (img) => {
+            scraperVideo(width, height, (img) => {
                 let pat = ctx.createPattern(img, 'no-repeat');
                 ctx.strokeStyle = pat; //设置或返回用于笔触的颜色、渐变或模式
                 ctx.lineCap = "round"; //设置或返回线条的结束端点样式

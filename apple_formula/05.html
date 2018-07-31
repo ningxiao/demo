@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <title>A*寻路</title>
+    <style type="text/css">
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            width: 600px;
+            height: 600px;
+            background-size: 100% 100%;
+        }
+    </style>
+    <div>
+        <canvas></canvas>
+    </div>
+    <script>
+        const rect = document.documentElement.getBoundingClientRect();
+        const utils = {
+            get width() {
+                return rect.width;
+            },
+            get height() {
+                return rect.height;
+            },
+            get dpr() {
+                return window.devicePixelRatio || 1;
+            },
+            ratio(ctx) {
+                return utils.dpr / (ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1);
+            },
+            eventWrapper(ev) {
+                // 点击位置到浏览器可视区的位置 offsetX 鼠标相当于元素的坐标
+                let { pageX, pageY, target } = ev;
+                // 元素到浏览器的距离
+                let { left, top } = target.getBoundingClientRect();
+                return { x: pageX - left, y: pageY - top };
+            }
+        }
+        window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+            setTimeout(callback, 1000 / 60);
+        });
+        window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);
+        const map = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+    </script>
+    <script>
+        class Square {
+            constructor(x = 0, y = 0, w = 0, h = 0) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.visible = true;
+            }
+            draw(ctx) {
+                if (this.visible) {
+                    ctx.save(); //保存画笔状态
+                    ctx.fillRect(this.x, this.y, this.w, this.h);
+                    ctx.restore(); //绘制结束以后，恢复画笔状态  
+                }
+            }
+        }
+    </script>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        const ratio = utils.ratio(ctx);
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        ctx.scale(ratio, ratio);
+        const childNode = [];
+        const drawSquare = (x, y, w, h, bool) => {
+            ctx.save(); //保存画笔状态
+            ctx.fillRect(x, y, w, h);
+            ctx.restore(); //绘制结束以后，恢复画笔状态  
+        }
+        const countSquare = (w, h, map) => {
+            return (ex, ey) => {
+                const row = Math.floor(ey / h);
+                const column = Math.floor(ex / w);
+                const y = row * h;
+                const x = column * w;
+                const box = map[row][column];
+                if (box) {
+                    box.visible = !box.visible;
+                } else {
+                    let el = new Square(x, y, w, h);
+                    map[row][column] = el;
+                    childNode.push(el);
+                }
+                return { y, x, w, h, row, column };
+            };
+        };
+        (() => {
+            const row = map.length; // 行
+            const column = map[0].length; // 列
+            ctx.save(); //保存画笔状态
+            ctx.beginPath();
+            ctx.strokeStyle = '#0000ff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(1, 1);
+            ctx.lineTo(width - 1, 1);
+            ctx.lineTo(width - 1, height - 1);
+            ctx.lineTo(1, height - 1);
+            ctx.lineTo(1, 1);
+            let x = 0;
+            let y = 0;
+            let rsize = height / row;
+            for (let i = 1; i < row; i++) {
+                y = i * rsize;
+                ctx.moveTo(1, y);
+                ctx.lineTo(width - 1, y);
+            }
+            let csize = width / column;
+            for (let i = 1; i < column; i++) {
+                x = i * csize;
+                ctx.moveTo(x, 1);
+                ctx.lineTo(x, height - 1);
+            }
+            const square = countSquare(csize, rsize, map);
+            ctx.stroke();
+            ctx.restore(); //绘制结束以后，恢复画笔状态  
+            canvas.toBlob(blob => { // 使用二进制地址 清理URL.revokeObjectURL(url);
+                canvas.style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
+                canvas.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    square(ev.offsetX, ev.offsetY);
+                });
+                window.requestAnimationFrame(engine);
+            });
+        })();
+        const engine = () => {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = childNode.length - 1; i >= 0; i--) {
+                childNode[i].draw(ctx);
+            };
+            window.requestAnimationFrame(engine);
+        }
+    </script>
+    </body>
+
+</html>

@@ -1,41 +1,131 @@
 <!DOCTYPE html >
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-        <title>SVG绘制基本形状</title>
-        <style type="text/css">
-            *{
-                margin: 0;
-                padding: 0;
-            }
-            html,body{
-                width: 100%;
-                height: 100%;
-            }
-            svg {
-                width: 100%;
-                height: 100%;
-            }
-            svg > g {
-                fill:none;
-                stroke:green;
-            }                  
-        </style>
-    </head>
-    <body>
-        <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
-            <g id="cuig">
-                <rect x="100" y="50" width="100" height="50"/>
-                <rect x="140" y="100" width="20" height="120"/>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <title>SVG绘制基本形状</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        svg>g {
+            fill: none;
+            stroke: green;
+        }
+
+        .outline {
+            fill: rgb(232, 70, 70);
+            stroke: rgb(162, 49, 49);
+        }
+
+        .outline:hover {
+            stroke-width: 80px;
+        }
+
+        .ring {
+            fill: #6ac6ff;
+            transition: all 200ms ease-in;
+        }
+
+        .box {
+            transform: translate(200px, 200px) rotate(45deg);
+            transform-origin: 0 0;
+        }
+
+        image {
+            height: 30px;
+            width: 30px;
+            transform: translate(-15px, -15px);
+        }
+        .ico{
+            fill: rgb(232, 70, 70);
+            stroke: rgb(162, 49, 49);
+        }
+        .node .ico-bg {
+            fill: #6ac6ff;
+            stroke: #6ac6ff;
+            transition: all 200ms ease-in;
+            stroke-width: 1px;
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .node .ico-left,
+        .node .ico-right {
+            transition: all 200ms ease-in;
+        }
+
+        .node:hover .ico-bg {
+            visibility: visible;
+            opacity: 0.5;
+        }
+
+        .node:hover .ico-left {
+            transform: translate(-65px, -15px);
+        }
+
+        .node:hover .ico-right {
+            transform: translate(35px, -15px);
+        }
+    </style>
+</head>
+
+<body>
+    <svg id="svg" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <g id="cuig">
+            <rect x="100" y="50" width="100" height="50" />
+            <rect x="140" y="100" width="20" height="120" />
+        </g>
+        <defs>
+            <g id="shape">
+                <circle class="ring" r="30"></circle>
+                <circle class="outline" r="30"></circle>
+                <image x="0" y="0" xlink:href="/apple_map/img/twemoji/1f4b3.svg"></image>
             </g>
-        </svg>
-        <script type="text/javascript">
-            var sum = 10,svg = document.getElementById("svg"),cuig = document.getElementById("cuig");
-            svg.addEventListener("click", function(event){
-                cuig.setAttribute("transform","translate("+sum+",0)");
-                sum+=10;
-            });
-        </script>
-    </body>
+        </defs>
+        <use x=200 y=200 xlink:href="#shape" class="ico"></use>
+        <g class="node" transform="translate(400, 400)">
+            <circle class="ico-bg" r="70"></circle>
+            <circle class="ico" r="30"></circle>
+            <image class="ico-left" x="0" y="0" xlink:href="/apple_map/img/twemoji/1f4b3.svg"></image>
+            <image class="ico-right" x="0" y="0" xlink:href="/apple_map/img/twemoji/1f4b3.svg"></image>
+            <image x="0" y="0" xlink:href="/apple_map/img/twemoji/1f4b3.svg"></image>
+        </g>
+    </svg>
+    <script src="https://cdn.bootcss.com/svg.js/2.6.5/svg.js"></script>
+    <script type="text/javascript">
+        var sum = 10, svg = document.getElementById("svg"), cuig = document.getElementById("cuig");
+        svg.addEventListener("click", function (event) {
+            cuig.setAttribute("transform", "translate(" + sum + ",0)");
+            sum += 10;
+        });
+        const createSvg = name => document.createElementNS("http://www.w3.org/2000/svg", name);
+        [1, 2, 3].forEach(vo => {
+            const use = createSvg('use');
+            use.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#shape');
+            use.setAttributeNS(null, 'y', '260');
+            use.setAttributeNS(null, 'x', vo * 120);
+            use.dataSource = { index: vo }
+            svg.appendChild(use);
+            use.addEventListener('click', ev => {
+                console.log(ev.target.children, ev.target.dataSource);
+            })
+        });
+    </script>
+</body>
+
 </html>
