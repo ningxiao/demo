@@ -237,10 +237,15 @@
         }
 
         function drawNode(d) {
+            context.save();
+            context.font = "20px Georgia";
+            context.fillStyle = 'red';
+            context.fillText(d.name, d.x, d.y);
+            context.restore();
             context.moveTo(d.x + 20, d.y);
             context.arc(d.x, d.y, 20, 0, 2 * Math.PI);
         }
-        canvas.addEventListener('click',()=>{
+        canvas.addEventListener('click', () => {
             nodes.push({ name: "北京" }, { name: "三河" });
             links.push({ source: 6, target: 7 }, { source: 6, target: 8 }, { source: 7, target: 8 });
             simulation.nodes(nodes);
@@ -252,6 +257,18 @@
             links.push({ source: 6, target: 7 }, { source: 6, target: 8 }, { source: 7, target: 8 });
             simulation.nodes(nodes);
             simulation.force("link").links(links);
+            setTimeout(() => {
+                const name = nodes.splice(1, 1)[0].name;
+                for (let i = links.length - 1; i > -1; i--) {
+                    let obj = links[i];
+                    if(obj.source.name=== name || obj.target.name === name){
+                        links.splice(i, 1)
+                        console.log('--',obj);
+                    }
+                }
+                simulation.nodes(nodes);
+                simulation.force("link").links(links);
+            }, 2000)
             console.log('添加节点');
         }, 2000)
     </script>

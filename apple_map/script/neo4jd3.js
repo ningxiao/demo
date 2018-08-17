@@ -140,7 +140,6 @@ function Neo4jD3(_selector, _options) {
             })
             .on('click', function (d) {
                 d.fx = d.fy = null;
-
                 if (typeof options.onNodeClick === 'function') {
                     options.onNodeClick(d);
                 }
@@ -213,8 +212,8 @@ function Neo4jD3(_selector, _options) {
 
     function appendRingToNode(node) {
         const circle = node.append('circle')
-        .attr('class', 'ring')
-        .attr('r', options.nodeRadius * 1.16);
+            .attr('class', 'ring')
+            .attr('r', options.nodeRadius * 1.16);
         circle.append('title').text(function (d) {
             return toString(d);
         });
@@ -384,7 +383,7 @@ function Neo4jD3(_selector, _options) {
         if (!d3.event.active) {
             simulation.alphaTarget(0);
         }
-
+        d.fx = fy = null;
         if (typeof options.onNodeDragEnd === 'function') {
             options.onNodeDragEnd(d);
         }
@@ -542,9 +541,6 @@ function Neo4jD3(_selector, _options) {
 
     function initSimulation() {
         var simulation = d3.forceSimulation()
-            //                           .velocityDecay(0.8)
-            //                           .force('x', d3.force().strength(0.002))
-            //                           .force('y', d3.force().strength(0.002))
             .force('collide', d3.forceCollide().radius(function (d) {
                 return options.minCollision;
             }).iterations(2))
@@ -552,6 +548,8 @@ function Neo4jD3(_selector, _options) {
             .force('link', d3.forceLink().id(function (d) {
                 return d.id;
             }))
+            .force("x", d3.forceX())
+            .force("y", d3.forceY())
             .force('center', d3.forceCenter(svg.node().parentElement.parentElement.clientWidth / 2, svg.node().parentElement.parentElement.clientHeight / 2))
             .on('tick', function () {
                 tick();
@@ -747,6 +745,7 @@ function Neo4jD3(_selector, _options) {
     }
 
     function tickRelationshipsOutlines() {
+        console.log(relationship);
         relationship.each(function (relationship) {
             var rel = d3.select(this),
                 outline = rel.select('.outline'),
