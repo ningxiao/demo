@@ -6,9 +6,11 @@ var old_x, old_y, drag = false;
 var THETA = 0.0;
 var PHI = 0.0;
 var v_matrix, m_matrix, p_matrix;
-
+var stats = new Stats();
+stats.showPanel(1); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom);
 function createplay() {
-var videodata, webmsource, mp4source;
+	var videodata, webmsource, mp4source;
 	video = document.createElement("video");
 	video.autoplay = "autoplay";
 	video.controls = "controls";
@@ -35,10 +37,10 @@ var videodata, webmsource, mp4source;
 			createpgl();
 		};
 	};
-	video.addEventListener("play", function(event) {
+	video.addEventListener("play", function (event) {
 		videodata["win"]["length"] = this.duration - 31;
 	});
-	video.addEventListener("ended", function(event) {
+	video.addEventListener("ended", function (event) {
 		// video.load();
 		// video.play();
 	});
@@ -124,6 +126,7 @@ function inittextures(gl, program, name, bitmap, index) {
 };
 
 function drawgl() {
+	stats.begin();
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	//清理之前颜色和深度模型
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -140,7 +143,8 @@ function drawgl() {
 	gl.drawElements(gl.TRIANGLES, dots, gl.UNSIGNED_BYTE, 0);
 	//清除马上执行
 	gl.flush();
-	requestAnimationFrame(drawgl, canvas);
+	stats.end();
+	requestAnimationFrame(drawgl);
 };
 
 function mousecall() {
@@ -202,10 +206,10 @@ function createpgl() {
 		1, 1, 1, 1, 1,
 		-1, 1, 1, 0, 1,
 		//左边
-		-1, -1, -1, 0, 0, 
+		-1, -1, -1, 0, 0,
 		-1, 1, -1, 1, 0,
-		 -1, 1, 1, 1, 1,
-		  -1, -1, 1, 0, 1,
+		-1, 1, 1, 1, 1,
+		-1, -1, 1, 0, 1,
 		//右边
 		1, -1, -1, 0, 0,
 		1, 1, -1, 1, 0,
@@ -213,7 +217,7 @@ function createpgl() {
 		1, -1, 1, 0, 1,
 		//前面
 		-1, -1, -1, 0, 0,
-		 -1, -1, 1, 1, 0,
+		-1, -1, 1, 1, 0,
 		1, -1, 1, 1, 1,
 		1, -1, -1, 0, 1,
 		//后面
