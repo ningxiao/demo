@@ -6,28 +6,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>音频处理Web Audio API测试</title>
     <style>
-        @-webkit-keyframes loading {
-            0,
-            100% {
-                color: #dcdcdc
-            }
-            50% {
-                color: #777
-            }
-        }
-        
-        @-moz-keyframes loading {
-            0,
-            100% {
-                color: #dcdcdc
-            }
-            50% {
-                color: #777
-            }
-        }
-        
         @keyframes loading {
-            0,
+            0%,
             100% {
                 color: #dcdcdc
             }
@@ -35,7 +15,7 @@
                 color: #777
             }
         }
-        
+
         * {
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
@@ -290,11 +270,14 @@
                 width: 91px !important
             }
         }
+        #log{
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
-    <h1>音频处理Web Audio</h1>
+    <h1 id="log">音频处理Web Audio</h1>
     <div class="playground">
         <div class="content-wide">
             <div class="widget widget-vis" id="vis-div">
@@ -304,9 +287,12 @@
             <div class="widget widget-loops">
                 <h3>音频</h3>
                 <div class="widget-items">
-                    <button id="button-loop-1" type="button" form="form" value="1" data-name="1" class="loading" disabled="">loading</button>
-                    <button id="button-loop-2" type="button" form="form" value="2" data-name="2" class="loading" disabled="">loading</button>
-                    <button id="button-loop-3" type="button" form="form" value="3" data-name="3" class="loading" disabled="">loading</button>
+                    <button id="button-loop-1" type="button" form="form" value="1" data-name="1" class="loading"
+                        disabled="">loading</button>
+                    <button id="button-loop-2" type="button" form="form" value="2" data-name="2" class="loading"
+                        disabled="">loading</button>
+                    <button id="button-loop-3" type="button" form="form" value="3" data-name="3" class="loading"
+                        disabled="">loading</button>
                 </div>
             </div>
             <div class="widget widget-controls">
@@ -321,7 +307,8 @@
                 <h3>效果</h3>
                 <div class="widget-items">
                     <button id="effect-1" type="button" form="form" value="1" data-name="Cave" class="loading" disabled="">loading</button>
-                    <button id="effect-2" type="button" form="form" value="2" data-name="Lodge" class="loading" disabled="">loading</button>
+                    <button id="effect-2" type="button" form="form" value="2" data-name="Lodge" class="loading"
+                        disabled="">loading</button>
                     <button id="effect-3" type="button" form="form" value="3" data-name="Parking Garage" disabled="">loading</button>
                 </div>
             </div>
@@ -331,8 +318,9 @@
     <script src="./js/jquery-2.0.3.min.js"></script>
     <script src="./js/jquery.knob.custom.js?v1"></script>
     <script type="text/javascript">
+        var elLog = document.querySelector('log');
         var audio = {
-            analyser: {},
+            AnalyserNode: {},
             buffer: {},
             buffer_effects: {},
             compatibility: {},
@@ -351,9 +339,12 @@
             proceed: true,
             source_loop: {},
             source_once: {},
-            volume_fade_time: .7
+            volume_fade_time: .7,
+            log: function (val) {
+                elLog.innerText = val
+            }
         };
-        audio.findSync = function(n) {
+        audio.findSync = function (n) {
             var first = 0,
                 current = 0,
                 offset = 0;
@@ -371,7 +362,7 @@
             }
             return offset
         };
-        audio.message.random = function() {
+        audio.message.random = function () {
             var num;
             do {
                 num = Math.floor(Math.random() * audio.message.quote.length)
@@ -379,7 +370,7 @@
             audio.message.quote_last = num;
             return audio.message.quote[num]
         };
-        audio.play = function(n, playOnly) {
+        audio.play = function (n, playOnly) {
             if (audio.source_loop[n]._playing) {
                 if (!playOnly) {
                     audio.stop(n)
@@ -391,17 +382,7 @@
                 audio.source_loop[n].loop = true;
                 var offset = audio.findSync(n);
                 audio.source_loop[n]._startTime = audio.context.currentTime;
-                if (audio.compatibility.start === "noteOn") {
-                    audio.source_once[n] = audio.context.createBufferSource();
-                    audio.source_once[n].buffer = audio.buffer[n];
-                    audio.source_once[n].connect(audio.gain_once[n]);
-                    audio.source_once[n].noteGrainOn(0, offset, audio.buffer[n].duration - offset);
-                    audio.gain_once[n].gain.setValueAtTime(0, audio.context.currentTime);
-                    audio.gain_once[n].gain.linearRampToValueAtTime(1, audio.context.currentTime + audio.volume_fade_time);
-                    audio.source_loop[n][audio.compatibility.start](audio.context.currentTime + (audio.buffer[n].duration - offset))
-                } else {
-                    audio.source_loop[n][audio.compatibility.start](0, offset)
-                }
+                audio.source_loop[n].start(0, offset)
                 audio.gain_loop[n].gain.setValueAtTime(0, audio.context.currentTime);
                 audio.gain_loop[n].gain.linearRampToValueAtTime(1, audio.context.currentTime + audio.volume_fade_time);
                 document.getElementById("button-loop-" + n).className = "active";
@@ -410,29 +391,25 @@
                 if (audio.playing === 1) {
                     audio.pause_vis = false;
                     drawSpectrum();
-                    jQuery(".widget-vis p").stop().fadeOut(1500, function() {
+                    jQuery(".widget-vis p").stop().fadeOut(1500, function () {
                         jQuery(this).html(audio.message.random())
                     })
                 }
             }
         };
-        audio.playAll = function() {
+        audio.playAll = function () {
             for (var a in audio.source_loop) {
                 audio.play(a, true)
             }
         };
-        audio.stop = function(n) {
+        audio.stop = function (n) {
             if (audio.source_loop[n]._playing && !audio.source_loop[n]._stopping) {
                 audio.source_loop[n]._stopping = true;
-                audio.source_loop[n][audio.compatibility.stop](audio.context.currentTime + audio.volume_fade_time);
+                audio.source_loop[n].stop(audio.context.currentTime + audio.volume_fade_time);
                 audio.source_loop[n]._startTime = 0;
-                if (audio.compatibility.start === "noteOn") {
-                    audio.source_once[n][audio.compatibility.stop](audio.context.currentTime + audio.volume_fade_time);
-                    audio.gain_once[n].gain.setValueAtTime(1, audio.context.currentTime);
-                    audio.gain_once[n].gain.linearRampToValueAtTime(0, audio.context.currentTime + audio.volume_fade_time)
-                }(function() {
+                (function () {
                     var num = n;
-                    setTimeout(function() {
+                    setTimeout(function () {
                         audio.source_loop[num]._playing = false;
                         audio.source_loop[num]._stopping = false
                     }, audio.volume_fade_time * 100)
@@ -442,7 +419,7 @@
                 document.getElementById("button-loop-" + n).className = "inactive";
                 audio.playing = audio.playing - 1;
                 if (audio.playing === 0) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         if (audio.playing === 0) {
                             audio.pause_vis = true;
                             jQuery(".widget-vis p").stop().fadeIn(3e3)
@@ -451,59 +428,150 @@
                 }
             }
         };
-        audio.stopAll = function() {
+        audio.stopAll = function () {
             for (var a in audio.source_loop) {
                 audio.stop(a)
             }
         };
         try {
-            window.AudioContext = window.AudioContext || window.webkitAudioContext;
-            audio.context = new window.AudioContext
+            audio.context = new AudioContext();
         } catch (e) {
             audio.proceed = false;
-            alert("Web Audio API not supported in this browser.")
+            console.log('浏览器不支持Web Audio');
         }
         if (audio.proceed) {
-            (function() {
-                var name = "createGain";
-                if (typeof audio.context.createGain !== "function") {
-                    name = "createGainNode"
-                }
-                audio.compatibility.createGain = name
-            })();
-            (function() {
-                var start = "start",
-                    stop = "stop",
-                    buffer = audio.context.createBufferSource();
-                if (typeof buffer.start !== "function") {
-                    start = "noteOn"
-                }
-                audio.compatibility.start = start;
-                if (typeof buffer.stop !== "function") {
-                    stop = "noteOff"
-                }
-                audio.compatibility.stop = stop
-            })();
-            var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame;
-            window.requestAnimationFrame = requestAnimationFrame;
-            audio.gain.booster = audio.context[audio.compatibility.createGain]();
-            audio.gain.booster.gain.value = 3;
-            audio.convolver = audio.context.createConvolver();
-            audio.convolver.connect(audio.gain.booster);
-            audio.gain.collapse = audio.context[audio.compatibility.createGain]();
-            var img = new Image;
-            img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAEklEQVR4AWNsP/eaATcYlcYKANQJFotqqVYoAAAAAElFTkSuQmCC";
             var canvas_div = document.getElementById("vis-div");
             var canvas = document.getElementById("vis");
+            var ctx = canvas.getContext("2d");
+            // 创建一个GainNode,它可以控制音频的总音量
+            audio.gain.booster = audio.context.createGain();
+            // audio.gain.booster.gain.value = 3;
+            // 播放到指定时间点设置音量大小
+            audio.gain.booster.gain.setValueAtTime(3, audio.context.currentTime);
+            // 在音频播放1-12秒内将音量降为 0
+            // audio.gain.booster.gain.linearRampToValueAtTime(4, 1);
+            // audio.gain.booster.gain.linearRampToValueAtTime(0, 12);
+            // 创建混音效果
+            audio.convolver = audio.context.createConvolver();
+            // 将音量控制与混音结合
+            audio.convolver.connect(audio.gain.booster);
+            // 创建一个GainNode,它可以控制音频的总音量
+            audio.gain.collapse = audio.context.createGain();
             canvas.height = canvas_div.offsetHeight;
             canvas.width = canvas_div.offsetWidth;
-            var ctx = canvas.getContext("2d");
-            ctx.imageSmoothingEnabled = false;
-            ctx.webkitImageSmoothingEnabled = ctx.mozImageSmoothingEnabled = false;
-
+            // 图片平滑
+            ctx.imageSmoothingEnabled = true;
+            // 创建一个AnalyserNode，它可以用来显示音频时间和频率的数据
+            audio.AnalyserNode = audio.context.createAnalyser();
+            audio.AnalyserNode.smoothingTimeConstant = .85;
+            audio.AnalyserNode.fftSize = 256;
+            // 创建一个Uint8Array 缓冲区
+            audio.frequencyData = new Uint8Array(audio.AnalyserNode.frequencyBinCount);
+            jQuery("#master-volume").prop("disabled", false).knob({
+                angleArc: 360,
+                angleOffset: 0,
+                displayInput: true,
+                height: 104,
+                thickness: ".2",
+                width: 104,
+                change: function (v) {
+                    v = v / 100;
+                    audio.gain.master.gain.value = v * v
+                }
+            });
+            audio.gain.master = audio.context.createGain();
+            audio.gain.master.gain.value = .8649;
+            audio.gain.master.connect(audio.AnalyserNode).connect(audio.context.destination);
+            audio.gain.collapse.connect(audio.gain.master);
+            jQuery(".widget-effects").delegate("button", "click", function (e) {
+                var val = parseInt(this.value);
+                audio.gain.collapse.disconnect();
+                audio.gain.booster.disconnect();
+                var previous_vol = audio.gain.master.gain.value;
+                audio.gain.master.gain.value = 0;
+                if (this.className === "active") {
+                    jQuery(".widget-effects .active").removeClass("active");
+                    audio.gain.collapse.connect(audio.gain.master)
+                } else {
+                    jQuery(".widget-effects .active").removeClass("active");
+                    // audio.convolver.disconnect();
+                    // // 创建混音效果
+                    // audio.convolver = audio.context.createConvolver();
+                    // console.log(audio.convolver.buffer);
+                    // // 将音量控制与混音结合
+                    // audio.convolver.connect(audio.gain.booster);
+                    audio.convolver.buffer = null;
+                    audio.convolver.buffer = audio.buffer_effects[val];
+                    audio.gain.collapse.connect(audio.convolver);
+                    audio.gain.booster.connect(audio.gain.master);
+                    this.className = "active"
+                }
+                setTimeout(function () {
+                    audio.gain.master.gain.value = previous_vol
+                }, 50)
+            });
+            document.getElementById("button-stop").addEventListener("click", audio.stopAll);
+            document.getElementById("button-stop").disabled = false;
+            document.getElementById("button-play").addEventListener("click", audio.playAll);
+            document.getElementById("button-play").disabled = false;
+            for (var a in audio.files) {
+                (function () {
+                    var i = parseInt(a) + 1;
+                    var req = new XMLHttpRequest;
+                    req.open("GET", audio.files[i - 1], true);
+                    req.responseType = "arraybuffer";
+                    req.onload = function () {
+                        audio.context.decodeAudioData(req.response, function (buffer) {
+                            audio.buffer[i] = buffer;
+                            audio.source_loop[i] = {};
+                            var button = document.getElementById("button-loop-" + i);
+                            button.addEventListener("click", function (e) {
+                                e.preventDefault();
+                                audio.play(this.value, false)
+                            });
+                            jQuery(button).text(button.getAttribute("data-name")).removeClass("loading");
+                            button.disabled = false;
+                            audio.gain_loop[i] = audio.context.createGain();
+                            audio.gain_loop[i].connect(audio.gain.collapse);
+                        }, function () {
+                            console.log('Error decoding audio "' + audio.files[i - 1] + '".')
+                        })
+                    };
+                    req.send()
+                })()
+            }
+            for (var a in audio.effects) {
+                (function () {
+                    var i = parseInt(a) + 1;
+                    var req = new XMLHttpRequest;
+                    req.open("GET", audio.effects[i - 1], true);
+                    req.responseType = "arraybuffer";
+                    req.onload = function () {
+                        audio.context.decodeAudioData(req.response, function (buffer) {
+                            audio.buffer_effects[i] = buffer;
+                            var button = document.getElementById("effect-" + i);
+                            button.disabled = false;
+                            jQuery(button).html(button.getAttribute("data-name").replace(" ", "<br>")).removeClass("loading")
+                        }, function () {
+                            console.log('Error decoding effect "' + audio.effects[i - 1] + '".')
+                        })
+                    };
+                    req.send()
+                })()
+            }
+            jQuery(document).ready(function () {
+                jQuery(window).resize(function () {
+                    canvas.height = canvas_div.offsetHeight;
+                    canvas.width = canvas_div.offsetWidth
+                })
+            })
             function drawSpectrum() {
-                audio.analyser.getByteFrequencyData(audio.frequencyData);
-                var bar_width = Math.ceil(canvas.width / (audio.analyser.frequencyBinCount * .85));
+                // 用于确定频域的 FFT 值为fftSize的一半 (AnalyserNode.fftSize)
+                var binCount = audio.AnalyserNode.frequencyBinCount;
+                var bar_width = Math.ceil(canvas.width / (binCount * .85));
+                // 将当前频域数据拷贝进Uint8Array数组
+                audio.AnalyserNode.getByteFrequencyData(audio.frequencyData);
+               
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 var freq, x, y, w, h, line = ctx.createLinearGradient(0, 0, 0, canvas.height);
                 line.addColorStop(1, '#FF0000');
@@ -518,8 +586,7 @@
                 line.addColorStop(0.1, '#00FAFF');
                 line.addColorStop(0, '#00C1FF');
                 ctx.fillStyle = line;
-                //ctx.fillStyle = ctx.createPattern(img, "repeat");
-                for (var i = 0; i < audio.analyser.frequencyBinCount; i++) {
+                for (var i = 0; i < binCount; i++) {
                     freq = audio.frequencyData[i] || 0;
                     x = bar_width * i;
                     if (x + bar_width < canvas.width) {
@@ -535,106 +602,6 @@
                     ctx.clearRect(0, 0, canvas.width, canvas.height)
                 };
             }
-            audio.analyser = audio.context.createAnalyser();
-            audio.analyser.smoothingTimeConstant = .85;
-            audio.analyser.fftSize = 256;
-            audio.frequencyData = new Uint8Array(audio.analyser.frequencyBinCount);
-            jQuery("#master-volume").prop("disabled", false).knob({
-                angleArc: 360,
-                angleOffset: 0,
-                displayInput: true,
-                height: 104,
-                thickness: ".2",
-                width: 104,
-                change: function(v) {
-                    v = v / 100;
-                    audio.gain.master.gain.value = v * v
-                }
-            });
-            audio.gain.master = audio.context[audio.compatibility.createGain]();
-            audio.gain.master.gain.value = .8649;
-            audio.gain.master.connect(audio.analyser);
-            audio.gain.master.connect(audio.context.destination);
-            audio.gain.collapse.connect(audio.gain.master);
-            jQuery(".widget-effects").delegate("button", "click", function(e) {
-                var val = parseInt(this.value);
-                audio.gain.collapse.disconnect();
-                audio.gain.booster.disconnect();
-                var previous_vol = audio.gain.master.gain.value;
-                audio.gain.master.gain.value = 0;
-                if (this.className === "active") {
-                    jQuery(".widget-effects .active").removeClass("active");
-                    audio.gain.collapse.connect(audio.gain.master)
-                } else {
-                    jQuery(".widget-effects .active").removeClass("active");
-                    audio.convolver.buffer = audio.buffer_effects[val];
-                    audio.gain.collapse.connect(audio.convolver);
-                    audio.gain.booster.connect(audio.gain.master);
-                    this.className = "active"
-                }
-                setTimeout(function() {
-                    audio.gain.master.gain.value = previous_vol
-                }, 50)
-            });
-            document.getElementById("button-stop").addEventListener("click", audio.stopAll);
-            document.getElementById("button-stop").disabled = false;
-            document.getElementById("button-play").addEventListener("click", audio.playAll);
-            document.getElementById("button-play").disabled = false;
-            for (var a in audio.files) {
-                (function() {
-                    var i = parseInt(a) + 1;
-                    var req = new XMLHttpRequest;
-                    req.open("GET", audio.files[i - 1], true);
-                    req.responseType = "arraybuffer";
-                    req.onload = function() {
-                        audio.context.decodeAudioData(req.response, function(buffer) {
-                            audio.buffer[i] = buffer;
-                            audio.source_loop[i] = {};
-                            var button = document.getElementById("button-loop-" + i);
-                            button.addEventListener("click", function(e) {
-                                e.preventDefault();
-                                audio.play(this.value, false)
-                            });
-                            jQuery(button).text(button.getAttribute("data-name")).removeClass("loading");
-                            button.disabled = false;
-                            audio.gain_loop[i] = audio.context[audio.compatibility.createGain]();
-                            audio.gain_loop[i].connect(audio.gain.collapse);
-                            if (audio.compatibility.start === "noteOn") {
-                                audio.gain_once[i] = audio.context[audio.compatibility.createGain]();
-                                audio.gain_once[i].connect(audio.gain.collapse)
-                            }
-                        }, function() {
-                            console.log('Error decoding audio "' + audio.files[i - 1] + '".')
-                        })
-                    };
-                    req.send()
-                })()
-            }
-            for (var a in audio.effects) {
-                (function() {
-                    var i = parseInt(a) + 1;
-                    var req = new XMLHttpRequest;
-                    req.open("GET", audio.effects[i - 1], true);
-                    req.responseType = "arraybuffer";
-                    req.onload = function() {
-                        audio.context.decodeAudioData(req.response, function(buffer) {
-                            audio.buffer_effects[i] = buffer;
-                            var button = document.getElementById("effect-" + i);
-                            button.disabled = false;
-                            jQuery(button).html(button.getAttribute("data-name").replace(" ", "<br>")).removeClass("loading")
-                        }, function() {
-                            console.log('Error decoding effect "' + audio.effects[i - 1] + '".')
-                        })
-                    };
-                    req.send()
-                })()
-            }
-            jQuery(document).ready(function() {
-                jQuery(window).resize(function() {
-                    canvas.height = canvas_div.offsetHeight;
-                    canvas.width = canvas_div.offsetWidth
-                })
-            })
         };
     </script>
 </body>

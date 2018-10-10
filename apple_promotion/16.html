@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>视频缓存</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h6>使用caches缓存视频</h6>
+        <div class="box"></div>
+    </div>
+    <script>
+        let updating = false;
+        const box = document.querySelector('.box');
+        const video = document.createElement('video');
+        const videoUrl = '/apple_promotion/ressources/bunny.webm';
+        const fetchAndCache = (url, cache, range) => {
+            // 视频是否被缓存
+            return cache.match(url).then(cacheResponse => {
+                // 如果视频已经在缓存中，直接读取缓存。
+                if (cacheResponse) {
+                    const headers = cacheResponse.headers;
+                    if (range) {
+                        headers.append('Range', range);
+                    }
+                    console.log('读取缓存');
+                    if (headers.has('range')) {
+                        const rangeParts = /(\d*)-(\d*)/.exec(headers.get('range'));
+                        const start = rangeParts[1];
+                        const end = rangeParts[2];
+                        const total = parseInt(headers.get('Content-Length'), 10);
+                        console.log('视频大小', total);
+                        return cacheResponse.blob()
+                            .then(blob => {
+                                const slicedBlob = blob.slice(start, end);
+                                const slicedResponse = new Response(slicedBlob, {
+                                    status: 206,
+                                    statusText: 'Partial Content',
+                                    headers: cacheResponse.headers
+                                });
+                                slicedResponse.headers.set('X-From-Cache', 'true');
+                                console.log('分割数据大小', slicedBlob.size);
+                                slicedResponse.headers.set('Content-Length', slicedBlob.size);
+                                slicedResponse.headers.set('Content-Range', `bytes ${start}-${end - 1}/${total}`);
+                                return slicedResponse;
+                            });
+                    }
+                    return cacheResponse;
+                };
+                // 如果不存在发送网络请求
+                return fetch(url).then(networkResponse => {
+                    // 将请求添加到缓存中
+                    console.log('发送网络请求');
+                    cache.put(url, networkResponse.clone());
+                    return networkResponse;
+                });
+            });
+        }
+        const loadFromCacheOrFetch = (range, mediaSource, sourceBuffer, callback) => {
+            window.caches.open('video-pre-cache')
+                .then(cache => fetchAndCache(videoUrl, cache, range))
+                .then((response) => {
+                    return response.arrayBuffer();
+                })
+                .then((arrayBuffer) => {
+                    sourceBuffer.addEventListener('updateend', (e) => {
+                        const bufferedSeconds = video.buffered.end(0) - video.buffered.start(0);
+                        console.log('视频时长', bufferedSeconds);
+                        if (!sourceBuffer.updating && mediaSource.readyState === 'open') {
+                            if (updating) {
+                                mediaSource.endOfStream();
+                            }
+                            callback();
+                        }
+                    }, { once: true });
+                    sourceBuffer.appendBuffer(arrayBuffer);
+                });
+        }
+        box.appendChild(video);
+        if (window.MediaSource) {
+            const mediaSource = new MediaSource();
+            video.src = URL.createObjectURL(mediaSource);
+            mediaSource.addEventListener('sourceopen', (e) => {
+                const mime = 'video/webm; codecs="vorbis,vp8"';
+                // const mime = 'video/webm; codecs="opus, vp09.00.10.08"';
+                const sourceBuffer = mediaSource.addSourceBuffer(mime);
+                window.caches.match(videoUrl).then(cacheResponse => {
+                    if (cacheResponse) {
+                        loadFromCacheOrFetch('bytes=0-7312505', mediaSource, sourceBuffer, () => {
+                            console.log('加载完成');
+                            updating = true;
+                            loadFromCacheOrFetch('bytes=7312505-14625011', mediaSource, sourceBuffer, () => {
+                                console.log('加载完成');
+                            });
+                        });
+                    } else {
+                        updating = true;
+                        loadFromCacheOrFetch(null, mediaSource, sourceBuffer, () => {
+                            console.log('加载完成');
+                            updating = true;
+                        });
+                    }
+                });
+
+                video.play().then(() => {
+                    console.log('开始播放');
+                });
+            });
+        } else {
+            console.log("你的浏览器暂时不支持MediaSource")
+        }
+    </script>
+</body>
+
+</html>

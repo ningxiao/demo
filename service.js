@@ -33,6 +33,7 @@ const mimemap = {
 	"wav": "audio/x-wav",
 	"mp3": "audio/mpeg ",
 	"mp4": "video/mp4",
+	"webm": "video/webm",
 	"ogg": "application/ogg",
 	"m4a": "audio/x-m4a",
 	"mp4": "video/mp4",
@@ -247,3 +248,5 @@ if (cluster.isMaster) {
 	});
 	main(process.argv.slice(2));
 }
+
+

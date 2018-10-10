@@ -1,0 +1,78 @@
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>MVVM更新文本</title>
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+		}
+
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+
+</head>
+
+<body>
+	<div id="app-6">
+		<p>{{ message }}请输入姓名{{ message }}</p>
+		<input v-model="message">
+	</div>
+	<script>
+		const data = {};
+		const input = document.querySelector('[v-model]');
+		const key = input.getAttribute('v-model');
+		const p = document.querySelector('p');
+		const str = p.innerText;
+		const tmpl = str.replace(/\{\{(.*?)\}\}/ig, (a, b) => {
+			return '${' + b.replace(/(^\s*)|(\s*$)/g, '') + '}';
+		})
+		console.log(tmpl);
+		const nodeList = [];
+		Object.defineProperties(data, {
+			message: {
+				configurable: true,
+				get: function () {
+					return this._message;
+				},
+				set: function (newValue) {
+					this._message = newValue;
+					// p.innerText = tmpl.replace(/\${(.*?)\}/ig, function () {
+					// 	return newValue;
+					// });
+					nodeList.forEach(textNode => {
+						textNode.textContent = newValue;
+					})
+				}
+			},
+			_message: {
+				writable: true,   //设置属性是否可写，默认为true
+				configurable: false,  //设置属性是否可以配置，默认为true。当设置为false时不能用delete删除
+				enumerable: false,  //设置属性是否可以枚举，默认为true.即for-in循环对象的时候可以输出属性
+				value: 'Hello Vue!'       //默认值
+			}
+		});
+		input.addEventListener('input', () => {
+			Reflect.set(data, key, input.value);
+		});
+		p.innerText = '';
+		str.replace(/\{\{(.*?)\}\}/ig, '${{$1}}$').split('$').map((txt) => {
+			if (txt) {
+				const textNode = document.createTextNode(txt);
+				p.appendChild(textNode);
+				txt.replace(/\{\{(.*?)\}\}/ig, (a, b) => {
+					const key = b.replace(/(^\s*)|(\s*$)/g, '');
+					textNode.textContent = Reflect.get(data, key);
+					nodeList.push(textNode);
+				})
+			}
+		});
+	</script>
+</body>
+
+</html>
