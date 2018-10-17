@@ -1,0 +1,199 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <title>Cnavas拷贝SVG</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,body {
+            width: 100%;
+            height: 100%;
+            background-color: #f7f8fc;
+            display: flex;
+            flex-direction: row;
+        }
+        .outline {
+            outline: 2px solid red;
+            outline-offset: -2px;
+            cursor: pointer;
+        }
+        .neo4jd3 {
+            width: 50%;
+            height: 50%;
+            position: relative;
+        }
+
+        .neo4jd3 .nodes .text {
+            fill: #000000;
+            font-size: 12px;
+            pointer-events: none;
+            text-anchor: middle;
+            filter: url(#solid);
+        }
+
+        .neo4jd3 .nodes .click {
+            cursor: pointer;
+        }
+
+        .neo4jd3 .nodes .node {
+            fill: #FFFFFF;
+            transition: opacity 200ms ease-in;
+        }
+        .neo4jd3 .nodes .node .cur {
+            stroke: #FFCB51;
+            stroke-width: 2px;
+        }
+
+        .neo4jd3 .nodes .node .circle-bg {
+            filter: url(#dropshadow);
+        }
+
+        .neo4jd3 .nodes .node .ring {
+            opacity: 0;
+            fill: #888;
+            visibility: hidden;
+            transition: all 200ms ease-in;
+        }
+        .ico{
+            d:path('M24.114 19.622c-1.307 0-2.429-.672-2.887-1.622-.453.95-1.562 1.622-2.856 1.622-1.293 0-2.403-.672-2.856-1.622-.458.95-1.579 1.622-2.886 1.622-1.294 0-2.403-.672-2.856-1.622-.458.95-1.58 1.622-2.887 1.622-.308 0-.605-.04-.886-.11v5.377C6 25.39 6.656 26 7.247 26h16.506c.59 0 1.247-.611 1.247-1.11v-5.376a3.69 3.69 0 0 1-.886.108zM24.963 9H5.97L4 13.523C4 14.877 5.281 16 6.859 16c1.577 0 2.891-1.095 2.891-2.477 0 1.354 1.281 2.477 2.859 2.477 1.577 0 2.89-1.095 2.89-2.477 0 1.354 1.282 2.477 2.86 2.477 1.577 0 2.858-1.095 2.858-2.477C21.217 14.877 22.5 16 24.11 16 25.686 16 27 14.905 27 13.523L24.963 9zM6.964 8h16.072c.546 0 .964-.433.964-1s-.418-1-.964-1H6.964C6.418 6 6 6.433 6 7s.418 1 .964 1z');
+        }
+        .ico_expand{
+            d:path('M16.313 21H13l5.713-7.051L13 7h3.313L22 13.974 16.313 21zm-6.925 0H6.026l5.767-7.051L6 7h3.388L15 13.974 9.388 21z');
+        }
+        .ico_hide{
+            d: path('M14.41 11c-.157 0-.284 0-.41.032L16.968 14c.032-.126.032-.284.032-.41A2.561 2.561 0 0 0 14.41 11zm-.217-5C12.71 6 11.3 6.282 10 6.776l2.133 2.083c.614-.283 1.3-.424 2.06-.424 2.747 0 4.915 2.118 4.915 4.836 0 .706-.144 1.411-.433 2.011L21.458 18A11.028 11.028 0 0 0 25 13.27C23.373 9 19.108 6 14.193 6zM5.107 7.593l1.22 1.222A11.162 11.162 0 0 0 3 13.48c1.7 4.445 6.062 7.593 11.088 7.593 1.33 0 2.625-.222 3.807-.63L19.448 22 21 20.444 6.66 6 5.106 7.593zM9.309 12l1.818 1.828c.039 1.71 1.354 3.033 3.055 3.072L16 18.728c-.541.194-1.122.272-1.74.272C11.32 19 9 16.667 9 13.672c.039-.544.116-1.128.31-1.672z');
+        }
+        .neo4jd3 .nodes .node .ico_hide, .neo4jd3 .nodes .node .ico_expand {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 200ms ease-in;
+            fill: #8C99C1;
+            transform: rotate(180deg);
+        }
+
+        .neo4jd3 .nodes .node .ico_hide {
+            fill: #ffffff;
+        }
+
+        .neo4jd3 .nodes .node:hover .ring {
+            opacity: .8;
+            visibility: visible;
+        }
+
+        .neo4jd3 .nodes .node:hover .ico_hide,
+            .neo4jd3 .nodes .node:hover .ico_expand {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .neo4jd3 .relationships {
+            transition: opacity 400ms ease-in;
+        }
+
+        .neo4jd3 .relationships .relationship {
+            cursor: default;
+        }
+
+        .neo4jd3 .relationships .relationship .path {
+            stroke: #C1C1C1;
+            stroke-width: 1px;
+            transition: stroke 0.3s ease-in-out;
+        }
+
+        .neo4jd3 .relationships .relationship .text {
+            font-family: PingFangSC-Regular;
+            font-size: 10px;
+            fill: #636777;
+            text-anchor: middle;
+            transition: fill 0.3s ease-in-out;
+            filter: url(#solidLink);
+        }
+
+        .neo4jd3 .relationships .cur .path {
+            stroke: #447CFF;
+        }
+
+        .neo4jd3 .relationships .cur .text {
+            fill: #447CFF;
+        }
+
+        .neo4jd3 .relationships .relationship:hover .path {
+            stroke: #447CFF;
+        }
+
+        .neo4jd3 .relationships .relationship:hover .text {
+            fill: #447CFF;
+        }
+    </style>
+</head>
+
+<body>
+    <svg width="50%" height="50%" class="neo4jd3" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <filter x="0" y="0" width="1" height="1" id="solid">
+                <feFlood flood-color="white" />
+                <feComposite in="SourceGraphic" />
+            </filter>
+            <filter x="0" y="0" width="1" height="1" id="solidLink">
+                <feFlood flood-color="#f7f8fc" />
+                <feComposite in="SourceGraphic" />
+            </filter>
+            <filter id="dropshadow" x="-20.0%" y="-16.0%" width="140.0%" height="140.0%" filterUnits="objectBoundingBox">
+                <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+                <feGaussianBlur stdDeviation="3" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+                <feColorMatrix values="0 0 0 0 0.465883688   0 0 0 0 0.485345856   0 0 0 0 0.531276573  0 0 0 0.33873981 0"
+                    type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+            </filter>
+        </defs>
+        <g class="nodes" width="100%" height="100%">
+            <g class="node click" style="transform: translate(72px,65px);">
+                <text class="text" style="transform: translate(0px, 55px);">海底捞火锅（万达广场店）</text>
+                <circle r="65" class="ring"></circle>
+                <circle r="35" class="circle-bg"></circle>
+                <circle r="35" class="circle" style="fill: rgb(84, 134, 252);">
+                    <title>海底捞火锅（万达广场店）</title>
+                </circle>
+                <path class="ico" style="fill: rgb(255, 255, 255); transform: translate(-22.4px, -22.4px) scale(1.4);"></path>
+                <path class="ico_expand" style="fill: rgb(84, 134, 252); transform: translate(-63.8px, -16.8px) scale(1.2);"></path>
+                <path class="ico_hide" style="transform: translate(33.1px, -16.8px) scale(1.2);"></path>
+            </g>
+        </g>
+    </svg>
+    <script>
+        const box = document.querySelector('.neo4jd3');
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const DOMURL = window.URL || window.webkitURL || window;
+        box.addEventListener('mouseover', (ev) => {
+            if (ev.target !== box) {
+                ev.target.classList.add('outline');
+            }
+        });
+        box.addEventListener('mouseout', (ev) => {
+            const el = box.querySelector('.outline');
+            if (el) {
+                el.classList.remove('outline');
+            }
+        });
+        box.addEventListener('click', (ev) => {
+            const g = document.querySelector(".node").getBBox();
+            const width = g.width;
+            const height = g.height;
+            const data = `<svg xmlns="http://www.w3.org/2000/svg" class="neo4jd3" width="${width}" height="${height}">
+                                ${document.querySelector('style').outerHTML}
+                                ${document.querySelector('.neo4jd3').innerHTML}
+                            </svg>`;
+            const svg = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+            const url = DOMURL.createObjectURL(svg);
+            document.querySelector('#svgImg').setAttribute("xlink:href", url);
+        });
+    </script>
+</body>
+
+</html>

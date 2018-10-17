@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="yes" name="apple-touch-fullscreen">
+    <meta content="telephone=no,email=no" name="format-detection">
+    <title>CSS3水波纹加载</title>
+    <style type="text/css">
+        /**
+        *利用为元素旋转执行动画时进行大小缩放
+        */
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            padding: 5px;
+            border: 5px solid rgb(118, 218, 255);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .wave {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background-color: rgb(118, 218, 255);
+            border-radius: 50%;
+        }
+        .wave::before,
+        .wave::after {
+            content: "";
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            top: 0;
+            left: 50%;
+            background-color: rgba(255, 255, 255, .4);
+            border-radius: 45%;
+            transform: translate(-50%, -70%) rotate(0);
+            animation: rotate 6s linear infinite;
+            z-index: 10;
+        }
+
+        .wave::after {
+            border-radius: 47%;
+            background-color: rgba(255, 255, 255, .9);
+            transform: translate(-50%, -70%) rotate(0);
+            animation: rotate 10s linear -5s infinite;
+            z-index: 20;
+        }
+
+        @keyframes rotate {
+            50% {
+                transform: translate(-50%, -73%) rotate(180deg);
+            }
+
+            100% {
+                transform: translate(-50%, -70%) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="wave"></div>
+    </div>
+</body>
+
+</html>
