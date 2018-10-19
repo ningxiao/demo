@@ -15,8 +15,6 @@
             width: 100%;
             height: 100%;
             background-color: #f7f8fc;
-            display: flex;
-            flex-direction: row;
         }
         .outline {
             outline: 2px solid red;
@@ -24,8 +22,6 @@
             cursor: pointer;
         }
         .neo4jd3 {
-            width: 50%;
-            height: 50%;
             position: relative;
         }
 
@@ -59,9 +55,6 @@
             fill: #888;
             visibility: hidden;
             transition: all 200ms ease-in;
-        }
-        .ico{
-            d:path('M24.114 19.622c-1.307 0-2.429-.672-2.887-1.622-.453.95-1.562 1.622-2.856 1.622-1.293 0-2.403-.672-2.856-1.622-.458.95-1.579 1.622-2.886 1.622-1.294 0-2.403-.672-2.856-1.622-.458.95-1.58 1.622-2.887 1.622-.308 0-.605-.04-.886-.11v5.377C6 25.39 6.656 26 7.247 26h16.506c.59 0 1.247-.611 1.247-1.11v-5.376a3.69 3.69 0 0 1-.886.108zM24.963 9H5.97L4 13.523C4 14.877 5.281 16 6.859 16c1.577 0 2.891-1.095 2.891-2.477 0 1.354 1.281 2.477 2.859 2.477 1.577 0 2.89-1.095 2.89-2.477 0 1.354 1.282 2.477 2.86 2.477 1.577 0 2.858-1.095 2.858-2.477C21.217 14.877 22.5 16 24.11 16 25.686 16 27 14.905 27 13.523L24.963 9zM6.964 8h16.072c.546 0 .964-.433.964-1s-.418-1-.964-1H6.964C6.418 6 6 6.433 6 7s.418 1 .964 1z');
         }
         .ico_expand{
             d:path('M16.313 21H13l5.713-7.051L13 7h3.313L22 13.974 16.313 21zm-6.925 0H6.026l5.767-7.051L6 7h3.388L15 13.974 9.388 21z');
@@ -134,6 +127,50 @@
 </head>
 
 <body>
+    <svg width="280px" height="70px" class="neo4jd3" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <filter x="0" y="0" width="1" height="1" id="solid">
+                <feFlood flood-color="white" />
+                <feComposite in="SourceGraphic" />
+            </filter>
+            <filter x="0" y="0" width="1" height="1" id="solidLink">
+                <feFlood flood-color="#f7f8fc" />
+                <feComposite in="SourceGraphic" />
+            </filter>
+            <filter id="dropshadow" x="-20.0%" y="-16.0%" width="140.0%" height="140.0%" filterUnits="objectBoundingBox">
+                <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+                <feGaussianBlur stdDeviation="3" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+                <feColorMatrix values="0 0 0 0 0.465883688   0 0 0 0 0.485345856   0 0 0 0 0.531276573  0 0 0 0.33873981 0"
+                    type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+            </filter>
+        </defs>
+        <g class="nodes" width="100%" height="100%">
+            <g class="node click" style="transform: translate(35px,35px);">
+                <circle r="35" class="circle-bg"></circle>
+                <circle r="35" class="circle" style="fill: rgb(84, 134, 252);"></circle>
+                <path class="ico" d="M24.114 19.622c-1.307 0-2.429-.672-2.887-1.622-.453.95-1.562 1.622-2.856 1.622-1.293 0-2.403-.672-2.856-1.622-.458.95-1.579 1.622-2.886 1.622-1.294 0-2.403-.672-2.856-1.622-.458.95-1.58 1.622-2.887 1.622-.308 0-.605-.04-.886-.11v5.377C6 25.39 6.656 26 7.247 26h16.506c.59 0 1.247-.611 1.247-1.11v-5.376a3.69 3.69 0 0 1-.886.108zM24.963 9H5.97L4 13.523C4 14.877 5.281 16 6.859 16c1.577 0 2.891-1.095 2.891-2.477 0 1.354 1.281 2.477 2.859 2.477 1.577 0 2.89-1.095 2.89-2.477 0 1.354 1.282 2.477 2.86 2.477 1.577 0 2.858-1.095 2.858-2.477C21.217 14.877 22.5 16 24.11 16 25.686 16 27 14.905 27 13.523L24.963 9zM6.964 8h16.072c.546 0 .964-.433.964-1s-.418-1-.964-1H6.964C6.418 6 6 6.433 6 7s.418 1 .964 1z"
+                    style="fill: rgb(255, 255, 255); transform: translate(-22.4px, -22.4px) scale(1.4);"></path>
+            </g>
+            <g class="node click" style="transform: translate(105px,35px);">
+                <circle r="35" class="circle-bg"></circle>
+                <circle r="35" class="circle" style="fill: rgb(84, 134, 252);"></circle>
+                <path class="ico" d="M28.807 23.871H2.993a.996.996 0 0 0-.993.993c0 .546.447.993.993.993h25.814a.996.996 0 0 0 .993-.993.996.996 0 0 0-.993-.993zM4.98 22.88H26.82c.55 0 .993-.444.993-.993v-.993c0-6.022-4.474-10.987-10.276-11.787.217-.32.348-.705.348-1.12C17.886 6.89 16.996 6 15.9 6c-1.095 0-1.986.89-1.986 1.986 0 .415.127.8.348 1.12-5.802.8-10.276 5.765-10.276 11.787v.993c0 .549.443.993.993.993zm2.345-6.274a9.665 9.665 0 0 1 4.288-4.288.661.661 0 0 1 .593 1.182 8.344 8.344 0 0 0-3.699 3.699.66.66 0 1 1-1.182-.593z"
+                    style="fill: rgb(255, 255, 255); transform: translate(-22.4px, -22.4px) scale(1.4);"></path>
+            </g>
+            <g class="node click" style="transform: translate(175px,35px);">
+                <circle r="35" class="circle-bg"></circle>
+                <circle r="35" class="circle" style="fill: rgb(84, 134, 252);"></circle>
+                <path class="ico" d="M23.548 17.58c0-.45-.15-.837-.472-1.18L13.86 7.204c-.322-.322-.773-.601-1.31-.838-.559-.236-1.053-.343-1.504-.343h-5.37c-.452 0-.838.172-1.16.494a1.592 1.592 0 0 0-.495 1.16v5.349c0 .45.108.966.344 1.503.236.559.494.989.838 1.31l9.216 9.216c.322.323.708.473 1.16.473.45 0 .837-.15 1.181-.473l6.316-6.315c.3-.322.472-.71.472-1.16zM9.306 11.33a1.572 1.572 0 0 1-1.16.472c-.451 0-.838-.15-1.16-.472a1.572 1.572 0 0 1-.473-1.16c0-.451.15-.838.473-1.16a1.572 1.572 0 0 1 1.16-.473c.451 0 .838.15 1.16.473.322.322.473.709.473 1.16.021.45-.15.837-.473 1.16zm18.71 5.07l-9.215-9.195c-.322-.322-.774-.601-1.31-.838-.56-.236-1.053-.343-1.504-.343h-2.9c.45 0 .966.107 1.503.343.559.237.989.495 1.31.838l9.216 9.194c.323.344.473.73.473 1.182 0 .45-.15.838-.473 1.16l-6.036 6.058c.258.257.494.45.687.58.194.129.452.172.752.172.451 0 .838-.15 1.182-.473l6.315-6.337c.323-.322.473-.71.473-1.16 0-.451-.15-.838-.473-1.182z"
+                    style="fill: rgb(255, 255, 255); transform: translate(-22.4px, -22.4px) scale(1.4);"></path>
+            </g>
+            <g class="node click" style="transform: translate(245px,35px);">
+                <circle r="35" class="circle-bg"></circle>
+                <circle r="35" class="circle" style="fill: rgb(84, 134, 252);"></circle>
+                <path class="ico" d="M25.001 4.005H7.004c-2.209 0-4 1.79-4 4V21c0 2.21 1.791 4 4 4v5l8.03-4.997H25a3.999 3.999 0 0 0 3.997-4V8.003c0-2.209-1.789-3.999-3.997-3.999zM9.751 15.916a1.444 1.444 0 1 1 0-2.889 1.444 1.444 0 0 1 0 2.89zm6.259 0a1.444 1.444 0 1 1 0-2.889 1.444 1.444 0 0 1 0 2.89zm6.259 0a1.445 1.445 0 1 1 .001-2.89 1.445 1.445 0 0 1-.001 2.89z"
+                    style="fill: rgb(255, 255, 255); transform: translate(-22.4px, -22.4px) scale(1.4);"></path>
+            </g>
+        </g>
+    </svg>
     <svg width="50%" height="50%" class="neo4jd3" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <filter x="0" y="0" width="1" height="1" id="solid">
@@ -152,14 +189,9 @@
             </filter>
         </defs>
         <g class="nodes" width="100%" height="100%">
-            <g class="node click" style="transform: translate(72px,65px);">
-                <text class="text" style="transform: translate(0px, 55px);">海底捞火锅（万达广场店）</text>
+            <g class="node click" style="transform: translate(50%,50%);">
                 <circle r="65" class="ring"></circle>
-                <circle r="35" class="circle-bg"></circle>
-                <circle r="35" class="circle" style="fill: rgb(84, 134, 252);">
-                    <title>海底捞火锅（万达广场店）</title>
-                </circle>
-                <path class="ico" style="fill: rgb(255, 255, 255); transform: translate(-22.4px, -22.4px) scale(1.4);"></path>
+                <image id="svgImg" xlink:href="" x="-35px" y="-35px" height="70" width="70" />
                 <path class="ico_expand" style="fill: rgb(84, 134, 252); transform: translate(-63.8px, -16.8px) scale(1.2);"></path>
                 <path class="ico_hide" style="transform: translate(33.1px, -16.8px) scale(1.2);"></path>
             </g>
@@ -170,19 +202,33 @@
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         const DOMURL = window.URL || window.webkitURL || window;
-        box.addEventListener('mouseover', (ev) => {
-            if (ev.target !== box) {
-                ev.target.classList.add('outline');
-            }
-        });
-        box.addEventListener('mouseout', (ev) => {
-            const el = box.querySelector('.outline');
-            if (el) {
-                el.classList.remove('outline');
-            }
-        });
+        const dpr = window.devicePixelRatio || 1;
+        let sum = 0;
+        const imgBase64 = (img, sx, sy, swidth, sheight, x, y, width, height) => {
+            // canvas绘制
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.style.cssText = `width:${width}px;height:${height}px`;
+            // 画布清除
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            // 绘制图片到canvas
+            context.drawImage(img, sx, sy, swidth, sheight, x, y, canvas.width, canvas.height);
+            canvas.toBlob(blob => {
+                console.log(blob.size);
+                const img = new Image();
+                img.src = DOMURL.createObjectURL(blob);
+                img.style.cssText = `margin: 2px;width: ${swidth}px;height: ${sheight}px;`;
+                document.body.appendChild(img);
+                document.querySelector('#svgImg').setAttribute("xlink:href", img.src);
+                sum--;
+                if (sum <= 0) {
+                    console.timeEnd('绘制耗时');
+                }
+            });
+        }
         box.addEventListener('click', (ev) => {
-            const g = document.querySelector(".node").getBBox();
+            console.time('绘制耗时');
+            const g = box.getBBox();
             const width = g.width;
             const height = g.height;
             const data = `<svg xmlns="http://www.w3.org/2000/svg" class="neo4jd3" width="${width}" height="${height}">
@@ -191,7 +237,19 @@
                             </svg>`;
             const svg = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
             const url = DOMURL.createObjectURL(svg);
-            document.querySelector('#svgImg').setAttribute("xlink:href", url);
+            const img = new Image();
+            img.onload = function () {
+                const size = img.width / 70;
+                sum = size;
+                console.log(svg.size);
+                for (let i = 0; i < size; i++) {
+                    imgBase64(img, i * 70, 0, 70, 70, 0, 0, 70, 70);
+                }
+                document.body.appendChild(img);
+                DOMURL.revokeObjectURL(url);
+            }
+            img.src = url;
+            // document.querySelector('#svgImg').setAttribute("xlink:href", url);
         });
     </script>
 </body>
