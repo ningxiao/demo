@@ -1,0 +1,49 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <title>SVG结合IMG</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,body {
+            width: 100%;
+            height: 100%;
+            background-color: #f7f8fc;
+        }
+    </style>
+</head>
+
+<body>
+    <svg width="100" height="100" class="neo4jd3" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <image xlink:href="http://127.0.0.1:8080/apple_iphone/images/bg.png" x="0" y="0" height="100" width="100" />  	
+    </svg>
+    <script>
+        document.body.addEventListener('click', (ev) => {
+            console.time('绘制耗时');
+            const width = 100;
+            const height = 100;
+            const data = `<svg xmlns="http://www.w3.org/2000/svg" class="neo4jd3" width="${width}" height="${height}">
+                                ${document.querySelector('style').outerHTML}
+                                ${document.querySelector('.neo4jd3').innerHTML}
+                            </svg>`;
+            const svg = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+            const url = window.URL.createObjectURL(svg);
+            const img = new Image();
+            img.onload = function () {
+                // window.URL.revokeObjectURL(url);
+            }
+            img.src = url;
+            document.body.appendChild(img);
+            console.log(img);
+            console.timeEnd('绘制耗时');
+        });
+    </script>
+</body>
+
+</html>

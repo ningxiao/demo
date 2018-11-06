@@ -23,13 +23,15 @@
     //透视相机
     camera = new THREE.PerspectiveCamera(75,w/h,0.1,1000);
     //执行渲染器
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({
+        antialias : true
+    });
     //创建一个几何体
     geometry = new THREE.CubeGeometry(1,1,1);
     material = new THREE.MeshBasicMaterial({color: 0xff0000});
-    //讲渲染对象和纹理对象
+    //将渲染对象和纹理对象
     cube = new THREE.Mesh(geometry, material);
-    //讲对象添加到场景
+    //将对象添加到场景
     scene.add(cube);
     //设置相机Z
     camera.position.z = 5;

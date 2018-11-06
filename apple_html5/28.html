@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>鼠标穿透</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<div id="main" style="width: 100%;height:100%;"></div>
+
+<body>
+    <script type="text/javascript" src="./js/echarts.min.js"></script>
+    <script type="text/javascript" src="./js/china.js"></script>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        const rect = document.querySelector('#main').getBoundingClientRect();
+        const canvas01 = document.createElement('canvas');
+        const dpr = window.devicePixelRatio || 1;
+        const canvas02 = document.createElement('canvas');
+        const scale = 0.5;
+        const DEFAULT_FONTSIZE = scale * 24;
+        canvas02.width = canvas01.width = rect.width * dpr;
+        canvas02.height = canvas01.height = rect.height * dpr;
+    </script>
+    <script type="text/javascript">
+        const myChart01 = echarts.init(canvas01);
+        // 使用刚指定的配置项和数据显示图表。
+        myChart01.setOption({
+            geo: [{
+                map: 'china',
+                roam: true,
+                nameTextStyle: {
+                    color: 'rgba(255, 255, 255, 0)',
+                },
+                label: {
+                    normal: {
+                        show: false,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        fontSize: DEFAULT_FONTSIZE,
+                    },
+                    emphasis: {
+                        show: false,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                    },
+                },
+                itemStyle: {
+                    normal: {
+                        show: true,
+                        areaColor: 'rgba(84, 176, 255, 0)',
+                        borderColor: 'red',
+                        borderWidth: Math.round(scale * 3),
+                    },
+                    emphasis: {
+                        areaColor: 'rgba(50, 100, 200, 0.8)',
+                        shadowColor: 'rgba(0, 0, 0, 0.5)',
+                        shadowBlur: Math.round(scale * 8),
+                    },
+                },
+            }],
+            series: []
+        });
+        // myChart01.on('mouseover', () => {
+        //     console.log('mouseover');
+        // });
+        // myChart01.on('mouseout', () => {
+        //     console.log('mouseout');
+        // });
+        // myChart01.on('mousemove', (ev) => {
+        //     console.log('mousemove', ev);
+        // });
+    </script>
+    <script type="text/javascript">
+
+        const myChart02 = echarts.init(canvas02);
+        // 使用刚指定的配置项和数据显示图表。
+        myChart02.setOption({
+            geo: [{
+                map: 'china',
+                roam: true,
+                nameTextStyle: {
+                    color: 'rgba(255, 255, 255, 0)',
+                },
+                label: {
+                    normal: {
+                        show: false,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        fontSize: DEFAULT_FONTSIZE,
+                    },
+                    emphasis: {
+                        show: false,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                    },
+                },
+                itemStyle: {
+                    normal: {
+                        show: true,
+                        areaColor: 'rgba(84, 176, 255, 1)',
+                        borderColor: 'rgba(84, 176, 255, 0)',
+                        borderWidth: Math.round(scale * 3),
+                    },
+                    emphasis: {
+                        areaColor: 'rgba(50, 100, 200, 0.8)',
+                        shadowColor: 'rgba(0, 0, 0, 0.5)',
+                        shadowBlur: Math.round(scale * 8),
+                    },
+                },
+            }],
+            series: []
+        });
+    </script>
+    <script>
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const drawCanvas = [canvas02, canvas01];
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        canvas.style.cssText = `width:${rect.width}px;height:${rect.height}px`;
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCanvas.forEach(canvas => {
+                ctx.drawImage(canvas, 0, 0);
+            });
+            requestAnimationFrame(animate); // 循环渲染
+        }
+        document.querySelector('#main').appendChild(canvas);
+        document.body.addEventListener("mousewheel", function (ev) {
+            // 在mapCanvas上模拟鼠标事件，这里或许有更好的方法
+            console.log(ev);
+            const virtualEvent = document.createEvent(
+                'MouseEvents'
+            );
+            virtualEvent.initMouseEvent(
+                'mousewheel',
+                false,
+                true,
+                document.defaultView,
+                1,
+                ev.screenX * 2,
+                ev.screenY * 2,
+                ev.clientX * 2,
+                ev.clientY * 2,
+                false,
+                false,
+                false,
+                false,
+                0,
+                null
+            );
+            virtualEvent.wheelDelta = ev.wheelDelta;	
+            drawCanvas[1].dispatchEvent(virtualEvent);
+            drawCanvas[0].dispatchEvent(virtualEvent);
+        }, false);
+        document.body.addEventListener('mousemove', function (ev) {
+            // 在mapCanvas上模拟鼠标事件，这里或许有更好的方法
+            const virtualEvent = document.createEvent(
+                'MouseEvents'
+            );
+            virtualEvent.initMouseEvent(
+                'mousemove',
+                false,
+                true,
+                document.defaultView,
+                1,
+                ev.screenX * 2,
+                ev.screenY * 2,
+                ev.clientX * 2,
+                ev.clientY * 2,
+                false,
+                false,
+                false,
+                false,
+                0,
+                null
+            );
+            drawCanvas[1].dispatchEvent(virtualEvent);
+        }, false);
+        animate();
+    </script>
+</body>
+
+</html>

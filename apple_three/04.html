@@ -1,0 +1,58 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>three3D-透视投影相机</title>
+    <meta name="author" content="Administrator" />
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+    <script type="text/javascript" src="js/three.js"></script>
+    <script type="text/javascript" src="js/libs/stats.min.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript">
+        //创建一个几何体
+        const geometry = new THREE.CubeGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            wireframe: true
+        });
+        //将渲染对象和纹理对象
+        const cube = new THREE.Mesh(geometry, material);
+        // 场景
+        const scene = new THREE.Scene();
+        // 渲染器
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(400, 300);
+        document.body.appendChild(renderer.domElement);
+        // 照相机 透视投影相机 摄像机的视角、宽高比、近和远两个视截面。
+        // 视角由45度变为60度，发现立方体变小了，很容易理解，视角变大之后，可以看到的范围变大了，但是立方体本身的大小没有变，那么相对于整个投影来说，立方体就变小了
+        // fov视景体竖直方向上的张角（是角度制而非弧度制）
+        // aspect等于width / height，是照相机水平方向和竖直方向长度的比值，通常设为Canvas的横纵比例
+        // near和far分别是照相机到视景体最近、最远的距离，均为正值，且far应大于near
+        // THREE.PerspectiveCamera(fov, aspect, near, far)
+        const camera = new THREE.PerspectiveCamera(45, 400 / 300, 1, 10);
+        // 设置相机的位置 仰望这个正方体
+        camera.position.set(0, 0, 5);
+        scene.add(camera);
+        //将对象添加到场景
+        scene.add(cube);
+        renderer.render(scene, camera);
+    </script>
+</body>
+
+</html>

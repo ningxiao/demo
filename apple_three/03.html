@@ -1,0 +1,60 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>three3D-正交相机</title>
+    <meta name="author" content="Administrator" />
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+    <script type="text/javascript" src="js/three.js"></script>
+    <script type="text/javascript" src="js/libs/stats.min.js"></script>
+</head>
+
+<body>
+    <script type="text/javascript">
+        //创建一个几何体
+        const geometry = new THREE.CubeGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            wireframe: true
+        });
+        //将渲染对象和纹理对象
+        const cube = new THREE.Mesh(geometry, material);
+        // 场景
+        const scene = new THREE.Scene();
+        // 渲染器
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(400, 300);
+        document.body.appendChild(renderer.domElement);
+        // 照相机 透视投影相机 摄像机的视角、宽高比、近和远两个视截面。
+        // 视角由45度变为60度，发现立方体变小了，很容易理解，视角变大之后，可以看到的范围变大了，但是立方体本身的大小没有变，那么相对于整个投影来说，立方体就变小了
+        // const camera = new THREE.PerspectiveCamera(45, 4 / 3, 1, 10000);
+        // THREE.OrthographicCamera(left, right, top, bottom, near, far)
+        // 正交相机 需要保证(right - left)与(top - bottom)的比例与Canvas宽度与高度的比例一致
+        // near与far都是指到照相机位置在深度平面的位置，而照相机不应该拍摄到其后方的物体，因此这两个值应该均为正值
+        const camera = new THREE.OrthographicCamera(-2, 2, 1.5, -1.5, 1, 10);
+        // 设置相机的位置 仰望这个正方体
+        camera.position.set(4, -3, 5);
+        // 通过lookAt函数指定它看着原点方向
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        scene.add(camera);
+        //将对象添加到场景
+        scene.add(cube);
+        renderer.render(scene, camera);
+    </script>
+</body>
+
+</html>
