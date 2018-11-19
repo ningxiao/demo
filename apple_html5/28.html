@@ -80,6 +80,12 @@
         // myChart01.on('mousemove', (ev) => {
         //     console.log('mousemove', ev);
         // });
+        myChart01.on('mouseup', (ev) => {
+            console.log('mouseup', ev);
+        });
+        // canvas01.addEventListener('click',(ev)=>{
+        //     console.log('---',ev);
+        // });
     </script>
     <script type="text/javascript">
 
@@ -169,6 +175,30 @@
             );
             virtualEvent.initMouseEvent(
                 'mousemove',
+                false,
+                true,
+                document.defaultView,
+                1,
+                ev.screenX * 2,
+                ev.screenY * 2,
+                ev.clientX * 2,
+                ev.clientY * 2,
+                false,
+                false,
+                false,
+                false,
+                0,
+                null
+            );
+            drawCanvas[1].dispatchEvent(virtualEvent);
+        }, false);
+        document.body.addEventListener('mouseup', function (ev) {
+            // 在mapCanvas上模拟鼠标事件，这里或许有更好的方法
+            const virtualEvent = document.createEvent(
+                'MouseEvents'
+            );
+            virtualEvent.initMouseEvent(
+                'mouseup',
                 false,
                 true,
                 document.defaultView,
