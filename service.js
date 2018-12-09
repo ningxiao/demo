@@ -12,7 +12,7 @@ var http = require('http');
 var zlib = require("zlib");
 var path = require('path');
 var cluster = require('cluster');
-var httpserver, port = 8080,
+var httpserver, port = 80,
 	reqs = 0,
 	pids = {};
 const mimemap = {
@@ -44,7 +44,7 @@ const mimemap = {
 	"appcache": "text/cache-manifest",
 	"manifest": "text/cache-manifest"
 };
-const titles = [new Buffer("请求参数不全!"), new Buffer("请求文件不存在!"), new Buffer("文件损坏!")];
+const titles = [Buffer.from("请求参数不全!"), Buffer.from("请求文件不存在!"), Buffer.from("文件损坏!")];
 const iszip = /^(htm|html|js|css)$/ig;
 const rulemap = {
 	"static.hd.baofeng.com": /\_(.[\d_]+?)\./ig
@@ -62,9 +62,9 @@ const routing = {
 				pid: process.pid,
 				pids: pids
 			}
-			buf = new Buffer(JSON.stringify(json));
+			buf = Buffer.from(JSON.stringify(json));
 		} else {
-			buf = new Buffer("对不起不存在此人!");
+			buf = Buffer.from("对不起不存在此人!");
 		}
 		response.writeHead(200, {
 			'Content-Length': buf.length,

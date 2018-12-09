@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <title>canvas版点聚合</title>
+    <style type="text/css">
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            background-size: 100% 100%;
+        }
+
+        .box {
+            position: relative;
+            width: 600px;
+            height: 600px;
+        }
+
+        .grid {
+            /* display: flex;
+            flex-direction: row; */
+            width: 100%;
+            height: 100%;
+        }
+
+        .column {
+            width: 100%;
+            position: absolute;
+            display: flex;
+            justify-content: space-between;
+            transform: translate(0, -100%);
+        }
+
+        .row {
+            position: absolute;
+            right: 0px;
+            transform: translate(100%, 0);
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column>span,
+        .row>span {
+            color: #0000ff;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+    <div class="box">
+        <div class="column">
+            <span>1</span>
+        </div>
+        <div class="row">
+            <span>1</span>
+        </div>
+        <canvas></canvas>
+    </div>
+    <script>
+        const rect = document.documentElement.getBoundingClientRect();
+        const utils = {
+            get width() {
+                return rect.width;
+            },
+            get height() {
+                return rect.height;
+            },
+            get dpr() {
+                return window.devicePixelRatio || 1;
+            },
+            montecarlo() {
+                while (true) {
+                    let r1 = Math.random(1);
+                    if (Math.random(1) < r1) {
+                        return r1;
+                    }
+                }
+            },
+            ratio(ctx) {
+                return utils.dpr / (ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1);
+            },
+            eventWrapper(ev) {
+                // 点击位置到浏览器可视区的位置 offsetX 鼠标相当于元素的坐标
+                let { pageX, pageY, target } = ev;
+                // 元素到浏览器的距离
+                let { left, top } = target.getBoundingClientRect();
+                return { x: pageX - left, y: pageY - top };
+            }
+        }
+        window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+            setTimeout(callback, 1000 / 60);
+        });
+        window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);
+        const map = ((
+            row, column
+        ) => {
+            const list = [];
+            for (let i = 0; i < row; i++) {
+                let s = [];
+                for (let k = 0; k < column; k++) {
+                    s.push({
+                        box: null,
+                        group: null,
+                        points: []
+                    });
+                }
+                list.push(s);
+            }
+            return list;
+        })(14, 14);
+        const resizeMap = () => {
+            const column = map.length;
+            const row = map[0].length;
+            for (let i = 0; i < row; i++) {
+                for (let k = 0; k < column; k++) {
+                    map[i][k] = {
+                        box: null,
+                        group: null,
+                        points: []
+                    };
+                }
+            }
+        }
+    </script>
+    <script>
+        class Point {
+            constructor(x = 0, y = 0, r = 2, color = '#ff0000') {
+                this.x = x;
+                this.y = y;
+                this.r = r;
+                this.color = color;
+                this.title;
+                this.visible = true;
+                this.auto = false;
+                this.sum = 0;
+                this.random();
+            }
+            random() {
+                if (Math.random() > 0.5) {
+                    this.dx = -0.2;
+                } else {
+                    this.dx = 0.2;
+                }
+                if (Math.random() > 0.5) {
+                    this.dy = -0.2;
+                } else {
+                    this.dy = 0.2;
+                }
+            }
+            walk() {
+                this.x += this.dx;
+                this.y += this.dy;
+            }
+            draw(ctx) {
+                if (this.visible) {
+                    ctx.save(); //保存画笔状态
+                    ctx.beginPath();
+                    ctx.fillStyle = this.color;
+                    if (this.auto) {
+                        this.sum++;
+                        if (this.sum > 60) {
+                            this.random();
+                            this.sum = 0;
+                        }
+                        this.walk();
+                    }
+                    ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, true);
+                    ctx.fill();
+                    if (this.title) {
+                        ctx.fillStyle = '#ff0000';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(this.title, this.x, this.y);
+                    }
+                    ctx.restore(); //绘制结束以后，恢复画笔状态  
+                }
+            }
+        }
+        class Square {
+            constructor(x = 0, y = 0, w = 0, h = 0) {
+                this.x = x;
+                this.y = y;
+                this.w = w;
+                this.h = h;
+                this.vx = 0;
+                this.vy = 0;
+                this.color = ['#000000', '#4CAF50', '#E91E63', '#00bcd4'];
+                this.title = ['f=0.0', 'g=0.0', 'h=0.0'];
+                this.type = 0;// 0障碍物 1起点 2结束点 3通过点
+                this.visible = true;
+            }
+            draw(ctx) {
+                if (this.visible) {
+                    ctx.save(); //保存画笔状态
+                    ctx.fillStyle = this.color[this.type];
+                    ctx.fillRect(this.x, this.y, this.w, this.h);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '10px Arial';
+                    ctx.textBaseline = 'top';
+                    for (let i = 0; i < this.title.length; i++) {
+                        ctx.fillText(this.title[i], this.x + 2, this.y + 2 + i * 10);
+                    }
+                    ctx.restore(); //绘制结束以后，恢复画笔状态  
+                }
+            }
+        }
+    </script>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        const ratio = utils.ratio(ctx);
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        ctx.scale(ratio, ratio);
+        const childNode = [];
+        const drawSquare = (x, y, w, h, bool) => {
+            ctx.save(); //保存画笔状态
+            ctx.fillRect(x, y, w, h);
+            ctx.restore(); //绘制结束以后，恢复画笔状态  
+        }
+        const countSquare = (w, h, map) => {
+            return (ex, ey) => {
+                const row = ~~(ey / h);
+                const column = ~~(ex / w);
+                const y = row * h;
+                const x = column * w;
+                const box = map[row][column].box;
+                if (box instanceof Square) {
+                    box.visible = !box.visible;
+                } else {
+                    let square = new Square(x, y, w, h);
+                    square.type = box;
+                    square.vx = column;
+                    square.vy = row;
+                    map[row][column].box = square;
+                    childNode.unshift(square);
+                }
+                return { y, x, w, h, row, column };
+            };
+        };
+        (() => {
+            const row = map.length; // 行
+            const column = map[0].length; // 列
+            const rowMark = document.querySelector('.row');
+            const columnMark = document.querySelector('.column');
+            ctx.save(); //保存画笔状态
+            ctx.beginPath();
+            ctx.strokeStyle = '#0000ff';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(1, 1);
+            ctx.lineTo(width - 1, 1);
+            ctx.lineTo(width - 1, height - 1);
+            ctx.lineTo(1, height - 1);
+            ctx.lineTo(1, 1);
+            let x = 0;
+            let y = 0;
+            let rsize = height / row;
+            let html = '';
+            let i;
+            for (i = 1; i < row; i++) {
+                y = i * rsize;
+                ctx.moveTo(1, y);
+                ctx.lineTo(width - 1, y);
+                html += `<span>${i}</span>`;
+            }
+            html += `<span>${i}</span>`;
+            rowMark.innerHTML = html;
+            html = '';
+            let csize = width / column;
+            for (i = 1; i < column; i++) {
+                x = i * csize;
+                ctx.moveTo(x, 1);
+                ctx.lineTo(x, height - 1);
+                html += `<span>${i}</span>`;
+            }
+            html += `<span>${i}</span>`;
+            columnMark.innerHTML = html;
+            const square = countSquare(csize, rsize, map);
+            ctx.stroke();
+            ctx.restore(); //绘制结束以后，恢复画笔状态  
+            canvas.toBlob(blob => { // 使用二进制地址 清理URL.revokeObjectURL(url);
+                canvas.style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
+                // canvas.addEventListener('click', function (ev) {
+                //     ev.preventDefault();
+                //     square(ev.offsetX, ev.offsetY);
+                // });
+                console.time('海量点聚合');
+                createPoint(csize, rsize, map);
+                console.timeEnd('海量点聚合');
+                window.requestAnimationFrame(engine);
+            });
+        })();
+        const createGroup = (csize, rsize, map) => {
+            const column = map.length;
+            const row = map[0].length;
+            const mean = (data) => {
+                let sumx = 0;
+                let sumy = 0;
+                const size = data.length;
+                for (let i = 0; i < size; i++) {
+                    let point = data[i];
+                    sumx += point.x;
+                    sumy += point.y;
+                }
+                return {
+                    cx: sumx / size,
+                    cy: sumy / size
+                }
+            }
+            let sum = 0;
+            let max = 0;
+            let min = Infinity;
+            for (let i = 0; i < row; i++) {
+                for (let k = 0; k < column; k++) {
+                    let vo = map[i][k];
+                    let size = vo.points.length;
+                    if (size) {
+                        min = Math.min(min, size);
+                        max = Math.max(max, size);
+                        let { cx, cy } = mean(vo.points);
+                        let group = new Point(cx, cy, 10, 'rgba(0, 0, 0, 0.5)');
+                        sum += size;
+                        group.title = `${size}`;
+                        vo.group = group;
+                        childNode.unshift(group);
+                    }
+                }
+            }
+            console.log('聚合统计', sum, '最多聚合点', max, '最小聚合点', min);
+        }
+        const createPoint = (csize, rsize, map) => {
+            let x;
+            let y;
+            let row;
+            let column;
+            let point;
+            for (let i = 0; i < 500; i++) {
+                x = ~~(Math.random() * width);
+                y = ~~(Math.random() * height);
+                row = ~~(y / rsize);
+                column = ~~(x / csize);
+                point = new Point(x, y, 2);
+                // point.auto = true;
+                childNode.unshift(point);
+                map[row][column].points.unshift(point);
+            }
+            createGroup(csize, rsize, map);
+        }
+        const engine = () => {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = childNode.length - 1; i >= 0; i--) {
+                childNode[i].draw(ctx);
+            };
+            window.requestAnimationFrame(engine);
+        }
+    </script>
+    </body>
+
+</html>
