@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>3D地球</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes scenes1-data-v-b3c8786e {
+            0% {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        .home {
+            height: 100%;
+            background: #202034;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .scenes {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            flex-direction: row;
+            perspective: 800px;
+            background-image: url(./image/bg-stars-large.png);
+            background-position: 50%;
+            background-size: cover;
+        }
+
+        .earth {
+            flex: 1;
+            position: relative;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .earth:before {
+            content: "";
+            float: left;
+            padding-bottom: 100%;
+        }
+
+        .earth:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .back-glow {
+            position: absolute;
+            z-index: 0;
+            width: 67%;
+            min-width: 660px;
+            max-width: 960px;
+            background-size: cover;
+            background-image: url(./image/globe-backglow.png);
+            opacity: 0;
+            animation: scenes1-data-v-b3c8786e .6s ease-in 1s forwards;
+            pointer-events: none;
+        }
+
+        .back-glow:before {
+            content: "";
+            float: left;
+            padding-bottom: 100%;
+        }
+
+        .back-glow:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .inner {
+            position: absolute;
+            width: 50%;
+            z-index: 10;
+            min-width: 600px;
+            max-width: 948px;
+        }
+
+        .inner:before {
+            content: "";
+            float: left;
+            padding-bottom: 100%;
+        }
+
+        .inner:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .top-glow {
+            width: 50%;
+            min-width: 600px;
+            max-width: 948px;
+            z-index: 11;
+            position: absolute;
+            background-size: 89%;
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-image: url(./image/globe-topglow.png);
+            pointer-events: none;
+            transform: translateY(-34px);
+            opacity: 0;
+            animation: scenes1-data-v-b3c8786e .6s ease-in 1s forwards;
+        }
+
+        .top-glow:before {
+            content: "";
+            float: left;
+            padding-bottom: 112.37410072%;
+        }
+
+        .top-glow:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="home">
+        <div class="scenes">
+            <div class="earth">
+                <div class="back-glow"></div>
+                <div id="stage" class="inner"></div>
+                <div id="topglow" class="top-glow"></div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/three.min.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+    <script src="./js/Tween.min.js"></script>
+    <script>
+        let camera;
+        let controls;
+        let sphere;
+        let clouds;
+        let spotLight;
+        const earth = './image/earth.jpg';
+        const earth_bump = './image/earth-bump.jpg';
+        const stage = document.querySelector('#stage');
+        const topglow = document.querySelector('#topglow');
+        const aspect = {
+            width: window.innerWidth,
+            height: window.innerHeight
+        };
+        const radius = 0.511;
+        const segments = 64;
+        const rotation = 6;
+        const scene = new THREE.Scene();
+        const group = new THREE.Group();
+        const renderer = new THREE.WebGLRenderer({
+            alpha: true,
+            antialias: true,
+            preserveDrawingBuffer: true
+        });
+        const animate = () => {
+            requestAnimationFrame(() => {
+                spotLight.position.set(
+                    camera.position.x,
+                    camera.position.y,
+                    camera.position.z
+                );
+                TWEEN.update();
+                renderer.render(scene, camera);
+                controls.update();
+                animate();
+            });
+        }
+        const createSphere = (radius, segments) => {
+            // 创建网格对象
+            return new THREE.Mesh(
+                // 几何对象
+                new THREE.SphereBufferGeometry(
+                    radius,
+                    segments,
+                    segments
+                ),
+                // 材质
+                new THREE.MeshPhongMaterial({
+                    map: THREE.ImageUtils.loadTexture(earth),
+                    bumpMap: THREE.ImageUtils.loadTexture(earth_bump),
+                    bumpScale: 0.0015,
+                    specular: new THREE.Color('#909090'),
+                    shininess: 5,
+                    transparent: true
+                })
+            );
+        }
+        const initControls = () => {
+            controls = new THREE.OrbitControls(
+                camera,
+                renderer.domElement
+            );
+
+            controls.rotateSpeed = 0.3;
+            controls.enabled = true;
+
+            // 如果使用animate方法时，将此函数删除
+            // controls.addEventListener( 'change', render );
+            // 使动画循环使用时阻尼或自转 意思是否有惯性
+            controls.enableDamping = true;
+            controls.autoRotateSpeed = 0.5;
+            // 动态阻尼系数 就是鼠标拖拽旋转灵敏度
+            // controls.dampingFactor = 0.25;
+            // 是否可以缩放
+            // this.controls.enableZoom = true;
+            // 是否自动旋转
+            controls.autoRotate = true;
+            // 设置相机距离原点的最远距离
+            controls.minDistance = 1;
+            // 设置相机距离原点的最远距离
+            controls.maxDistance = 200;
+            // 是否开启右键拖拽
+            controls.enablePan = true;
+        }
+        const onWindowResize = () => {
+            const rect = stage.getBoundingClientRect();
+            aspect.width = rect.width;
+            aspect.height = rect.height;
+            topglow.style.transform = `translate(0, -${34 * (aspect.width / 600)}px)`;
+            // 重新设置相机宽高比例
+            camera.aspect = aspect.width / aspect.width;
+            // 更新相机投影矩阵
+            camera.updateProjectionMatrix();
+            // 重新设置渲染器渲染范围
+            renderer.setSize(aspect.width, aspect.width);
+        }
+        (() => {
+            camera = new THREE.PerspectiveCamera(
+                45,
+                aspect.width / aspect.height,
+                0.1,
+                1000
+            );
+            onWindowResize();
+            spotLight = new THREE.SpotLight(0xffffff, 0);
+            renderer.setClearColor(0x000000, 0);
+            stage.appendChild(renderer.domElement);
+            spotLight.angle = (45 / 180) * Math.PI;
+            spotLight.castShadow = false;
+            spotLight.distance = 124;
+            spotLight.decay = 1;
+            spotLight.penumbra = 0.6;
+            spotLight.shadow.camera.near = 50;
+            spotLight.shadow.camera.far = 200;
+            spotLight.shadow.camera.fov = 35;
+            spotLight.shadow.mapSize.width = aspect.width;
+            spotLight.shadow.mapSize.height = aspect.height;
+            // 环境光
+            scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            scene.add(spotLight);
+            // THREE.Object3D
+            sphere = createSphere(radius, segments);
+            sphere.rotation.y = 22;
+            sphere.rotation.x = 0.8;
+            camera.position.z = 1.5;
+            camera.position.y = 0;
+            camera.position.x = 0.04;
+            scene.add(sphere);
+            initControls();
+            animate();
+            new TWEEN.Tween({ intensity: 0, distance: 0 })
+                .to({ intensity: 1, distance: 124 }, 1500)
+                .easing(TWEEN.Easing.Linear.None)
+                .onUpdate(data => {
+                    spotLight.intensity = data.intensity;
+                    spotLight.distance = data.distance;
+                })
+                .start();
+            window.addEventListener('resize', onWindowResize);
+        })()
+    </script>
+</body>
+
+</html>

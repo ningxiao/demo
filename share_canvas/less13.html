@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <title>Antv/g测试</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .panel {
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 0;
+        }
+
+        #canvas {
+            position: absolute;
+        }
+    </style>
+    <script src="./js/g.min.js"></script>
+</head>
+
+<body>
+    <div class="panel" id="c1"></div>
+    <script type="text/javascript">
+        const canvas = new G.Canvas({
+            containerId: 'c1',
+            width: 500,
+            height: 600,
+            pixelRatio: window.devicePixelRatio
+        });
+        const group = canvas.addGroup();
+        /**
+            svg 绘制圆弧(a rx,ry x-axis-rotation large-arc-flag, sweep-flag x,y)
+            rx ry 
+            圆弧的xx轴半径和yy轴半径 （A命令也可以用来绘制椭圆弧的，如果是圆弧则 rx=ryrx=ry）
+            x-axis-rotation 
+            xx轴的旋转角度，这里我们用不到，设为 0
+            large-arc-flag 
+            是否为大圆弧，1为是，0为否
+            sweep-flag 
+            圆弧绘制的方向（从起点到终点），1为顺时针，0为逆时针
+            x y 
+            圆弧终点的坐标(x,y)
+        */
+        const path = group.addShape('path', {
+            attrs: {
+                startArrow: {
+                    path: [['M', 4, 4], ['a', 4, 2, 0, 0, 0, 0, -8], ['Z']],
+                    d: 0
+                },
+                endArrow: {
+                    path: [['M', 0, 4], ['a', 4, 4, 0, 0, 0, 0, -8], ['Z']],
+                    d: 0
+                },
+                path: [['M', 100, 100], ['a', 100, 100, 0, 0, 1, 0, 200]],
+                lineWidth: 8,
+                lineJoin: 'round',
+                stroke: '#54BECC'
+            }
+        });
+        canvas.draw();
+    </script>
+</body>
+
+</html>

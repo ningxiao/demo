@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/os/rmsportal/PqLCOJpqoOUfuPRacUzE.css" />
+    <title>点亮城市</title>
+    <style>
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        html,
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+        a{
+            display: none;
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>/*Fixing iframe window.innerHeight 0 issue in Safari*/ document.body.clientHeight; </script>
+    <script src="https://webapi.amap.com/maps?v=1.4.8&key=15cd8a57710d40c9b7c0e3cc120f1200&plugin=Map3D"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/assets/lib/jquery-3.2.1.min.js"></script>
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.l7-1.0.0/dist/l7.min.js"></script>
+    <script>
+        var scene = new L7.Scene({
+            id: 'map',
+            mapStyle: 'dark', // 样式URL
+            center: [121.507674, 31.223043],
+            pitch: 65.59312320916906,
+            zoom: 15.4,
+            minZoom: 15,
+            maxZoom: 18
+        });
+        scene.on('loaded', function () {
+            $.get('https://gw.alipayobjects.com/os/rmsportal/kNDVHmyUWAKhWmWXmjxM.json', function (data) {
+                scene.LineLayer({
+                    zIndex: 2
+                }).source(data).color('#F08D41').animate({
+                    enable: true
+                }).render();
+            });
+            $.get('https://gw.alipayobjects.com/os/rmsportal/vmvAxgsEwbpoSWbSYvix.json', function (data) {
+                scene.PolygonLayer({
+                    zIndex: 2
+                }).source(data).shape('extrude').size('floor', [0, 2000]).color('rgba(242,246,250,1.0)').animate({
+                    enable: true
+                }).style({
+                    opacity: 1.0,
+                    baseColor: 'rgb(16,16,16)',
+                    windowColor: 'rgb(30,60,89)',
+                    //brightColor:'rgb(155,217,255)'
+                    brightColor: 'rgb(255,176,38)'
+                }).render();
+            });
+        });
+    </script>
+</body>
+
+</html>
