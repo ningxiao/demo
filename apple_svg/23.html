@@ -1,0 +1,65 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <title>SVG环形图</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: #f7f8fc;
+        }
+    </style>
+</head>
+
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="150px" width="150px" id="svg-01"></svg>
+    <script>
+        function createSVGPath(startX, startY, R, theta, width, color) {
+            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            var realR = R - width;
+            var dArr = ["M" + startX, startY + width, "A" + realR, realR, 0, theta >= 180 ? 1 : 0, 0];
+            var cx = startX, cy = startY + R;
+
+            var theta2 = theta % 360;
+            // 避免360度与0度一样的情况
+            theta = theta > 0 && theta2 == 0 ? 359.9 : theta2;
+
+            var alpha = (theta + 90) / 180 * Math.PI;
+            var dx = realR * Math.cos(alpha);
+            var dy = realR * Math.sin(alpha);
+            var x = cx + dx, y = cy - dy;
+
+            dArr.push(x.toFixed(2));
+            dArr.push(y.toFixed(2));
+            var d = dArr.join(" ");
+
+            path.setAttribute('d', d);
+            path.setAttribute('stroke', color);
+            path.setAttribute('stroke-width', width);
+            path.setAttribute('fill', 'none');
+
+            return path;
+        }
+
+        var svg = document.getElementById('svg-01');
+        var colors = ['red', 'orange', 'yellow', 'green', 'blue', 'cyan', 'purple', 'black'];
+        for (var i = 0; i < 8; i++) {
+            var startY = i * 5;
+            var R = 70 - startY;
+            var theta = 360 - 45 * i;
+            var path = createSVGPath(75, startY, R, theta, 5, colors[i]);
+            svg.appendChild(path);
+        }
+    </script>
+</body>
+
+</html>
