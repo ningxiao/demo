@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>3D模型导入JSON</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: rgb(0, 0, 0);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            position: absolute;
+        }
+
+        .sky {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container"></div>
+    <script src="./js/three.min.js"></script>
+    <script>
+        // https://www.jonathan-petitcolas.com/2015/07/27/importing-blender-modelized-mesh-in-threejs.html
+        var scene, camera, renderer;
+
+        var WIDTH = window.innerWidth;
+        var HEIGHT = window.innerHeight;
+
+        var SPEED = 0.01;
+
+        function init() {
+            scene = new THREE.Scene();
+
+            initMesh();
+            initCamera();
+            initLights();
+            initRenderer();
+
+            document.body.appendChild(renderer.domElement);
+        }
+
+        function initCamera() {
+            camera = new THREE.PerspectiveCamera(70, WIDTH / HEIGHT, 1, 10);
+            camera.position.set(0, 3.5, 5);
+            camera.lookAt(scene.position);
+        }
+
+
+        function initRenderer() {
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(WIDTH, HEIGHT);
+        }
+
+        function initLights() {
+            var light = new THREE.AmbientLight(0xffffff);
+            scene.add(light);
+        }
+
+        var mesh = null;
+        function initMesh() {
+            var loader = new THREE.JSONLoader();
+            loader.load('./models/marmelab.json', function (geometry, materials) {
+                mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
+                mesh.scale.x = mesh.scale.y = mesh.scale.z = 0.75;
+                mesh.translation = THREE.GeometryUtils.center(geometry);
+                scene.add(mesh);
+            });
+        }
+
+        function rotateMesh() {
+            if (!mesh) {
+                return;
+            }
+
+            mesh.rotation.x -= SPEED * 2;
+            mesh.rotation.y -= SPEED;
+            mesh.rotation.z -= SPEED * 3;
+        }
+
+        function render() {
+            requestAnimationFrame(render);
+            rotateMesh();
+            renderer.render(scene, camera);
+        }
+
+        init();
+        render();
+    </script>
+</body>
+
+</html>

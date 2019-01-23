@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>3D模型粒子贴图</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: rgb(0, 0, 0);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            position: absolute;
+        }
+
+        .sky {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container"></div>
+    <script src="./js/three.min.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+    <script src="./js/loaders/OBJLoader.js"></script>
+    <script>
+        function init() {
+            // 获取浏览器窗口的宽高，后续会用
+            const width = window.innerWidth
+            const height = window.innerHeight
+
+            // 创建一个场景
+            const scene = new THREE.Scene()
+
+            // 创建一个具有透视效果的摄像机
+            let camera;
+            // 创建模型加载器
+            let points;
+            if (true) {
+                camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 800);
+                // 设置摄像机位置，并将其朝向场景中心
+                camera.position.x = 0;
+                camera.position.y = 0;
+                camera.position.z = 20;
+                camera.lookAt(scene.position);
+                const loader = new THREE.OBJLoader();
+                loader.load('./models/chahu_xlo7pg.obj', loadedMesh => {
+                    const material = new THREE.PointsMaterial({
+                        color: 0xffffff,
+                        size: 0.4,
+                        // 使用 opacity 的前提是开启 transparent
+                        opacity: 0.6,
+                        transparent: true,
+                        // 设置元素与背景的融合模式
+                        blending: THREE.AdditiveBlending,
+                        // 指定粒子的纹理
+                        map: generateSprite(),
+                        // 用于去除纹理的黑色背景，关于 depthTest 和 depthWrite 的详细解释，请查看https://stackoverflow.com/questions/37647853/three-js-depthwrite-vs-depthtest-for-transparent-canvas-texture-map-on-three-p
+                        depthTest: false
+                    });
+                    loadedMesh.children.forEach((child) => {
+                        points = new THREE.Points(child.geometry, material);
+                        points.position.y = -2;
+                        scene.add(points);
+                    })
+                })
+            } else {
+                camera = new THREE.PerspectiveCamera(75, width / height, 1, 50000);
+                camera.position.set(0, 0, 2);
+                camera.lookAt(new THREE.Vector3(0, 0, 0));
+                const loader = new THREE.JSONLoader();
+                loader.load('./models/cpac5.json', (geometry) => {
+                    const material = new THREE.PointsMaterial({
+                        color: 0xffffff,
+                        size: 0.4,
+                        // 使用 opacity 的前提是开启 transparent
+                        opacity: 0.6,
+                        transparent: true,
+                        // 设置元素与背景的融合模式
+                        blending: THREE.AdditiveBlending,
+                        // 指定粒子的纹理
+                        map: generateSprite(),
+                        // 用于去除纹理的黑色背景，关于 depthTest 和 depthWrite 的详细解释，请查看https://stackoverflow.com/questions/37647853/three-js-depthwrite-vs-depthtest-for-transparent-canvas-texture-map-on-three-p
+                        depthTest: false
+                    });
+                    console.log(geometry);
+                    points = new THREE.Points(geometry, material);
+                    scene.add(points);
+                })
+            }
+
+            // 创建一个 WebGL 渲染器，Three.js 还提供 <canvas>, <svg>, CSS3D 渲染器。
+            const renderer = new THREE.WebGLRenderer({
+                antialias: true
+            })
+
+            // 设置渲染器的清除颜色（即绘制下一帧前填充的颜色）和输出的 canvas 的尺寸
+            renderer.setClearColor(0x000000)
+            renderer.setSize(width, height)
+
+            // 将渲染器的输出（此处是 canvas 元素）插入到 body
+            document.body.appendChild(renderer.domElement)
+
+            // 初始化摄像机插件（用于拖拽旋转摄像机，产生交互效果）
+            const orbitControls = new THREE.OrbitControls(camera)
+            orbitControls.autoRotate = true
+
+            // 生成纹理
+            function generateSprite() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 16;
+                canvas.height = 16;
+
+                const context = canvas.getContext('2d');
+                const gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+                gradient.addColorStop(0, 'rgba(255,255,255,1)');
+                gradient.addColorStop(0.2, 'rgba(0,255,255,1)');
+                gradient.addColorStop(0.4, 'rgba(0,0,64,1)');
+                gradient.addColorStop(1, 'rgba(0,0,0,1)');
+
+                context.fillStyle = gradient;
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                const texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+                return texture;
+
+            }
+
+
+            render()
+
+
+            function render() {
+                // 渲染，即摄像机拍下此刻的场景
+                renderer.render(scene, camera)
+
+                if (points) {
+                    points.rotation.y += 0.005
+                }
+                requestAnimationFrame(render)
+            }
+
+        }
+        init()
+    </script>
+</body>
+
+</html>
