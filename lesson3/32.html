@@ -36,17 +36,14 @@
             border: 0;
             box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, .12), 0 1px 1px 0 rgba(0, 0, 0, .24);
             color: white;
-
             --ripple-x: 0;
             --ripple-y: 0;
-            --ripple-color: rgba(255, 255, 255, 0.54);
             --animation-tick: 0;
+            --ripple-color: rgba(255, 255, 255, 0.54);
         }
-
         #ripple:focus {
             outline: none;
         }
-
         #ripple.animating {
             background-image: paint(ripple);
         }
@@ -54,18 +51,16 @@
 </head>
 
 <body>
-    <button id="ripple">
-        Click me!
-    </button>
+    <button id="ripple">Click me!</button>
     <script>
+        const button = document.querySelector('#ripple');
+        let x, y;
+        let start = performance.now();
         if ('paintWorklet' in CSS) {
             CSS.paintWorklet.addModule('./js/paintworklet.js');
         } else {
             document.body.innerHTML = 'You need support for <a href="https://drafts.css-houdini.org/css-paint-api/">CSS Paint API</a> to view this demo :(';
         }
-        const button = document.querySelector('#ripple');
-        let start = performance.now();
-        let x, y;
         document.querySelector('#ripple').addEventListener('click', evt => {
             button.classList.add('animating');
             [x, y] = [evt.clientX, evt.clientY];
