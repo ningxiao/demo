@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0, user-scalable=no,minimal-ui">
+    <title>3D软渲染</title>
+    <style type="text/css">
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            width: 600px;
+            height: 600px;
+            background-size: 100% 100%;
+        }
+    </style>
+    <div>
+        <a id="start" href="javascript:main()">点击开始</a>
+        <br>
+        <a id="start" href="javascript:main(true)">网格辅助</a>
+    </div>
+    <script type="text/javascript">
+        const DRAW_IMAGE_EXTEND_EX = 3;
+
+        class Point2D {
+            constructor(x, y, u, v) {
+                this.x = x;
+                this.y = y;
+                this.u = u;
+                this.v = v;
+            }
+            rotate(a) {
+                var x = this.x, y = this.y;
+                this.x = x * Math.cos(a) - y * Math.sin(a);
+                this.y = x * Math.sin(a) + y * Math.cos(a);
+            }
+        }
+
+        class Vert2D {
+            constructor(p0, p1, p2) {
+                this.p0 = p0;
+                this.p1 = p1;
+                this.p2 = p2;
+            }
+
+            drawMeshLineToContext(plist, ctx) {
+                var p0 = plist[this.p0], p1 = plist[this.p1], p2 = plist[this.p2];
+                ctx.moveTo(p0.x, p0.y);
+                ctx.lineTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p0.x, p0.y);
+            }
+
+            drawImageToContext(plist, img, ctx) {
+                var p0 = plist[this.p0], p1 = plist[this.p1], p2 = plist[this.p2];
+                Vert2D.drawImageToContextWithPoints(img, ctx, p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p0.u, p0.v, p1.u, p1.v, p2.u, p2.v);
+            }
+
+            static extendVert(x0, y0, x1, y1, x2, y2) {
+                var x = 2 * x0 - x1 - x2, y = 2 * y0 - y1 - y2;
+                var d = Math.sqrt(DRAW_IMAGE_EXTEND_EX / (x * x + y * y));
+                return [x0 + x * d, y0 + y * d];
+            }
+
+            static drawImageToContextWithPoints(img, ctx, x0, y0, x1, y1, x2, y2, u0, v0, u1, v1, u2, v2) {
+                //fix uv override
+                if (v0 > 0.5 && v1 > 0.5 && v2 > 0.5) {
+                    if (v0 <= v1 && v0 <= v2) {
+                        var ov = v0;
+                        v0 = v0 % 0.5;
+                        ov -= v0;
+                        v1 -= ov;
+                        v2 -= ov;
+                    } else if (v1 <= v0 && v1 <= v2) {
+                        var ov = v1;
+                        v1 = v1 % 0.5;
+                        ov -= v1;
+                        v0 -= ov;
+                        v2 -= ov;
+                    } else {
+                        var ov = v2;
+                        v2 = v2 % 0.5;
+                        ov -= v2;
+                        v0 -= ov;
+                        v1 -= ov;
+                    }
+                }
+                //fix end
+
+                u0 *= img.width;
+                u1 *= img.width;
+                u2 *= img.width;
+                v0 *= img.height;
+                v1 *= img.height;
+                v2 *= img.height;
+
+                //fix gap in images
+                var s0 = Vert2D.extendVert(x0, y0, x1, y1, x2, y2);
+                var s1 = Vert2D.extendVert(x1, y1, x0, y0, x2, y2);
+                var s2 = Vert2D.extendVert(x2, y2, x1, y1, x0, y0);
+                //fix end
+
+                ctx.beginPath();
+                ctx.moveTo(s0[0], s0[1]);
+                ctx.lineTo(s1[0], s1[1]);
+                ctx.lineTo(s2[0], s2[1]);
+                ctx.closePath();
+
+                x1 -= x0;
+                y1 -= y0;
+                x2 -= x0;
+                y2 -= y0;
+
+                u1 -= u0;
+                v1 -= v0;
+                u2 -= u0;
+                v2 -= v0;
+
+                var det = 1 / (u1 * v2 - u2 * v1),
+                    a = (v2 * x1 - v1 * x2) * det,
+                    b = (v2 * y1 - v1 * y2) * det,
+                    c = (u1 * x2 - u2 * x1) * det,
+                    d = (u1 * y2 - u2 * y1) * det,
+                    e = x0 - a * u0 - c * v0,
+                    f = y0 - b * u0 - d * v0;
+
+                ctx.save();
+                ctx.transform(a, b, c, d, e, f);
+                ctx.clip();
+                ctx.drawImage(img, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        class Mesh2D {
+            constructor() {
+                this.points = [];
+                this.verts = [];
+            }
+
+            move(x, y) {
+                for (var i = 0; i < this.points.length; i++) {
+                    this.points[i].x += x;
+                    this.points[i].y += y;
+                }
+            }
+
+            drawImageToContext(img, ctx) {
+                for (var i = 0; i < this.verts.length; i++) {
+                    this.verts[i].drawImageToContext(this.points, img, ctx);
+                }
+            }
+
+            drawMeshLine(ctx) {
+                ctx.save();
+                ctx.lineWidth = 0.5;
+                ctx.strokeStyle = "#0000ff";
+                for (var i = 0; i < this.verts.length; i++) {
+                    this.verts[i].drawMeshLineToContext(this.points, ctx);
+                }
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            static createMapMesh(width, height, divW, divH) {
+                var m = new Mesh2D();
+                var widthSingle = width / divW, heightSingle = height / divH;
+                var uSingle = 1 / divW, vSingel = 1 / divH;
+                for (var i = 0; i <= divH; i++) {
+                    for (var j = 0; j <= divW; j++) {
+                        m.points.push(new Point2D(j * widthSingle, i * heightSingle, j * uSingle, i * vSingel));
+                    }
+                }
+                for (var i = 0; i < divH; i++) {
+                    for (var j = 0; j < divW; j++) {
+                        var startPoint = (divW + 1) * i + j;
+                        m.verts.push(new Vert2D(startPoint + 1, startPoint, startPoint + divW + 1));
+                        m.verts.push(new Vert2D(startPoint + divW + 1, startPoint + divW + 2, startPoint + 1));
+                    }
+                }
+                return m;
+            }
+        }
+
+        function main(debug) {
+            document.body.innerHTML = "<canvas id=main width=600px height=600px style=background-color:#bed1fd></canvas>";
+            var ct = document.getElementById("main").getContext("2d");
+
+            var m = Mesh2D.createMapMesh(300, 300, 30, 8);
+
+            m.points[0].x = 0; m.points[0].y = 0;
+            m.points[31].x = 0; m.points[31].y = -20;
+            m.points[62].x = 0; m.points[62].y = -50;
+            m.points[93].x = 0; m.points[93].y = -90;
+            m.points[124].x = 0; m.points[124].y = -130;
+            m.points[155].x = 0; m.points[155].y = -180;
+            m.points[186].x = 0; m.points[186].y = -250;
+            m.points[217].x = 0; m.points[217].y = -330;
+            m.points[248].x = 0; m.points[248].y = -426;
+
+            for (var i = 0; i <= 8; i++) {
+                var x = m.points[i * 31].x;
+                var y = m.points[i * 31].y;
+                m.points[i * 31].v *= 0.5;
+                for (var j = 1; j <= 30; j++) {
+                    m.points[i * 31 + j].x = x;
+                    m.points[i * 31 + j].y = y;
+                    m.points[i * 31 + j].rotate(j * Math.PI / 15);
+                    m.points[i * 31 + j].v *= 0.5;
+                }
+            }
+            m.move(300, 300);
+
+            var img;
+            var loadImg = function () {
+                img = new Image();
+                img.src = "./images/canvas_mesh_fish_bg.png";
+                img.onload = render;
+            }
+
+            var counter = 0;
+            var render = function () {
+                counter++;
+
+                for (var i = 0; i <= 8; i++) {
+                    for (var j = 0; j <= 30; j++) {
+                        var k = i * 31 + j;
+                        m.points[k].v += 0.003;
+                    }
+                }
+
+                ct.clearRect(0, 0, 600, 600);
+                m.drawImageToContext(img, ct);
+                if (debug) m.drawMeshLine(ct);
+                window.requestAnimationFrame(render);
+            }
+
+            loadImg();
+        }
+    </script>
+    </body>
+
+</html>

@@ -1,13 +1,13 @@
-registerPaint('ripple', class {
+registerPaint('drawimage', class {
     static get inputProperties() {
         return ['background-color', '--ripple-color', '--animation-tick', '--ripple-x', '--ripple-y'];
     }
-    paint(ctx, geom, properties) {
-        const bgColor = properties.get('background-color').toString();
-        const rippleColor = properties.get('--ripple-color').toString();
-        const x = parseFloat(properties.get('--ripple-x').toString());
-        const y = parseFloat(properties.get('--ripple-y').toString());
-        let tick = parseFloat(properties.get('--animation-tick').toString());
+    paint(ctx, geom, styleMap) {
+        const bgColor = styleMap.get('background-color').toString();
+        const rippleColor = styleMap.get('--ripple-color').toString();
+        const x = parseFloat(styleMap.get('--ripple-x').toString());
+        const y = parseFloat(styleMap.get('--ripple-y').toString());
+        let tick = parseFloat(styleMap.get('--animation-tick').toString());
         if (tick < 0) {
             tick = 0;
         }

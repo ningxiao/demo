@@ -41,11 +41,13 @@
             --animation-tick: 0;
             --ripple-color: rgba(255, 255, 255, 0.54);
         }
+
         #ripple:focus {
             outline: none;
         }
+
         #ripple.animating {
-            background-image: paint(ripple);
+            background-image: paint(drawimage);
         }
     </style>
 </head>
@@ -53,29 +55,34 @@
 <body>
     <button id="ripple">Click me!</button>
     <script>
-        const button = document.querySelector('#ripple');
         let x, y;
         let start = performance.now();
         if ('paintWorklet' in CSS) {
+            const button = document.querySelector('#ripple');
+            const cssRules = document.styleSheets[1].cssRules[0];
             CSS.paintWorklet.addModule('./js/paintworklet.js');
+            button.addEventListener('click', evt => {
+                button.classList.add('animating');
+                [x, y] = [evt.clientX, evt.clientY];
+                start = performance.now();
+                requestAnimationFrame(function raf(now) {
+                    const count = Math.floor(now - start);
+                    cssRules.styleMap.set('--ripple-x', x);
+                    cssRules.styleMap.set('--ripple-y', y);
+                    cssRules.styleMap.set('--animation-tick', count);
+                    // button.style.cssText = `--ripple-x: ${x}; --ripple-y: ${y}; --animation-tick: ${count};`;
+                    if (count > 1000) {
+                        button.classList.remove('animating');
+                        cssRules.styleMap.set('--animation-tick', 0);
+                        // button.style.cssText = `--animation-tick: 0`;
+                        return;
+                    }
+                    requestAnimationFrame(raf);
+                })
+            })
         } else {
             document.body.innerHTML = 'You need support for <a href="https://drafts.css-houdini.org/css-paint-api/">CSS Paint API</a> to view this demo :(';
         }
-        document.querySelector('#ripple').addEventListener('click', evt => {
-            button.classList.add('animating');
-            [x, y] = [evt.clientX, evt.clientY];
-            start = performance.now();
-            requestAnimationFrame(function raf(now) {
-                const count = Math.floor(now - start);
-                button.style.cssText = `--ripple-x: ${x}; --ripple-y: ${y}; --animation-tick: ${count};`;
-                if (count > 1000) {
-                    button.classList.remove('animating');
-                    button.style.cssText = `--animation-tick: 0`;
-                    return;
-                }
-                requestAnimationFrame(raf);
-            })
-        })
     </script>
 </body>
 
