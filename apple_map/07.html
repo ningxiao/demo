@@ -78,7 +78,6 @@
                     this.x = target.x;
                     this.y = target.y;
                 }
-                console.log(angle, angle % 90);
                 graphics.beginStroke(color);
                 graphics.moveTo(0, 0);
                 graphics.lineTo(x, y);
@@ -198,15 +197,6 @@
             context.fill();
             context.strokeStyle = "#fff";
             context.stroke();
-
-
-            context.beginPath();
-            context.arc(100, 100, 20, 0, 2 * Math.PI);
-            context.fillStyle = "#ff0000";
-            context.strokeStyle = "#ff0000";
-            context.fill();
-            context.stroke();
-
             context.restore();
         }
 
@@ -243,7 +233,7 @@
             context.fillText(d.name, d.x, d.y);
             context.restore();
             context.moveTo(d.x + 20, d.y);
-            context.arc(d.x, d.y, 20, 0, 2 * Math.PI);
+            context.arc(d.x, d.y, 4, 0, 2 * Math.PI);
         }
         canvas.addEventListener('click', () => {
             nodes.push({ name: "北京" }, { name: "三河" });
@@ -257,18 +247,18 @@
             links.push({ source: 6, target: 7 }, { source: 6, target: 8 }, { source: 7, target: 8 });
             simulation.nodes(nodes);
             simulation.force("link").links(links);
-            setTimeout(() => {
-                const name = nodes.splice(1, 1)[0].name;
-                for (let i = links.length - 1; i > -1; i--) {
-                    let obj = links[i];
-                    if(obj.source.name=== name || obj.target.name === name){
-                        links.splice(i, 1)
-                        console.log('--',obj);
-                    }
-                }
-                simulation.nodes(nodes);
-                simulation.force("link").links(links);
-            }, 2000)
+            // setTimeout(() => {
+            //     const name = nodes.splice(1, 1)[0].name;
+            //     for (let i = links.length - 1; i > -1; i--) {
+            //         let obj = links[i];
+            //         if(obj.source.name=== name || obj.target.name === name){
+            //             links.splice(i, 1)
+            //             console.log('--',obj);
+            //         }
+            //     }
+            //     simulation.nodes(nodes);
+            //     simulation.force("link").links(links);
+            // }, 2000)
             console.log('添加节点');
         }, 2000)
     </script>
