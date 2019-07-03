@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <title>SVG路径文字</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #2c3e50;
+        }
+
+        .wrapper {
+            margin-top: 80px;
+        }
+
+        .text {
+            font-size: 64px;
+            font-weight: bold;
+            text-transform: uppercase;
+            fill: none;
+            stroke: #0099ff;
+            stroke-width: 2px;
+            stroke-dasharray: 90 310;
+            animation: stroke 6s infinite linear;
+        }
+
+        .path {
+            background-image: url(https://s3plus.meituan.net/v1/mss_c9d411db85ec4b59aaebc4dfca416c55/production/kg-brain-case/img/header.8c66d3d0.png);
+            background-size: 100% 100%;
+            padding-top: 1.4814814815vh;
+            height: 9.2592592593vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: -400;
+            }
+        }
+    </style>
+    <script type="text/javascript" src="https://cdn.bootcss.com/tween.js/r14/Tween.min.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <svg width="100%" height="100">
+            <text text-anchor="middle" x="50%" y="50%" class="text">
+                https://123.sankuai.com
+            </text>
+        </svg>
+        <div class="path">
+            <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 1920 84"
+                style="position: absolute; left: 0px; top: 0px;">
+                <path
+                    d="M-1.5 21.8 707.34 21.8 767.51 76.55 895.63 76.55 903.01 83.34 1001.45 83.34 1009.49 76.55 1139.51 76.55 1203.16 21.8 1921 21.8"
+                    fill="none" stroke="url(#gradient)" stroke-width="3"></path>
+                <linearGradient id="gradient" gradientUnits="objectBoundingBox" spreadMethod="pad" x1="0%" y1="0%"
+                    x2="20.31363639632321%" y2="0%" gradientTransform="translate(-0.2, 0)">
+                    <stop offset="0" stop-opacity="0" stop-color="#99ECFF"></stop>
+                    <stop offset="0.3" stop-opacity="0.3" stop-color="#99ECFF"></stop>
+                    <stop offset="0.5" stop-opacity="0.75" stop-color="#fff"></stop>
+                    <stop offset="0.7" stop-opacity="0.3" stop-color="#99ECFF"></stop>
+                    <stop offset="1" stop-opacity="0" stop-color="#99ECFF"></stop>
+                </linearGradient>
+            </svg>
+        </div>
+    </div>
+    <script>
+        const dom = document.querySelector('#gradient');
+        const animationFrame = () => {
+            requestAnimationFrame(animationFrame);
+            TWEEN.update();
+        }
+        const json = { x: -0.2 };
+        new TWEEN.Tween(json) // 传入开始位置
+            .to({ x: 1 }, 6600) // 指定时间内完成结束位置
+            .repeat(Infinity)
+            .delay(300)
+            .yoyo(true)
+            .onUpdate((data) => {
+                // dom.setAttributeNS(null, 'gradientTransform',  `translate(${json.x}, 0)`);
+                dom.setAttribute("gradientTransform", `translate(${json.x}, 0)`);
+            })
+            .start();
+        animationFrame();
+        console.log(dom);
+    </script>
+</body>
+
+</html>

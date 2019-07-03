@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=600">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>WebMetal Simple demo</title>
+    <style>
+        body {
+            background-color: rgb(35%, 65%, 85%);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        body.error {
+            background-color: rgb(85%, 35%, 35%);
+        }
+
+        body.error canvas {
+            display: none;
+        }
+
+        #error {
+            margin: 0;
+            padding: 0;
+            width: 50vw;
+            display: none;
+            text-align: center;
+        }
+
+        body.error #error {
+            display: block;
+        }
+
+        #error h2 {
+            font-weight: bold;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        #error p {
+            font-size: 30px;
+        }
+    </style>
+    <script id="library" type="x-shader/x-metal">
+        #include <metal_stdlib>
+        using namespace metal;
+        struct Vertex
+        {
+            float4 position [[position]];
+            float4 color;
+        };
+        struct Uniform
+        {
+            float4x4 modelViewProjectionMatrix;
+        };
+        vertex Vertex vertex_main(device Vertex *vertices [[buffer(0)]],constant Uniform *uniforms [[buffer(1)]],uint vid [[vertex_id]])
+        {
+            Vertex vertexOut;
+            vertexOut.position = uniforms->modelViewProjectionMatrix * vertices[vid].position;
+            vertexOut.color = vertices[vid].color;
+            return vertexOut;
+        }
+        fragment float4 fragment_main(Vertex vertexIn [[stage_in]])
+        {
+            return float4(vertexIn.color);
+        }
+    </script>
+    <script>
+        const hasWebMetal = () => {
+            return 'WebMetalRenderingContext' in window;
+        };
+        const checkForWebMetal = () => {
+            if (hasWebMetal())
+                return true;
+            document.body.className = "error";
+            return false;
+        }
+    </script>
+    <script src="./js/gl-matrix-min.js"></script>
+    <script src="./js/simple.js"></script>
+    
+</head>
+
+<body>
+    <canvas></canvas>
+    <div id="error">
+        <h2>WebMetal not available</h2>
+        <p>
+            Make sure you are on a system with WebMetal enabled. In
+            Safari, first make sure the Developer Menu is visible (Preferences →
+            Advanced), then Develop → Experimental Features → Enable WebMetal.
+        </p>
+    </div>
+</body>
+
+</html>

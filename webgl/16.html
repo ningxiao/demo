@@ -67,14 +67,6 @@
             mapCanvas.height = mapSize.height;
             chart = echarts.init(mapCanvas);
             mapTexture = new THREE.Texture(mapCanvas);
-            // document.body.appendChild(mapCanvas);
-            // setTimeout(() => {
-            //     const image = new Image();
-            //     mapCanvas.toBlob(blob => { // 使用二进制地址 清理URL.revokeObjectURL(url);
-            //         image.src = URL.createObjectURL(blob);
-            //     })
-            //     document.body.appendChild(image);
-            // }, 5000);
         }
         const createChart = () => {
             chart.setOption({
@@ -161,37 +153,15 @@
             const rect = container.getBoundingClientRect();
             mouse.x = (event.offsetX / rect.width) * 2 - 1;
             mouse.y = -(event.offsetY / rect.height) * 2 + 1;
-
             raycaster.setFromCamera(mouse, camera); // 通过鼠标坐标和相机位置构造射线
-
             const intersected = raycaster.intersectObject(earth); // 获取射线和地球的相交点
-
             if (intersected && intersected.length > 0) {
                 // 根据射线相交点的uv反算出在canvas上的坐标
                 const x = intersected[0].uv.x * mapSize.width;
                 const y = mapSize.height - intersected[0].uv.y * mapSize.height;
-
                 // 在mapCanvas上模拟鼠标事件，这里或许有更好的方法
-                const virtualEvent = document.createEvent(
-                    'MouseEvents'
-                );
-                virtualEvent.initMouseEvent(
-                    'mousemove',
-                    false,
-                    true,
-                    window || document.defaultView,
-                    1,
-                    x,
-                    y,
-                    x,
-                    y,
-                    false,
-                    false,
-                    false,
-                    false,
-                    0,
-                    null
-                );
+                const virtualEvent = document.createEvent('MouseEvents');
+                virtualEvent.initMouseEvent('mousemove', false, true, window || document.defaultView, 1, x, y, x, y, false, false, false, false, 0, null);
                 mapCanvas.dispatchEvent(virtualEvent);
             }
         }
