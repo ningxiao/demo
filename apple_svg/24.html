@@ -48,6 +48,56 @@
                 stroke-dashoffset: -400;
             }
         }
+
+        #path1 {
+            stroke-dasharray: 0% 0%;
+            transform: translate(50px, 50px);
+            animation: move1 3s linear forwards;
+        }
+
+        @keyframes move1 {
+            0% {
+                stroke-dasharray: 0% 300%;
+            }
+
+            100% {
+                stroke-dasharray: 100% 0%;
+            }
+        }
+        @keyframes move2 {
+            0% {
+                stroke-dasharray: 0% 300%;
+            }
+
+            100% {
+                stroke-dasharray: 300% 0%;
+            }
+        }
+        .circle {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .card-frame-content {
+            height: 74px;
+            width: 258px;
+            position: relative;
+        }
+
+        .svg-line-frame {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .polyline-frame {
+            stroke: #0c75e2;
+            opacity: 0.6;
+            fill: none;
+            stroke-width: 4px;
+            stroke-dasharray: 0, 100%;
+            animation: move2 3s linear forwards;
+        }
     </style>
     <script type="text/javascript" src="https://cdn.bootcss.com/tween.js/r14/Tween.min.js"></script>
 </head>
@@ -73,6 +123,27 @@
                     <stop offset="0.7" stop-opacity="0.3" stop-color="#99ECFF"></stop>
                     <stop offset="1" stop-opacity="0" stop-color="#99ECFF"></stop>
                 </linearGradient>
+            </svg>
+        </div>
+        <div class="circle">
+            <svg>
+                <symbol id="path">
+                    <path class="path1" stroke="#f2420b" fill="none"
+                        d="M67.94,55a2.31,2.31,0,0,1-2.06-3.36A32,32,0,0,0,69.37,37,32.38,32.38,0,0,0,19.68,9.64a2.31,2.31,0,1,1-2.48-3.9A37,37,0,0,1,74,37a36.61,36.61,0,0,1-4,16.74A2.32,2.32,0,0,1,67.94,55Z" />
+                    <path class="path2" stroke="#f2420b" fill="none"
+                        d="M37,74A37,37,0,0,1,0,37,36.61,36.61,0,0,1,4,20.25a2.31,2.31,0,0,1,4.12,2.1A32,32,0,0,0,4.63,37,32.38,32.38,0,0,0,54.16,64.46a2.31,2.31,0,0,1,2.46,3.92A36.9,36.9,0,0,1,37,74Z" />
+                </symbol>
+                <use id="path1" xlink:href="#path"></use>
+            </svg>
+        </div>
+
+        <div class="card-frame-content fly-out">
+            <svg width="258.234375" height="110.140625" class="svg-line-frame">
+                <polyline class="polyline-frame polyline-left"
+                    points="129.1171875,0 0,0 0,110.140625 129.1171875,110.140625"></polyline>
+            </svg><svg width="258.234375" height="110.140625" class="svg-line-frame">
+                <polyline class="polyline-frame polyline-right"
+                    points="129.1171875,0 258.234375,0 258.234375,110.140625 129.1171875,110.140625"></polyline>
             </svg>
         </div>
     </div>
