@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
-    <title>回调</title>
+    <title>自定义组件</title>
     <style type="text/css">
         * {
             margin: 0;
@@ -17,51 +17,33 @@
             height: 100%;
         }
 
-        p {
-            color: purple;
-        }
-
-        span {
-            color: black;
-        }
-
-        .xx {
+        .item {
             color: red;
         }
-
-        .xx>span {
-            color: yellow;
-        }
     </style>
+    <link rel="import" href="./components/SortStuff.html">
 </head>
 
 <body>
-    <h1>My Cool Page</h1>
-    <p>
-        Some cool stuff
-        <div>Is this still cool?</div>
-    </p>
-    <div class="xx"><span>------</span><span>++++++</span><span>*********</span></div>
+    <div><button>添加自定义组件</button></div>
     <script>
-        console.time('运行程序');
-        console.time('加载时间');
-        const scriptElement = document.createElement('script');
-        scriptElement.onload = () => {
-            console.timeEnd('加载时间');
-            window.test();
-        }
-        scriptElement.src = "./js/call.js";
-        document.body.appendChild(scriptElement);
-        console.timeEnd('运行程序');
-        const util = (() => {
-            const data = { name: '' };
-            return {
-                setNmae(name) {
-                    data.name = name;
-                }
-            }
+        (async () => {
+            // 导入doubleKill模块
+            const module = await import('./template/29.js');
+            module.default();
+            // 设置颜色为红色
+            module.pColor('red');
+            document.querySelector('button').addEventListener('click', () => {
+                const SortView = customElements.get('sort-stuff');
+                const sortDom = new SortView('#sortable');
+                document.body.append(sortDom);
+            })
         })();
-        console.log(util);
+        var link = document.querySelector('link[rel="import"]');
+        var content = link.import;
+        // Grab DOM from warning.html's document.
+        var el = content.querySelector('template');
+        console.log(el);
     </script>
 </body>
 
