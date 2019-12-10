@@ -25,11 +25,13 @@
             user-select: none;
         }
     </style>
+    <script src="//cdn.jsdelivr.net/gh/Kevnz/stats.js/build/stats.min.js"></script>
 </head>
 
 <body>
     <canvas></canvas>
     <script>"use strict";
+        const stats = new Stats();
         const BIT_ROT = 10;
         const RGB_DEAD = 0xA61B85;
         const RGB_ALIVE = 0xD392E6;
@@ -46,6 +48,8 @@
         canvas.height = height;
         canvas.style.imageRendering = 'pixelated';
         ctx.imageSmoothingEnabled = false;
+        stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+        document.body.appendChild(stats.dom);
         fetch("./wasm/index.optimized.wasm")
             .then(response => response.arrayBuffer())
             .then(buffer => WebAssembly.instantiate(buffer, {
@@ -68,13 +72,19 @@
                 const imageData = ctx.createImageData(width, height);
                 const argb = new Uint32Array(imageData.data.buffer);
                 const draw = () => {
+                    stats.begin();
                     mem.copyWithin(0, size, size + size);
                     exports.step();
-                    window.requestAnimationFrame(() => {
-                        argb.set(mem.subarray(size, size + size));
-                        ctx.putImageData(imageData, 0, 0);
-                        window.requestAnimationFrame(draw);
-                    });
+                    argb.set(mem.subarray(size, size + size));
+                    ctx.putImageData(imageData, 0, 0);
+                    stats.end();
+                    // window.requestAnimationFrame(() => {
+                    //     argb.set(mem.subarray(size, size + size));
+                    //     ctx.putImageData(imageData, 0, 0);
+                    //     stats.end();
+                    //     window.requestAnimationFrame(draw);
+                    // });
+                    window.requestAnimationFrame(draw);
                 }
                 [[canvas, "mousedown"], [canvas, "touchstart"]].forEach(eh => eh[0].addEventListener(eh[1], e => down = true));
                 [[document, "mouseup"], [document, "touchend"]].forEach(eh => eh[0].addEventListener(eh[1], e => down = false));
