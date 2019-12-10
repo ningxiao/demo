@@ -1,0 +1,15 @@
+{
+    "scripts": {
+        "build":"npm run build:module && npm run build:index",
+        "build:module": "npm run module:optimized",
+        "module:untouched": "asc assembly/module.ts -t wasm/module.untouched.wat -b wasm/module.untouched.wasm --use Math=JSMath --runtime none --validate --sourceMap --measure",
+        "module:optimized": "asc assembly/module.ts -t wasm/module.optimized.wat -b wasm/module.optimized.wasm -d wasm/module.optimized.d.ts --use Math=JSMath -O3  --runtime none --validate --sourceMap --measure --optimize",
+        "build:index": "npm run index:optimized",
+        "index:untouched": "asc assembly/index.ts -b wasm/index.untouched.wasm -t wasm/index.untouched.wat --use Math=JSMath --runtime none --importMemory --sourceMap --debug --validate --measure",
+        "index:optimized": "asc assembly/index.ts -b wasm/index.optimized.wasm -t wasm/index.optimized.wat -d wasm/index.optimized.d.ts --use Math=JSMath -O3  --runtime none --importMemory --sourceMap --validate --measure"
+    },
+    "devDependencies": {
+        "assemblyscript": "AssemblyScript/assemblyscript",
+        "ts-node": "^8.5.4"
+    }
+}

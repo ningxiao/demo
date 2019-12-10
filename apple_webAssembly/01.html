@@ -21,27 +21,17 @@
 
 <body>
     <script>
-        const memory = new WebAssembly.Memory({ initial: 10, maximum: 100 });
-        new Uint32Array(memory.buffer)[0] = 42;
-        console.log(new Uint32Array(memory.buffer)[0]);
-        WebAssembly.instantiateStreaming(fetch('./wasm/memory.wasm'), { js: { mem: memory } })
-            .then(obj => {
-                const i32 = new Uint32Array(memory.buffer);
-                for (let i = 0; i < 10; i++) {
-                    i32[i] = i;
-                }
-                const sum = obj.instance.exports.accumulate(0, 10);
-                console.log(sum);
-            });
-
         const importObject = {
             module: {
                 sayHello(num) {
                     console.log('WebAssembly', Array(num).fill("*").join(""))
+                },
+                consoleLog(value) {
+                    console.log(value)
                 }
             },
+            Math,
             env: {
-                base: 12,
                 abort(_msg, _file, line, column) {
                     console.error("abort called at main.ts:" + line + ":" + column);
                 }
@@ -51,8 +41,11 @@
             response.arrayBuffer()
         ).then(bytes =>
             WebAssembly.instantiate(bytes, importObject)
-        ).then(results => {
-            console.log(results.instance.exports.add(1, 2));
+        ).then(module => {
+            const exports = module.instance.exports;
+            console.log(exports.callMeFromJavascript(24, 24));
+            console.log(exports.GET_THIS_CONSTANT_FROM_JAVASCRIPT.valueOf());
+            console.log(exports.add(1, 2));
         });
     </script>
 </body>
