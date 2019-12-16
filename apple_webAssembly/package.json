@@ -1,6 +1,9 @@
 {
     "scripts": {
         "build":"npm run build:module && npm run build:index",
+        "build:w": "npm run w:optimized",
+        "w:untouched": "asc assembly/w.ts -t wasm/w.untouched.wat -b wasm/w.untouched.wasm --use Math=JSMath --runtime none --validate --sourceMap --measure",
+        "w:optimized": "asc assembly/w.ts -t wasm/w.optimized.wat -b wasm/w.optimized.wasm -d wasm/w.optimized.d.ts --use Math=JSMath -O3 --importMemory --sourceMap --validate --measure",
         "build:module": "npm run module:optimized",
         "module:untouched": "asc assembly/module.ts -t wasm/module.untouched.wat -b wasm/module.untouched.wasm --use Math=JSMath --runtime none --validate --sourceMap --measure",
         "module:optimized": "asc assembly/module.ts -t wasm/module.optimized.wat -b wasm/module.optimized.wasm -d wasm/module.optimized.d.ts --use Math=JSMath -O3  --runtime none --validate --sourceMap --measure --optimize",

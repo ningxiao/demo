@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebAssembly图片卷积</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            color: #fff;
+            background: #111;
+            font-family: sans-serif;
+        }
+
+        body {
+            border-top: 2px solid #12b7f5;
+        }
+
+        h1 {
+            padding: 18px 20px 10px 20px;
+            font-size: 12pt;
+            margin: 0;
+        }
+
+        a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #eee;
+            text-decoration: underline;
+        }
+
+        .canvas-container {
+            margin-top: 20px;
+            display: flex;
+            width: 100%;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            align-items: center;
+        }
+
+        canvas {
+            width: 800px;
+            height: 600px;
+            margin: auto;
+        }
+
+        .center-img {
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+        .list-outer {
+            overflow-x: scroll;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #cccccc;
+        }
+
+        .list-outer::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        .list-outer::-webkit-scrollbar-thumb {
+            background-color: #bdf4eb;
+            -webkit-border-radius: 4px;
+            border-radius: 2px;
+        }
+
+        .list-container {
+            display: flex;
+            height: 70px;
+            width: max-content;
+            padding-left: 20px;
+            padding-right: 20px;
+            align-items: center;
+        }
+
+        .list-container img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .op-container {
+            position: absolute;
+            top: 150px;
+            left: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .matrix {
+            display: flex;
+            flex-wrap: wrap;
+            width: 120px;
+            margin-bottom: 10px;
+        }
+
+        .matrix>input {
+            box-sizing: border-box;
+            height: 40px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .quick-options {
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .quick-options button,
+        .ensure-option button {
+            width: 120px;
+            height: 24px;
+            margin-bottom: 5px;
+            background: white;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        使用
+        <a href="http://assemblyscript.org">AssemblyScript</a>
+        进行图片卷积
+    </h1>
+    <div class="list-outer">
+        <div class="list-container" id="list-container">
+        </div>
+    </div>
+    <div class="canvas-container">
+        <canvas></canvas>
+    </div>
+    <div class="op-container">
+        <div class="matrix" id="matrix">
+            <input type="number" data-index="0">
+            <input type="number" data-index="1">
+            <input type="number" data-index="2">
+            <input type="number" data-index="3">
+            <input type="number" data-index="4">
+            <input type="number" data-index="5">
+            <input type="number" data-index="6">
+            <input type="number" data-index="7">
+            <input type="number" data-index="8">
+        </div>
+        <div class="ensure-option">
+            <button data-type="-1" class="act-btns">确定</button>
+        </div>
+        <p class="quick-select">快速选择</p>
+        <div class="quick-options">
+            <button data-type="1" class="act-btns">浮雕</button>
+            <button data-type="2" class="act-btns">快速模糊</button>
+            <button data-type="3" class="act-btns">高斯模糊</button>
+            <button data-type="4" class="act-btns">锐化</button>
+            <button data-type="5" class="act-btns">边缘检测</button>
+            <button data-type="6" class="act-btns">增强边缘检测</button>
+        </div>
+    </div>
+</body>
+<script>
+    // 初始化全局变量
+    let url = 'pic/1.jpg'
+    let kernels = new Int32Array([0, 0, 0, 0, 1, 0, 0, 0, 0])
+    const kernelMap = {
+        1: [-2, -1, 0, -1, 1, 1, 0, 1, 2],
+        2: [1, 1, 1, 1, 1, 1, 1, 1, 1],
+        3: [1, 2, 1, 2, 4, 2, 1, 2, 1],
+        4: [0, -1, 0, -1, 5, -1, 0, -1, 0],
+        5: [0, 1, 0, 1, -4, 1, 0, 1, 0],
+        6: [-1, -1, -1, -1, 8, -1, -1, -1, -1],
+    };
+    const PICNUM = 5;
+    const DEFAULT_AREA = 480000;
+    const MAX_WIDTH = 1200;
+    const MAX_HEIGHT = 1000;
+    const wasmPath = './wasm/w.optimized.wasm';
+    const canvas = document.querySelector('canvas');
+    const bounding = canvas.getBoundingClientRect();
+    let width = bounding.width;
+    let height = bounding.height;
+    let size = width * height;
+    let memSize = width * height * 4 * 2 * 2 + 9 * 4 * 2; // rgba for one pixel
+    // TODO 这里需要乘以2，原因暂时未知
+    /**事件绑定**/
+    const matrix = document.getElementById('matrix');
+    [...matrix.children].forEach((input) => {
+        input.value = kernels[Number(input.dataset.index)];
+        input.addEventListener('change', e => {
+            kernels[Number(e.target.dataset.index)] = e.target.value;
+        })
+    });
+    [...document.querySelectorAll('.act-btns')].forEach(btn => {
+        btn.addEventListener('click', e => {
+            if (Number(btn.dataset.type) !== -1) {
+                kernels = kernelMap[btn.dataset.type];
+                [...matrix.children].forEach((input) => {
+                    input.value = kernels[Number(input.dataset.index)];
+                });
+            }
+            initCanvas();
+        })
+    });
+    function initListContainer() {
+        let fragment = document.createDocumentFragment();
+        for (let i = 1; i <= PICNUM; i += 1) {
+            let img = document.createElement('img');
+            img.style.backgroundImage = `url(./pic/${i}.jpg)`;
+            img.dataset.id = i;
+            img.classList.add('center-img');
+            fragment.appendChild(img);
+        }
+        let listContainer = document.getElementById('list-container');
+        listContainer.appendChild(fragment);
+        listContainer.addEventListener('click', e => {
+            let target = e.target;
+            if (e.target.tagName === 'IMG') {
+                url = `./pic/${e.target.dataset.id}.jpg`
+                initCanvas()
+            }
+        })
+    }
+    initListContainer();
+    // 切换图片的时候，需要重新计算 Canvas 的尺寸
+    const getPixelRatio = function (context) {
+        let backingStore = context.backingStorePixelRatio ||
+            context.webkitBackingStorePixelRatio ||
+            context.mozBackingStorePixelRatio ||
+            context.msBackingStorePixelRatio ||
+            context.oBackingStorePixelRatio ||
+            context.backingStorePixelRatio || 1;
+        return (window.devicePixelRatio || 1) / backingStore;
+    };
+    function reComputeCanvasSize(width, height) {
+        let k = height / width;
+        let resultWidth = Math.floor(Math.sqrt(DEFAULT_AREA / k));
+        let resultHeight = 0;
+        if (resultWidth > MAX_WIDTH) {
+            resultWidth = MAX_WIDTH;
+            resultHeight = resultWidth * k;
+        } else {
+            resultHeight = resultWidth * k;
+            if (resultHeight > MAX_HEIGHT) {
+                resultHeight = MAX_HEIGHT;
+                resultWidth = resultHeight / k;
+            }
+        }
+        return {
+            width: resultWidth,
+            height: Math.floor(resultHeight)
+        }
+    }
+    function resizeCanvas(imgWidth, imgHeight) {
+        let result = reComputeCanvasSize(imgWidth, imgHeight);
+        canvas.style.width = result.width + 'px';
+        canvas.style.height = result.height + 'px';
+        width = canvas.width = result.width * 2;
+        height = canvas.height = result.height * 2;
+        size = width * height;
+        memSize = width * height * 4 * 2 + 9 * 4 * 2; // rgba for one pixel
+    }
+    function initCanvas(first) {
+        let img = new Image();
+        img.src = url;
+        img.onload = function () {
+            resizeCanvas(img.width, img.height);
+            let ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, width, height);
+            if (first) return;
+            let memory = new WebAssembly.Memory({ initial: ((memSize + 0xffff) & ~0xffff) >>> 16 });
+            // 这里经过这样的计算是因为 initial 传入的是以 page 为单位，详细可以参考：https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/Memory
+            fetch(wasmPath)
+                .then(response => response.arrayBuffer())
+                .then(buffer => WebAssembly.instantiate(buffer, {
+                    env: {
+                        memory,
+                        abort: function () { }
+                    },
+                    Math
+                })).then(module => {
+                    let exports = module.instance.exports;
+                    let mem = new Uint32Array(memory.buffer);
+                    let imageData = ctx.getImageData(0, 0, width, height);
+                    let argb = new Uint32Array(imageData.data.buffer);
+                    let allData = new Uint32Array(argb.length * 2 + kernels.length);
+                    allData.set(argb);
+                    allData.set(kernels, argb.length);
+                    allData.set(argb, argb.length + kernels.length);
+                    (function render() {
+                        mem.set(allData);
+                        exports.init(width, height);
+                        argb.set(mem.subarray(size + kernels.length, size * 2 + kernels.length)); // copy output to image buffer
+                        ctx.putImageData(imageData, 0, 0);         // apply image buffer
+                    })();
+                });
+        };
+    }
+    initCanvas(true);
+</script>
+
+</html>

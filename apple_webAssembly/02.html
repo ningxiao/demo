@@ -55,7 +55,9 @@
             .then(buffer => WebAssembly.instantiate(buffer, {
                 env: {
                     memory,
-                    abort: function () { }
+                    abort(msgPtr, filePtr, line, column) {
+                        throw new Error(`index.ts: abort at [${line}:${column}]`);
+                    }
                 },
                 config: {
                     BGR_ALIVE: rgb2bgr(RGB_ALIVE) | 1,
