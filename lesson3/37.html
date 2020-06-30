@@ -32,7 +32,7 @@
 
         .ratio-graph .graph {
             width: 12px;
-            height: 32px;
+            height: 30px;
             background: #EDEDED;
             display: flex;
             flex-direction: column;
@@ -79,7 +79,7 @@
         const bar = document.querySelector('.graph .bar');
         const maxheight = graph.getBoundingClientRect().height / 5;
         document.querySelectorAll('.graph span').forEach((span, index) => {
-            span.style.top = `${maxheight + maxheight * index}px`;
+            span.style.transform = `translate(0,${maxheight + maxheight * index}px)`;
         })
         const animation = () => {
             setTimeout(() => {
