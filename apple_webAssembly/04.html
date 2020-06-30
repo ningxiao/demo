@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>wasm测试</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+</body>
+<script>
+    const importObj = {
+        js: {
+            import1: () => console.log("hello,"),
+            import2: () => console.log("world!")
+        }
+    };
+    fetch('./wasm/demo.wasm').then(response =>
+        response.arrayBuffer()
+    ).then(buffer =>
+        WebAssembly.instantiate(buffer, importObj)
+    ).then(({ module, instance }) =>
+        instance.exports.f()
+    );
+</script>
+
+</html>

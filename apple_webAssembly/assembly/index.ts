@@ -1,6 +1,6 @@
 // see: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
-// Configuration imported from JS
+//导入配置
 import { BGR_ALIVE, BGR_DEAD, BIT_ROT } from "./config";
 let w: i32;
 let h: i32;

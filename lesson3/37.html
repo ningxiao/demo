@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>占比图</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ratio-graph {
+            font-family: PingFangSC-Regular;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.60);
+            display: flex;
+        }
+
+        .ratio-graph .title {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            margin-right: 4px;
+        }
+
+        .ratio-graph .title span {
+            text-align: right;
+        }
+
+        .ratio-graph .graph {
+            width: 12px;
+            height: 32px;
+            background: #EDEDED;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ratio-graph .graph span {
+            height: 1px;
+            width: 100%;
+            position: absolute;
+            background: #FFFFFF;
+        }
+
+        .ratio-graph .graph .bar {
+            position: absolute;
+            background: #87BEFF;
+            width: 100%;
+            height: 100%;
+            transition: all .25s;
+            transform: translate(0, 100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ratio-graph">
+        <div class="title">
+            <span id="title">60%填答率</span>
+            <span>430人参与问答</span>
+        </div>
+        <div class="graph">
+            <div class="bar"></div>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <script>
+        const graph = document.querySelector('.graph');
+        const title = document.querySelector('#title');
+        const bar = document.querySelector('.graph .bar');
+        const maxheight = graph.getBoundingClientRect().height / 5;
+        document.querySelectorAll('.graph span').forEach((span, index) => {
+            span.style.top = `${maxheight + maxheight * index}px`;
+        })
+        const animation = () => {
+            setTimeout(() => {
+                const data = (Math.random() * 100).toFixed(1);
+                title.innerHTML = `${data}%填答率`;
+                bar.style.transform = `translate(0, ${100 - data}%)`;
+                animation();
+            }, 1000);
+        }
+        window.requestAnimationFrame(animation);
+    </script>
+</body>
+
+</html>

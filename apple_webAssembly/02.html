@@ -80,12 +80,6 @@
                     argb.set(mem.subarray(size, size + size));
                     ctx.putImageData(imageData, 0, 0);
                     stats.end();
-                    // window.requestAnimationFrame(() => {
-                    //     argb.set(mem.subarray(size, size + size));
-                    //     ctx.putImageData(imageData, 0, 0);
-                    //     stats.end();
-                    //     window.requestAnimationFrame(draw);
-                    // });
                     window.requestAnimationFrame(draw);
                 }
                 [[canvas, "mousedown"], [canvas, "touchstart"]].forEach(eh => eh[0].addEventListener(eh[1], e => down = true));

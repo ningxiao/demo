@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>v-show</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <button onClick="model.isShow = true">显示</button>
+    <button onClick="model.isShow = false">隐藏</button>
+    <div v-show="isShow">Hello World！</div>
+    <script id="worker" type="app/worker">
+        addEventListener('message', function (event) {
+            const int32 = new Int32Array(event.data);
+            int32.set([18, 93, 42], 3);
+            postMessage('complete');
+        }, false);
+    </script>
+    <script>
+        const sharedBuffer = new SharedArrayBuffer(10 * Int32Array.BYTES_PER_ELEMENT); // 10 个 int
+        const blob = new Blob([document.querySelector('#worker').textContent]); // 取得內容
+        const worker = new Worker(window.URL.createObjectURL(blob));
+        worker.addEventListener('message', function (e) {
+            console.log(e.data, new Int32Array(sharedBuffer));
+        });
+        worker.postMessage(sharedBuffer);
+    </script>
+    <script>
+        const view = document.querySelector('div')
+        // 第 2 步: 定义视图刷新方法
+        const updateView = value => {
+            view.style.display = value ? '' : 'none'
+        }
+        // 第 3 步: 设置初始视图表现
+        const directiveKey = view.getAttribute('v-show')
+        // // 第 4 步: 监听数据变化，然后刷新视图，达到数据驱动的目的
+        // Object.defineProperty(model, 'isShow', {
+        //     set: function (val) {
+        //         updateView(val)
+        //     }
+        // })
+        const model = new Proxy(
+            {
+                isShow: false
+            },
+            {
+                get: (target, key) => {
+                    console.log(`${key} 被读取`);
+                    return target[key];
+                },
+                set: (target, key, value) => {
+                    updateView(value)
+                    console.log(`${key} 被设置为 ${value}`);
+                    Reflect.set(target, key, value);
+                }
+            });
+        updateView(model[directiveKey]);
+        const buffer = new SharedArrayBuffer(8);
+        console.log(buffer.byteLength);
+    </script>
+</body>
+
+</html>

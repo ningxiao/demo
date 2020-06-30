@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>简易VUE</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const observer = (data) => {
+            if (!data || typeof data !== 'object') {
+                new Error('绑定数据为空');
+                return;
+            }
+            Object.keys(data).forEach(key => {
+                let dep = new Dep();
+                let value = data[key];
+                observer(value);
+                Object.defineProperty(data, key, {
+                    enumerable: true,
+                    configurable: true,
+                    get() {
+                        if (Dep.target) {
+                            dep.addSub(Dep.target)
+                        }
+                        return value;
+                    },
+                    set(newValue) {
+                        if (value !== newValue) {
+                            value = newValue;
+                            dep.notify();
+                        }
+                    },
+                })
+            })
+        }
+    </script>
+    <script>
+        class Dep {
+            constructor() {
+                this.subs = [];
+                this.target = null;
+            }
+            addSub(sub) {
+                this.subs.push(sub);
+            }
+            notify() {
+                this.subs.forEach(sub => {
+                    sub.update();
+                });
+            }
+        };
+        class Watcher {
+            constructor(vm, exp, cb) {
+                this.cb = cb;
+                this.vm = vm;
+                this.exp = exp;
+                this.value = this.get();
+            }
+            get() {
+                let value = this.vm._data;
+                Dep.target = this;
+                this.exp.split('.').forEach(key => {
+                    value = value[key];
+                })
+                Dep.target = null;
+                return value;
+            }
+            update() {
+                this.run();
+            }
+            run() {
+                let value = this.vm._data;
+                this.exp.split('.').forEach(key => {
+                    value = value[key];
+                })
+                if (value !== this.value) {
+                    this.value = value;
+                    this.cb.call(this.vm, value);
+                }
+            }
+        }
+        class Compile {
+            constructor(el, vm) {
+                this.el = document.querySelector(el);
+                this.vm = vm;
+                this.init();
+            };
+            init() {
+                this.fragment = this.node2Fragment(this.el);
+                this.compile(this.fragment);
+                this.el.appendChild(this.fragment);
+            };
+            node2Fragment(el) {
+                const fragment = document.createDocumentFragment();
+                let child = el.firstChild;
+                while (child) {
+                    fragment.appendChild(child);
+                    child = el.firstChild;
+                }
+                return fragment;
+            };
+            compile(el) {
+                const childNodes = el.childNodes;
+                const that = this;
+                Array.prototype.slice.call(childNodes).forEach(node => {
+                    if (that.isTextNode(node)) {
+                        that.compileText(node)
+                    }
+                    if (node.childNodes && node.childNodes.length) {
+                        that.compile(node)
+                    }
+                })
+            };
+            compileElement(node) {
+                const attributes = node.attributes;
+                const that = this;
+                Array.prototype.forEach.call(attributes, (attr) => {
+                    if (that.isDirective(attr)) {
+                        if (that.isModelDirective) {
+                            that.compileModel()
+                        }
+                        if (that.isHtmlDirective) {
+                            that.compileHtml()
+                        }
+                        if (that.isEventDirective) {
+                            that.compileEvnet()
+                        }
+                    }
+                });
+            };
+            compileText(node) {
+                const that = this;
+                const reg = /\{\{(.*)\}\}/;
+                if (reg.test(node.textContent)) {
+                    let val = that.vm._data;
+                    const exp = reg.exec(node.textContent)[1].trim();
+                    exp.split('.').forEach(key => {
+                        val = val[key]
+                    })
+                    that.updateText(node, val);
+                    new Watcher(that.vm, exp, function (value) {
+                        that.updateText(node, value)
+                    })
+                }
+            };
+            compileModel() { };
+            compileHtml() { };
+            compileEvnet() { };
+            updateText(node, value) {
+                node.textContent = value
+            };
+            isDirective(attr) {
+                return attr.indexof('v-') === 0;
+            };
+            isEventDirective(attr) {
+                return attr.indexof('on:') === 0;
+            };
+            isShortEventDirective(attr) {
+                return attr.indexof('@') === 0;
+            };
+            isHtmlDirective(dir) {
+                return dir.indexof('html') === 0;
+            };
+            isModelDirective(dir) {
+                return dir.indexof('model') === 0;
+            };
+
+            isElementNode(node) {
+                return node.nodeType === 1;
+            };
+            isTextNode(node) {
+                return node.nodeType === 3;
+            };
+        }
+        class Vue {
+            constructor(options = {}) {
+                this.$options = options;
+                this.$el = document.getElementById(options.el);
+                this._data = options.data;
+                this._proxyData(this._data);
+                //  observer(this._data);
+                // this._data = new Proxy(
+                //     this._data,
+                //     {
+                //         get: (target, key) => {
+                //             console.log(`${key} 被读取`);
+                //             return target[key];
+                //         },
+                //         set: (target, key, value) => {
+                //             updateView(value)
+                //             console.log(`${key} 被设置为 ${value}`);
+                //             Reflect.set(target, key, value);
+                //         }
+                //     });
+                // this.methods = options.methods;
+                // new Compile(options.el, this)
+            }
+            _proxyData(data) {
+                const model = new Proxy(
+                    data,
+                    {
+                        get: (target, key) => {
+                            console.log(`${key} 被读取`);
+                            return target[key];
+                        },
+                        set: (target, key, value) => {
+                            console.log(`${key} 被设置为 ${value}`);
+                            return Reflect.set(target, key, value);
+                        }
+                    }
+                );
+                // Object.keys(model).forEach(key => {
+                //     if (!Reflect.has(this, key)) {
+                //         Reflect.set(this, key, data[key])
+                //     }
+                // })
+                console.log(model, data);
+                model.f.name = '11122';
+                model.msg = '嘻嘻嘻';
+                // const that = this;
+                // console.log(that);
+                // Object.keys(data).forEach(key => {
+                //     Object.defineProperty(this, key, {
+                //         configurable: true,
+                //         enumerable: false,
+                //         get() {
+                //             return that._data[key];
+                //         },
+                //         set(newValue) {
+                //             that._data[key] = newValue;
+                //         },
+                //     })
+                // })
+            }
+        }
+    </script>
+    <div id="app">
+        <div>
+            <div>{{ msg }}</div>
+            <div>{{ f.name }}</div>
+        </div>
+    </div>
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                msg: '11',
+                f: {
+                    name: 1
+                },
+                dom: '<strong></strong>'
+            },
+            methods: {
+                clickMe() {
+                    console.log(123);
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
