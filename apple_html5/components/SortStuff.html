@@ -141,6 +141,13 @@
             switch (e.type) {
                 case 'some-event':
                     this.sort = !this.sort;
+                    this.dispatchEvent(new CustomEvent('my-sort', {
+                        detail: {
+                            sort: this.sort,
+                            hazcheeseburger: true,
+                        }
+                    }));
+
                     break;
                 default:
                     break;

@@ -45,13 +45,13 @@
                     document.querySelector('button').addEventListener('click', () => {
                         const SortView = customElements.get('sort-stuff');
                         const sortDom = new SortView('#sortable');
-                        sortDom.addEventListener('some-event', (ev)=>{
-                            console.log(ev);
+                        sortDom.addEventListener('my-sort', ({ detail: { sort } }) => {
+                            console.log('触发自定义事件', sort);
                         });
                         document.body.append(sortDom);
                     })
                 }, (ev) => {
-                    console.log('Error loading import: ' + ev.target.href);
+                    console.log('加载自定义组件失败: ' + ev.target.href);
                 });
             } else {
                 console.log('不支持导入');
