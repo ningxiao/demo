@@ -26,6 +26,9 @@
 
 <body>
     <div><button>添加自定义组件</button></div>
+    <!-- <sort-stuff>
+        <li slot="item">Item 6</li>
+    </sort-stuff> -->
     <script>
         const supportsImports = () => {
             return 'import' in document.createElement('link');
@@ -43,8 +46,13 @@
                 createImport('./components/SortStuff.html', (ev) => {
                     console.log('加载自定义组件完成: ' + ev.target.href);
                     document.querySelector('button').addEventListener('click', () => {
+                        const item = document.createElement('li');
                         const SortView = customElements.get('sort-stuff');
-                        const sortDom = new SortView('#sortable');
+                        const sortDom = new SortView();
+                        item.innerText = 'Item 6';
+                        item.setAttribute('data-sort', '6');
+                        item.setAttribute('slot', 'item');
+                        sortDom.append(item);
                         sortDom.addEventListener('my-sort', ({ detail: { sort } }) => {
                             console.log('触发自定义事件', sort);
                         });

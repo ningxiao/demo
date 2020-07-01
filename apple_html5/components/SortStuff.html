@@ -4,6 +4,20 @@
             margin: 0;
             padding: 0;
         }
+        :host {
+            display: flex;
+            flex-direction: column;
+            width: 450px;
+            height: 350px;
+            background-color: #d4d4d4;
+            border: 1px solid #d5d5d5;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            padding: 10px;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
         button {
             box-sizing: border-box;
@@ -33,11 +47,12 @@
     </style>
     <button data-key="sort">点击排序(默认)</button>
     <ul>
-        <li data-sort="c">Item 3</li>
-        <li data-sort="a">Item 1</li>
-        <li data-sort="d">Item 4</li>
-        <li data-sort="b">Item 2</li>
-        <li data-sort="e">Item 5</li>
+        <li data-sort="3">Item 3</li>
+        <li data-sort="1">Item 1</li>
+        <li data-sort="4">Item 4</li>
+        <li data-sort="2">Item 2</li>
+        <li data-sort="5">Item 5</li>
+        <slot data-sort="6" name="item">Item 6</slot>
     </ul>
 </template>
 <template id="example">
@@ -53,9 +68,8 @@
         sortButton;
         elements = [];
         _sort = true;
-        constructor(target = '#sortable') {
+        constructor() {
             super();
-            this.setAttribute('target', target);
             this.shadow = this.attachShadow({ mode: 'open' });
             this.createTmpl();
         }
@@ -81,7 +95,7 @@
             const data = [{ title: 'The title', text: 'Hello world' }, { title: 'A new title', text: 'Hi there' }];
             for (let i = 0; i < children.length; i++) {
                 this.elements.push({
-                    value: children[i].dataset[key],
+                    value: Number.parseInt(children[i].dataset[key]),
                     node: children[i],
                 });
             }
