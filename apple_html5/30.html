@@ -21,29 +21,42 @@
             color: red;
         }
     </style>
-    <link rel="import" href="./components/SortStuff.html">
+    <script src="./js/html-imports.min.js"></script>
 </head>
 
 <body>
     <div><button>添加自定义组件</button></div>
     <script>
-        (async () => {
-            // 导入doubleKill模块
-            const module = await import('./template/29.js');
-            module.default();
-            // 设置颜色为红色
-            module.pColor('red');
-            document.querySelector('button').addEventListener('click', () => {
-                const SortView = customElements.get('sort-stuff');
-                const sortDom = new SortView('#sortable');
-                document.body.append(sortDom);
-            })
+        const supportsImports = () => {
+            return 'import' in document.createElement('link');
+        }
+        const createImport = (url, load, error) => {
+            const link = document.createElement('link');
+            link.rel = 'import';
+            link.href = './components/SortStuff.html';
+            link.addEventListener('load', load);
+            link.addEventListener('error', error);
+            document.head.appendChild(link);
+        }
+        (() => {
+            if (supportsImports()) {
+                createImport('./components/SortStuff.html', (ev) => {
+                    console.log('加载自定义组件完成: ' + ev.target.href);
+                    document.querySelector('button').addEventListener('click', () => {
+                        const SortView = customElements.get('sort-stuff');
+                        const sortDom = new SortView('#sortable');
+                        sortDom.addEventListener('some-event', (ev)=>{
+                            console.log(ev);
+                        });
+                        document.body.append(sortDom);
+                    })
+                }, (ev) => {
+                    console.log('Error loading import: ' + ev.target.href);
+                });
+            } else {
+                console.log('不支持导入');
+            }
         })();
-        var link = document.querySelector('link[rel="import"]');
-        var content = link.import;
-        // Grab DOM from warning.html's document.
-        var el = content.querySelector('template');
-        console.log(el);
     </script>
 </body>
 

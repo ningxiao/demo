@@ -117,14 +117,13 @@
         adoptedCallback() {
             console.log('当 custom element被移动到新的文档时，被调用');
         }
-        attributeChangedCallback(name, oldValue, newValue) {
+        attributeChangedCallback(name, oldValue, newValue) { //绑定属性改版
             if (name === 'sort') {
                 this.sortCall();
             }
             console.log('当 custom element增加、删除、修改自身属性时，被调用。', name, oldValue, newValue);
         }
         sortCall() {
-            // this.createInstance([{ title: 'A new title', text: 'Hi there' }]);
             if (this.sort) {
                 this.elements.sort((x, y) => (x.value == y.value ? 0 : (x.value < y.value ? 1 : -1)));
                 this.sortButton.innerText = '点击排序(倒序)';
@@ -137,13 +136,11 @@
                 fragment.appendChild(i.node);
             });
             this.ul.appendChild(fragment);
-            console.log(fragment);
         }
-        handleEvent(e) {
+        handleEvent(e) { // 监听事件
             switch (e.type) {
                 case 'some-event':
                     this.sort = !this.sort;
-                    console.log(this.sort);
                     break;
                 default:
                     break;
