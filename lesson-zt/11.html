@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script src="./js/grid.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #grid {
+            height: 100%;
+            width: 100%;
+            min-height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="grid"></div>
+    <script>
+        let data;
+        const demo = () => {
+            const typeMap = {
+                'text': 'string',
+                'money': 'number',
+                'number': 'number'
+            };
+            const isNoiseData = (name) => {
+                return ['sid', 'id', 'position', 'created_at',
+                    'created_meta', 'updated_at',
+                    'updated_meta', 'meta', 'GeoLocation',
+                    'LOCATION', 'Location 1', 'Location 2',
+                    'Location 3', 'Location 4', 'WEBURL'].indexOf(name) !== -1;
+            };
+            const parseOpenData = (openData) => {
+                const schema = [];
+                openData.meta.view.columns.forEach((column) => {
+                    if (isNoiseData(column.name)) {
+                        column.hidden = true;
+                    }
+                    column.type = typeMap[column.dataTypeName] || 'string';
+                    if (/full or part-time/i.test(column.name)) {
+                        column.enum = [['F', 'F'], ['P', 'P']];
+                    }
+                    if (/salary or hourly/i.test(column.name)) {
+                        column.enum = [['Salary', 'Salary'], ['Hourly', 'Hourly']];
+                    }
+                    schema.push(column);
+                });
+                return {
+                    data: openData.data.map((row) => {
+                        const r = {};
+                        schema.forEach((column, index) => {
+                            r[column.name] = row[index];
+                        });
+                        return r;
+                    }),
+                    schema: schema
+                };
+            }
+            const initGrid = () => {
+                const grid = Grid({
+                    parentNode: document.querySelector('#grid'),
+                    borderDragBehavior: 'move',
+                    allowMovingSelection: true,
+                    columnHeaderClickBehavior: 'select',
+                    allowFreezingRows: true,
+                    allowFreezingColumns: true,
+                    allowRowReordering: true,
+                    tree: false,
+                    debug: false,
+                    showPerformance: false
+                });
+                grid.style.height = '100%';
+                grid.style.width = '100%';
+                ((url) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.addEventListener('progress', function (e) {
+                        grid.data = [{ status: '加载数据: ' + e.loaded + ' of ' + (e.total || 'unknown') + ' bytes...' }];
+                    });
+                    xhr.addEventListener('load', function (e) {
+                        grid.data = [{ status: '加载数据 ' + e.loaded + '...' }];
+                        const openData = parseOpenData(JSON.parse(this.responseText));
+                        grid.schema = openData.schema;
+                        grid.data = openData.data;
+                    });
+                    xhr.open('GET', url);
+                    xhr.send();
+                })('./datasource/rows.json');
+            }
+            initGrid();
+        }
+        window.requestAnimationFrame(demo);
+    </script>
+</body>
+
+</html>
