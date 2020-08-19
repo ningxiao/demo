@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>像素火焰</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            margin: 0px;
+        }
+
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        .info {
+            position: absolute;
+            top: 5px;
+            width: 100%;
+            color: #f06000;
+            font-family: Monospace;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="info">点击或者拖动创建火焰</div>
+    <script type="text/javascript">
+        const QUALITY = 6;
+        const WIDTH = Math.floor(window.innerWidth / QUALITY);
+        const HEIGHT = Math.floor(window.innerHeight / QUALITY);
+        const SIZE = WIDTH * HEIGHT;
+        const BUFFER_SIZE = SIZE + WIDTH;
+        (
+            (context) => {
+                let count = 0;
+                let isUserInteracting = false;
+                let buffer1 = new Float32Array(BUFFER_SIZE);
+                const pointers = new Float32Array(2);
+                const buffer2 = new Float32Array(BUFFER_SIZE);
+                const turbulence = new Float32Array(BUFFER_SIZE);
+                const image = context.getImageData(0, 0, WIDTH, HEIGHT);
+                const data = image.data;
+                for (let i = 0; i < BUFFER_SIZE; i++) {
+                    turbulence[i] = Math.random();
+                }
+                const emit = (x, y) => {
+                    buffer1[Math.floor(x) + (Math.floor(y) * WIDTH)] = 1000;
+                }
+                const transform = (x, y) => {
+                    pointers.set([x / QUALITY, y / QUALITY], 0);
+                }
+                const animate = () => {
+                    let i4;
+                    let pixel;
+                    const iMax = WIDTH / 5;
+                    if (isUserInteracting) {
+                        emit(pointers[0], pointers[1]);
+                    }
+                    for (let i = 0; i < iMax; i++) {
+                        emit(Math.random() * WIDTH, HEIGHT);
+                    }
+                    for (let i = WIDTH; i < SIZE; i++) {
+                        i4 = i * 4;
+                        buffer2[i] = ((buffer1[i - 1] + buffer1[i + 1]) * 0.235) + (buffer1[i + WIDTH] * turbulence[(i + count) % SIZE]);
+                        pixel = buffer2[i];
+                        data[i4] = Math.min(255, pixel << 3);
+                        data[i4 + 1] = Math.min(255, pixel);
+                        data[i4 + 2] = Math.min(255, pixel >> 1);
+                    }
+                    buffer1.set(buffer2, 0);
+                    context.putImageData(image, 0, 0);
+                    count += Math.floor(Math.random() * SIZE);
+                    requestAnimationFrame(animate);
+                }
+                document.addEventListener('mousedown', (event) => {
+                    event.preventDefault();
+                    isUserInteracting = true;
+                    transform(event.clientX, event.clientY);
+                }, false);
+                document.addEventListener('mousemove', (event) => {
+                    transform(event.clientX, event.clientY);
+                }, false);
+                document.addEventListener('mouseup', () => {
+                    isUserInteracting = false;
+                }, false);
+                document.addEventListener('mouseout', () => {
+                    isUserInteracting = false;
+                }, false);
+                requestAnimationFrame(animate);
+            }
+        )(
+            (
+                () => {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = WIDTH;
+                    canvas.height = HEIGHT;
+                    canvas.style.width = window.innerWidth + "px";
+                    canvas.style.height = window.innerHeight + "px";
+                    document.body.appendChild(canvas);
+                    const context = canvas.getContext('2d');
+                    context.fillStyle = "rgb(0, 0, 0)";
+                    context.fillRect(0, 0, WIDTH, HEIGHT);
+                    return context;
+                }
+            )()
+        );
+    </script>
+</body>
+
+</html>
