@@ -111,8 +111,8 @@
                     const canvas = document.createElement("canvas");
                     canvas.width = WIDTH;
                     canvas.height = HEIGHT;
-                    canvas.style.width = window.innerWidth + "px";
-                    canvas.style.height = window.innerHeight + "px";
+                    canvas.style.width = `${window.innerWidth}px`;
+                    canvas.style.height = `${window.innerHeight}px`;
                     document.body.appendChild(canvas);
                     const context = canvas.getContext('2d');
                     context.fillStyle = "rgb(0, 0, 0)";
