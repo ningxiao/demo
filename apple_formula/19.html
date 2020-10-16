@@ -1,0 +1,238 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>不规则形状碰撞</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas></canvas>
+    <script>
+        const rect = document.documentElement.getBoundingClientRect();
+        const utils = {
+            get width() {
+                return rect.width;
+            },
+            get height() {
+                return rect.height;
+            },
+            get dpr() {
+                return window.devicePixelRatio || 1;
+            },
+            ratio(ctx) {
+                return utils.dpr / (ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1);
+            },
+            judge(dot, points, zeroMode) {
+                // 默认启动none zero mode
+                const noneZeroMode = zeroMode || 1;
+                const x = dot.x;
+                const y = dot.y;
+                let crossNum = 0;
+                // 点在线段的左侧数目
+                let leftCount = 0;
+                // 点在线段的右侧数目
+                let rightCount = 0;
+                for (let i = 0; i < points.length - 1; i++) {
+                    const start = points[i];
+                    const end = points[i + 1];
+                    // 起点、终点斜率不存在的情况
+                    if (start.x === end.x) {
+                        // 因为射线向右水平，此处说明不相交
+                        if (x > start.x) continue;
+                        // 从左侧贯穿
+                        if ((end.y > start.y && y >= start.y && y <= end.y)) {
+                            leftCount++;
+                            crossNum++;
+                        }
+                        // 从右侧贯穿
+                        if ((end.y < start.y && y >= end.y && y <= start.y)) {
+                            rightCount++;
+                            crossNum++;
+                        }
+                        continue;
+                    }
+                    // 斜率存在的情况，计算斜率
+                    const k = (end.y - start.y) / (end.x - start.x);
+                    // 交点的x坐标
+                    const x0 = (y - start.y) / k + start.x;
+                    // 因为射线向右水平，此处说明不相交
+                    if (x > x0) continue;
+                    if ((end.x > start.x && x0 >= start.x && x0 <= end.x)) {
+                        crossNum++;
+                        if (k >= 0) leftCount++;
+                        else rightCount++;
+                    }
+                    if ((end.x < start.x && x0 >= end.x && x0 <= start.x)) {
+                        crossNum++;
+                        if (k >= 0) rightCount++;
+                        else leftCount++;
+                    }
+                }
+                return noneZeroMode === 1 ? leftCount - rightCount !== 0 : crossNum % 2 === 1;
+            },
+            rect(points) {
+                let p1 = { x: Number.POSITIVE_INFINITY, y: 0 };
+                let p2 = { x: 0, y: Number.POSITIVE_INFINITY };
+                let p3 = { x: Number.NEGATIVE_INFINITY, y: 0 };
+                let p4 = { x: 0, y: Number.NEGATIVE_INFINITY };
+                points.forEach((vo) => {
+                    const { x, y } = vo;
+                    if (p1.x > x) {
+                        p1.x = x;
+                        p1.y = y;
+                    }
+                    if (p2.y > y) {
+                        p2.x = x;
+                        p2.y = y;
+                    }
+                    if (p3.x < x) {
+                        p3.x = x;
+                        p3.y = y;
+                    }
+                    if (p4.y < y) {
+                        p4.x = x;
+                        p4.y = y;
+                    }
+                });
+                return {
+                    minRect: [p1, p2, p3, p4],
+                    maxRect: [
+                        { x: p1.x, y: p2.y },
+                        { x: p3.x, y: p2.y },
+                        { x: p3.x, y: p4.y },
+                        { x: p1.x, y: p4.y }
+                    ]
+                };
+            },
+            cross(p1, p2, p) {
+                return (p2.x - p1.x) * (p.y - p1.y) - (p.x - p1.x) * (p2.y - p1.y);
+            },
+            IsPointInMatrix(rect, p) {
+                const [p1, p2, p3, p4] = rect;
+                return utils.cross(p1, p2, p) * utils.cross(p3, p4, p) >= 0 && utils.cross(p2, p3, p) * utils.cross(p4, p1, p) >= 0;
+            },
+            eventWrapper(ev) {
+                // 点击位置到浏览器可视区的位置 offsetX 鼠标相当于元素的坐标
+                let { pageX, pageY, target } = ev;
+                // 元素到浏览器的距离
+                let { left, top } = target.getBoundingClientRect();
+                return { x: pageX - left, y: pageY - top };
+            }
+        }
+        window.requestAnimationFrame || (window.requestAnimationFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+            setTimeout(callback, 1000 / 60);
+        });
+        window.cancelAnimationFrame || (window.cancelAnimationFrame = window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || window.clearTimeout);
+    </script>
+    <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        const ratio = utils.ratio(ctx);
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
+        const points = [
+            { x: 50, y: 300 },
+            { x: 250, y: 300 },
+            { x: 100, y: 350 },
+            { x: 150, y: 250 },
+            { x: 200, y: 350 },
+            { x: 50, y: 300 }
+        ];
+        const { minRect, maxRect } = utils.rect(points);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        ctx.scale(ratio, ratio);
+        console.log(minRect, maxRect);
+        window.requestAnimationFrame(() => {
+            let isMove = false;
+            let cursor = 'auto';
+            let tips = '未移入五角星';
+            const engine = () => {
+                const { x, y } = points[0];
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "blue";
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                points.forEach((dot) => {
+                    ctx.lineTo(dot.x, dot.y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+                if (isMove) {
+                    ctx.fill();
+                }
+                ctx.restore();
+                //绘制外接矩形
+                ctx.save();
+                ctx.strokeStyle = "#000";
+                if (isMove) {
+                    ctx.strokeStyle = "#06f32d";
+                }
+                ctx.beginPath();
+                ctx.moveTo(maxRect[0].x, maxRect[0].y);
+                maxRect.forEach((dot) => {
+                    ctx.lineTo(dot.x, dot.y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();
+                 //绘制内接矩形
+                ctx.save();
+                ctx.strokeStyle = "red";
+                if (isMove) {
+                    ctx.strokeStyle = "blue";
+                }
+                ctx.beginPath();
+                ctx.moveTo(minRect[0].x, minRect[0].y);
+                minRect.forEach((dot) => {
+                    ctx.lineTo(dot.x, dot.y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();
+                ctx.font = 'bold 35px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#ccc';
+                ctx.strokeText(tips, 150, 100);
+                window.requestAnimationFrame(engine);
+            }
+            canvas.addEventListener('mousemove', (ev) => {
+                const point = utils.eventWrapper(ev);
+                isMove = false;
+                tips = '未移入五角星';
+                if (utils.IsPointInMatrix(maxRect, point)) {
+                    tips = '移入外接矩形';
+                    if (utils.judge(point, points, 1)) {
+                        isMove = true;
+                        cursor = 'pointer';
+                        tips = '移入五角星';
+                    }
+                }
+                canvas.style.cursor = cursor;
+            });
+            engine();
+        });
+    </script>
+</body>
+
+</html>
