@@ -74,7 +74,7 @@
             name: 'my-iframe-name',
             classListArray: ["child"],
             container: document.querySelector('.some-div'),
-            url: `${window.location.origin}/apple_html5/child.html`,
+            url: window.location.href.replace('34.html','child.html'),
         });
         handshake.then(child => {
             const menu = document.querySelector('.menu');
