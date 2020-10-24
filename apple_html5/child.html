@@ -1,50 +1,17 @@
-<!DOCTYPE html>
-<html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1,maximum-scale=1viewport-fit=cover"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>子页面</title><style>* {
+    margin: 0;
+    padding: 0;
+}
 
-<head>
-    <meta charset="UTF-8">
-    <title>iframe使用postMessage通信</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            background: #000000;
-            color: #ffffff;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-        }
-    </style>
-    <script type="text/javascript" src="./js/postmate.min.js"></script>
-</head>
-
-<body>
-    <script>
-        const handshake = new Postmate.Model({
-            height: () => document.height || document.body.offsetHeight,
-            upBackground: (color) => {
-                document.body.style.background = color;
-            },
-            upRouting: (hash) => {
-                location.hash = hash;
-            }
-        });
-        handshake.then(parent => {
-            document.body.addEventListener('click', (ev) => {
-                parent.emit('some-event', { x: ev.pageX, y: ev.pageY });
-            });
-            window.addEventListener('hashchange', (ev) => {
-                document.body.innerText = `触发hash更新, ${location.hash}`;
-            });
-        });
-    </script>
-</body>
-
-</html>
+html,
+body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background: #000000;
+    color: #ffffff;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    user-select: none;
+}</style></head><body><script src="./js/client.bundle.js"></script></body></html>

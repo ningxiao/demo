@@ -1,103 +1,49 @@
-<!DOCTYPE html>
-<html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1,maximum-scale=1viewport-fit=cover"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>父页面</title><style>* {
+    margin: 0;
+    padding: 0;
+}
 
-<head>
-    <meta charset="UTF-8">
-    <title>iframe使用postMessage通信</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
+html,
+body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding: 2px;
+    box-sizing: border-box;
+    user-select: none;
+}
 
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            padding: 2px;
-            box-sizing: border-box;
-            user-select: none;
-        }
+.some-div {
+    flex: 1;
+}
 
-        .some-div {
-            flex: 1;
-        }
+.menu {
+    width: 150px;
+    padding-right: 4px;
+}
 
-        .menu {
-            width: 150px;
-            padding-right: 4px;
-        }
+.menu>li {
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: darkgray;
+    margin-bottom: 4px;
+}
 
-        .menu>li {
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            background: darkgray;
-            margin-bottom: 4px;
-        }
+.menu>li:hover {
+    background: cornflowerblue;
+}
 
-        .menu>li:hover {
-            background: cornflowerblue;
-        }
-
-        .child {
-            width: 100%;
-            height: 100%;
-            border-style: inset;
-            border-color: initial;
-            border-image: initial;
-            border-top-width: 0px;
-            border-right-width: 0px;
-            border-bottom-width: 0px;
-            border-left-width: 0px;
-        }
-    </style>
-    <script type="text/javascript" src="./js/postmate.min.js"></script>
-</head>
-
-<body>
-    <ul class="menu">
-        <li data-key="background">改变背景色</li>
-        <li data-key="routing">转跳子路由</li>
-    </ul>
-    <div class="some-div"></div>
-    <script>
-        const getRandomColor = () => {
-            return (function (m, s, c) {
-                return (c ? arguments.callee(m, s, c - 1) : '#') + s[m.floor(m.random() * 16)]
-            })(Math, '0123456789abcdef', 5);
-        }
-        const handshake = new Postmate({
-            name: 'my-iframe-name',
-            classListArray: ["child"],
-            container: document.querySelector('.some-div'),
-            url: window.location.href.replace('34.html','child.html'),
-        });
-        handshake.then(child => {
-            const menu = document.querySelector('.menu');
-            child.get('height').then((height) => {
-                child.frame.style.height = `${height}px`;
-            });
-            menu.addEventListener('click', (ev) => {
-                switch (ev.target.getAttribute('data-key')) {
-                    case 'background':
-                        child.call('upBackground', getRandomColor());
-                        break;
-                    case 'routing':
-                        child.call('upRouting', `name=ningxiao&time=${Date.now()}`);
-                        break;
-                    default:
-                        break;
-                }
-            });
-            child.on('some-event', (data) => {
-                console.log(data);
-            });
-        });
-    </script>
-</body>
-
-</html>
+.child {
+    width: 100%;
+    height: 100%;
+    border-style: inset;
+    border-color: initial;
+    border-image: initial;
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+}</style></head><body><ul class="menu"><li data-key="destroy">释放通讯</li><li data-key="background">改变背景色</li><li data-key="routing">转跳子路由</li></ul><div class="some-div"></div><script src="./js/index.bundle.js"></script></body></html>
