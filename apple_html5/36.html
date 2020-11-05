@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>动态实现跨域通讯</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        span {
+            width: 100px;
+            height: 40px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: red;
+            user-select: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <span>点击打开</span>
+    <script>
+        const jsonApi = URL.createObjectURL(new Blob([JSON.stringify({ name: 'ningxiao', age: 33 })], {
+            'type': 'application/json'
+        }));
+    </script>
+    <script>
+        const tmpl = `
+            <!doctype html>
+            <html lang="zh-CN">
+                <head>
+                    <meta charset="utf-8">
+                    <title>父页面</title>
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                        }
+                        html,
+                        body {
+                            width: 100%;
+                            height: 100%;
+                            display: flex;
+                            padding: 2px;
+                            box-sizing: border-box;
+                            user-select: none;
+                        }
+                        .some-div {
+                            flex: 1;
+                        }
+                        .menu {
+                            width: 150px;
+                            padding-right: 4px;
+                        }
+                        .menu>li {
+                            height: 40px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            cursor: pointer;
+                            background: darkgray;
+                            margin-bottom: 4px;
+                        }
+                        .menu>li:hover {
+                            background: cornflowerblue;
+                        }
+                        .child {
+                            width: 100%;
+                            height: 100%;
+                            border-style: inset;
+                            border-color: initial;
+                            border-image: initial;
+                            border-top-width: 0px;
+                            border-right-width: 0px;
+                            border-bottom-width: 0px;
+                            border-left-width: 0px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <ul class="menu">
+                        <li data-key="destroy">释放通讯</li>
+                        <li data-key="background">改变背景色</li>
+                        <li data-key="routing">转跳子路由</li>
+                    </ul>
+                    <div class="some-div"></div>
+                    <script>
+                        const rooUrl = '${window.location.href.replace("36.html", "child.html")}';
+                        // URL.revokeObjectURL(window.location.href);
+                        fetch('${jsonApi}').then(
+                            (response) => {
+                                return response.json();
+                            }
+                        ).then(
+                            (data) => {
+                                console.log('获取数据源',data);
+                                // URL.revokeObjectURL('${jsonApi}');
+                            }
+                        );
+                    <\/script>
+                    <script src="${window.location.href.replace("36.html", "js/index.bundle.js")}"><\/script>
+                </body>
+            </html>
+        `;
+        const url = URL.createObjectURL(new Blob([tmpl], {
+            'type': 'text/html'
+        }));
+    </script>
+    <script>
+        const dom = document.querySelector('span');
+        dom.addEventListener('click', (ev) => {
+            window.open(url);
+        });
+    </script>
+</body>
+
+</html>

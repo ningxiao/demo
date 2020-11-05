@@ -1,49 +1,73 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="user-scalable=no,width=device-width,initial-scale=1,maximum-scale=1viewport-fit=cover"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>父页面</title><style>* {
-    margin: 0;
-    padding: 0;
-}
+<!doctype html>
+<html lang="zh-CN">
 
-html,
-body {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    padding: 2px;
-    box-sizing: border-box;
-    user-select: none;
-}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+        content="user-scalable=no,width=device-width,initial-scale=1,maximum-scale=1viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>父页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
 
-.some-div {
-    flex: 1;
-}
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            padding: 2px;
+            box-sizing: border-box;
+            user-select: none;
+        }
 
-.menu {
-    width: 150px;
-    padding-right: 4px;
-}
+        .some-div {
+            flex: 1;
+        }
 
-.menu>li {
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    background: darkgray;
-    margin-bottom: 4px;
-}
+        .menu {
+            width: 150px;
+            padding-right: 4px;
+        }
 
-.menu>li:hover {
-    background: cornflowerblue;
-}
+        .menu>li {
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background: darkgray;
+            margin-bottom: 4px;
+        }
 
-.child {
-    width: 100%;
-    height: 100%;
-    border-style: inset;
-    border-color: initial;
-    border-image: initial;
-    border-top-width: 0px;
-    border-right-width: 0px;
-    border-bottom-width: 0px;
-    border-left-width: 0px;
-}</style></head><body><ul class="menu"><li data-key="destroy">释放通讯</li><li data-key="background">改变背景色</li><li data-key="routing">转跳子路由</li></ul><div class="some-div"></div><script src="./js/index.bundle.js"></script></body></html>
+        .menu>li:hover {
+            background: cornflowerblue;
+        }
+
+        .child {
+            width: 100%;
+            height: 100%;
+            border-style: inset;
+            border-color: initial;
+            border-image: initial;
+            border-top-width: 0px;
+            border-right-width: 0px;
+            border-bottom-width: 0px;
+            border-left-width: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <ul class="menu">
+        <li data-key="destroy">释放通讯</li>
+        <li data-key="background">改变背景色</li>
+        <li data-key="routing">转跳子路由</li>
+    </ul>
+    <div class="some-div"></div>
+    <script src="./js/index.bundle.js"></script>
+</body>
+
+</html>

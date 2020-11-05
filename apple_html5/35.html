@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>图表调研</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .main {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            box-sizing: border-box;
+            padding-top: 10px;
+        }
+
+        .box {
+            flex: 1;
+            display: flex;
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .box>span {
+            text-align: center;
+        }
+
+        .box>canvas {
+            width: 100%;
+            height: 400px;
+        }
+
+        div[data-type="editor"] {
+            flex: 1;
+        }
+
+        #ecview,
+        #antview,
+        #d3view {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+    <script>
+        document.addEventListener('touchstart', function (event) {
+            // 判断默认行为是否可以被禁用
+            if (event.cancelable) {
+                // 判断默认行为是否已经被禁用
+                if (!event.defaultPrevented) {
+                    event.preventDefault();
+                }
+            }
+        }, { passive: false });
+    </script>
+</head>
+
+<body>
+    <div class="main">
+        <div class="box">
+            <span>D3.js</span>
+            <canvas id="d3view"></canvas>
+        </div>
+        <div class="box" id="cut">
+            <span id="cut_click">点击截图</span>
+        </div>
+        <div class="box" id="working">
+            <span>点击下载</span>
+        </div>
+    </div>
+    <script src="./js/d3.v5.min.js"></script>
+    <script src="./js/html2canvas.min.js"></script>
+    <script>
+        const canvas = document.querySelector('#d3view');
+        const context = canvas.getContext('2d');
+        const margin = {
+            top: 20,
+            right: 20,
+            bottom: 30,
+            left: 50
+        };
+        const utils = {
+            get dpr() {
+                return window.devicePixelRatio || 1;
+            },
+            ratio(ctx) {
+                return utils.dpr / (ctx.webkitBackingStorePixelRatio || ctx.mozBackingStorePixelRatio || ctx.msBackingStorePixelRatio || ctx.oBackingStorePixelRatio || ctx.backingStorePixelRatio || 1);
+            }
+        };
+        const moved = (el) => {
+            return (ev) => {
+                console.log(d3.mouse(el));
+            };
+        };
+        const width = canvas.offsetWidth - margin.left - margin.right;
+        const height = canvas.offsetHeight - margin.top - margin.bottom;
+        const x = d3.scaleLinear().range([0, width]);
+        const y = d3.scaleLinear().range([height, 0]);
+        // 创建线性路径生成器
+        const paths = { x: [], y: [] };
+        const line = d3.line().x(d => {
+            let dx = x(d.date);
+            paths.x.push(dx);
+            return dx;
+        }).y(d => {
+            let dy = y(d.close);
+            paths.y.push(dy);
+            return dy;
+        }).curve(d3.curveLinear).context(context);
+        const dot = d3.symbol().size(() => 24).context(context);
+        const xAxis = (ctx, count, format) => {
+            const tickSize = 6;
+            const ticks = x.ticks(count);
+            ctx.strokeStyle = "black";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+            ticks.forEach(data => {
+                const dx = x(data);
+                ctx.moveTo(dx, height);
+                ctx.lineTo(dx, height + tickSize);
+            });
+            ticks.forEach(data => {
+                ctx.fillText(format(data), x(data), height + tickSize);
+            });
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.stroke();
+            ctx.beginPath();
+        };
+        const yAxis = (ctx, count) => {
+            const tickSize = 6;
+            const tickPadding = 3;
+            const ticks = y.ticks(count);
+            const tickFormat = y.tickFormat(count);
+            ticks.forEach(data => {
+                ctx.moveTo(0, y(data));
+                ctx.lineTo(-6, y(data));
+            });
+            ctx.strokeStyle = "black";
+            ctx.stroke(); // 绘制已定义的路径
+            ctx.beginPath(); // 起始一条路径，或重置当前路径
+            ctx.moveTo(-tickSize, 0);
+            ctx.lineTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.lineTo(-tickSize, height);
+            ctx.stroke();// 绘制已定义的路径
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ticks.forEach(data => {
+                ctx.fillText(tickFormat(data), -tickSize - tickPadding, y(data));
+            });
+            ctx.save();// 保存之前的状态
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = "right";
+            ctx.textBaseline = "top";
+            ctx.font = "bold 10px sans-serif";
+            ctx.fillText("价格 (CN¥)", -10, 10);
+            ctx.restore();// 还原状态
+            ctx.beginPath();
+        };
+        const parse = () => {
+            const ratio = utils.ratio(context);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            context.scale(ratio, ratio);
+            context.translate(margin.left, margin.top);
+            return (data) => {
+                data.forEach((vo, index) => {
+                    vo.date = index;
+                    vo.title = vo.date;
+                    vo.close = Number.parseInt(vo.close);
+                });
+                return data;
+            };
+        };
+        const draw = (ctx) => {
+            d3.select(canvas).on("touchmove mousemove", moved(canvas));
+            return (data) => {
+                const xs = paths.x;
+                const ys = paths.y;
+                x.domain(d3.extent(data, d => d.date));
+                //y.domain(d3.extent(data, d => d.close)); // 返回[820,1330]
+                y.domain([0, d3.max(data, d => d.close)]); // 返回[0,1330]
+                xAxis(ctx, data.length, key => {
+                    return data[key].title;
+                });
+                yAxis(ctx, 6);
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = "steelblue";
+                line(data); // 绘制线段
+                ctx.stroke(); // 绘制已定义的路径
+                ctx.beginPath();//起始一条路径，或重置当前路径
+                ctx.fillStyle = "steelblue"; // 设置或返回用于填充绘画的颜色、渐变或模式
+                data.forEach((d, i) => { // 绘制圆点
+                    ctx.save();
+                    ctx.translate(xs[i], ys[i]);
+                    dot();
+                    ctx.restore();
+                });
+                ctx.fill();//填充当前绘图（路径）
+            };
+        };
+        d3.tsv("./db/data.tsv").then(parse()).then(draw(context)).catch(err => {
+            console.log('失败：' + err);
+        });
+    </script>
+    <script>
+        const dom = document.querySelector('#cut_click');
+        const tmpl = `
+            const work = data => {
+                const buff = new Uint8ClampedArray(data);
+                for (let i = 0; i < buff.length; i++) {
+                    if((i + 1) % 4 !== 0){
+                        const avg = 0.299 * buff[i] + 0.578 * buff[i+1] + 0.114 * buff[i+2];
+                        buff[i]     = avg; // red
+                        buff[i + 1] = avg; // green
+                        buff[i + 2] = avg; // blue
+                        // buff[i + 3] = 255; // alpha
+                    }
+                };
+                return buff;
+            };
+            onmessage = e => {
+                const data = work(e.data);
+                postMessage(data.buffer, [data.buffer]);
+                close();
+            };
+        `;
+        const working = new Worker(window.URL.createObjectURL(new Blob([tmpl])));
+        dom.addEventListener('click', () => {
+            html2canvas(document.querySelector('#d3view')).then(canvas => {
+                document.querySelector('#cut').appendChild(canvas);
+                window.requestAnimationFrame(() => {
+                    const ctx = canvas.getContext('2d');
+                    const { data } = document.querySelector('#d3view').getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+                    working.addEventListener('message', (ev) => {
+                        ctx.putImageData(new ImageData(new Uint8ClampedArray(ev.data), canvas.width, canvas.height), 0, 0);
+                        // ctx.imageSmoothingEnabled = value;
+                        canvas.toBlob((blob) => {
+                            const newImg = document.createElement("img");
+                            const url = URL.createObjectURL(blob);
+                            newImg.onload = function () {
+                                URL.revokeObjectURL(url);
+                            };
+                            newImg.style.cssText = `width:${canvas.offsetWidth}px;height:${canvas.offsetHeight}px;`;
+                            newImg.src = url;
+                            document.querySelector('#working').appendChild(newImg);
+                        });
+                    });
+                    working.postMessage(data.buffer, [data.buffer]);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
