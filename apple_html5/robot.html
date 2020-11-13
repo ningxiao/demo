@@ -28,14 +28,23 @@
 
 <body>
     <script>
+        /**
+        * 轮询检测
+        */
         let sum = 0;
-        const callName = 'get_data_source';
         const getDataSource = () => {
             if (sum < 120) {
-                if (Reflect.has(window, callName)) {
-                    Reflect.get(window, callName)().then((source) => {
+                if (Reflect.has(window, 'get_data_source')) {
+                    // 获取截图容器注入的数据
+                    Reflect.get(window, 'get_data_source')().then((source) => {
                         document.body.innerText = JSON.stringify(source);
                     });
+                    //页面逻辑处理完毕，前端页面自行调用截图
+                    setTimeout(() => {
+                        if (Reflect.has(window, 'get_screenshot')) {
+                            Reflect.get(window, 'get_screenshot')();
+                        }
+                    }, 2000);
                 } else {
                     sum++;
                     window.requestAnimationFrame(getDataSource);
