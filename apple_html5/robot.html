@@ -31,14 +31,14 @@
         let sum = 0;
         const callName = 'get_data_source';
         const getDataSource = () => {
-            if (sum < 20) {
+            if (sum < 120) {
                 if (Reflect.has(window, callName)) {
                     Reflect.get(window, callName)().then((source) => {
                         document.body.innerText = JSON.stringify(source);
                     });
                 } else {
                     sum++;
-                    setTimeout(getDataSource, 200);
+                    window.requestAnimationFrame(getDataSource);
                 }
             } else {
                 document.body.innerText = '截图服务---调用容器方法失败';
