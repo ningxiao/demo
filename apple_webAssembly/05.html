@@ -5,10 +5,11 @@
     <meta charset="UTF-8">
     <title>wasm结合多线程</title>
     <style>
-        *{
+        * {
             padding: 0;
             margin: 0;
         }
+
         html,
         body {
             height: 100%;
@@ -34,7 +35,6 @@
         y: 0.1318252536,
         d: 0.00029336
     };
-    const start = performance.now();
     const memory = new WebAssembly.Memory(
         {
             initial: 80,
@@ -42,16 +42,16 @@
             shared: true
         }
     );
-    // https://commons.wikimedia.org/wiki/File:Mandel_zoom_04_seehorse_tail.jpg
+    const context = document.querySelector("canvas").getContext("2d");
+    const canvasData = new Uint8Array(memory.buffer, 4, 1200 * 800 * 4);
+    const imageData = context.createImageData(1200, 800);
+    const start = performance.now();
     for (let i = 0; i < workerCount; i++) {
         const worker = new Worker("./js/worker.js");
         worker.onmessage = e => {
             doneCount++;
             if (doneCount === workerCount) {
                 console.log("done", performance.now() - start);
-                const canvasData = new Uint8Array(memory.buffer, 4, 1200 * 800 * 4);
-                const context = document.querySelector("canvas").getContext("2d");
-                const imageData = context.createImageData(1200, 800);
                 imageData.data.set(canvasData);
                 context.putImageData(imageData, 0, 0);
             }
