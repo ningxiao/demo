@@ -21,7 +21,16 @@
 
 <body>
     <script>
-        const importObject = {
+        const memory = new WebAssembly.Memory({ initial: 1, maximum: 10 });
+        const buffer = new Uint16Array(memory.buffer);
+        const config = {
+            Math,
+            env: {
+                memory,
+                abort(_msg, _file, line, column) {
+                    console.error("abort called at main.ts:" + line + ":" + column);
+                }
+            },
             module: {
                 sayHello(num) {
                     console.log('WebAssembly', Array(num).fill("*").join(""))
@@ -30,22 +39,25 @@
                     console.log(value)
                 }
             },
-            Math,
-            env: {
-                abort(_msg, _file, line, column) {
-                    console.error("abort called at main.ts:" + line + ":" + column);
-                }
-            },
         };
-        fetch('./wasm/module.optimized.wasm').then(response =>
-            response.arrayBuffer()
-        ).then(bytes =>
-            WebAssembly.instantiate(bytes, importObject)
-        ).then(module => {
-            const exports = module.instance.exports;
+        fetch('./wasm/module.optimized.wasm').then(
+            (response) => {
+                return response.arrayBuffer();
+            }
+        ).then(
+            (bytes) => {
+                return WebAssembly.instantiate(bytes, config);
+            }
+        ).then(({ module, instance }) => {
+            const exports = instance.exports;
+            for (let i = 0; i < 10; i++) {
+                buffer[i] = i;
+            }
             console.log(exports.callMeFromJavascript(24, 24));
             console.log(exports.GET_THIS_CONSTANT_FROM_JAVASCRIPT.valueOf());
             console.log(exports.add(1, 2));
+            console.log('返回内存大小', exports.calculation(4));
+            console.log(buffer);
         });
     </script>
 </body>

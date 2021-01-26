@@ -8,9 +8,8 @@ declare module ASModule {
   type f32 = number;
   type f64 = number;
   type bool = any;
-  export var GET_THIS_CONSTANT_FROM_JAVASCRIPT: i32;
-  export function add(a: i32, b: i32): i32;
-  export function callMeFromJavascript(a: i32, b: i32): i32;
-  export function calculation(index: u16): u16;
+  export var offset: u32;
+  export function update(tick: f32): void;
+  export function resize(w: i32, h: i32): void;
 }
 export default ASModule;

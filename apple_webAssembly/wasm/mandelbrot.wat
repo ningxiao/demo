@@ -6,7 +6,6 @@
   (local $x i32)
   (local $y i32)
   (local $loc i32)
-
   (block $myblock
     (loop
 
