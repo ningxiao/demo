@@ -46,18 +46,28 @@
     const canvasData = new Uint8Array(memory.buffer, 4, 1200 * 800 * 4);
     const imageData = context.createImageData(1200, 800);
     const start = performance.now();
-    for (let i = 0; i < workerCount; i++) {
-        const worker = new Worker("./js/worker.js");
-        worker.onmessage = e => {
-            doneCount++;
-            if (doneCount === workerCount) {
-                console.log("done", performance.now() - start);
-                imageData.data.set(canvasData);
-                context.putImageData(imageData, 0, 0);
-            }
-        };
-        worker.postMessage({ memory, config, id: i * 200 + 100 });
-    }
+    fetch('./wasm/mandelbrot.wasm').then(
+        (response) => {
+            return response.arrayBuffer();
+        }
+    ).then(
+        (bytes) => {
+            return WebAssembly.compile(bytes);
+        }
+    ).then((mod) => {
+        for (let i = 0; i < workerCount; i++) {
+            const worker = new Worker("./js/worker.js");
+            worker.onmessage = e => {
+                doneCount++;
+                if (doneCount === workerCount) {
+                    console.log("done", performance.now() - start);
+                    imageData.data.set(canvasData);
+                    context.putImageData(imageData, 0, 0);
+                }
+            };
+            worker.postMessage({ mod, memory, config, id: i * 200 + 100 });
+        }
+    });
 </script>
 
 </html>

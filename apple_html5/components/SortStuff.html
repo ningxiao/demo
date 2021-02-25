@@ -73,7 +73,7 @@
             this.shadow = this.attachShadow({ mode: 'open' });
             this.createTmpl();
         }
-        static get observedAttributes() {
+        static get observedAttributes() {// 属性的每次更改调用此方法
             return ['sort'];
         }
         get sort() {

@@ -2,24 +2,26 @@
     "scripts": {
         "build": "npm run build:module && npm run build:index",
         "build:w": "npm run w:optimized",
-        "w:untouched": "asc assembly/w.ts -t wasm/w.untouched.wat -b wasm/w.untouched.wasm --use Math=JSMath --runtime none --validate --sourceMap --measure",
-        "w:optimized": "asc assembly/w.ts -t wasm/w.optimized.wat -b wasm/w.optimized.wasm -d wasm/w.optimized.d.ts --use Math=JSMath -O3 --importMemory --sourceMap --validate --measure",
+        "w:untouched": "asc assembly/w.ts -t wasm/w.untouched.wat -b wasm/w.untouched.wasm --use Math=JSMath --runtime none  --sourceMap --measure",
+        "w:optimized": "asc assembly/w.ts -t wasm/w.optimized.wat -b wasm/w.optimized.wasm -d wasm/w.optimized.d.ts --use Math=JSMath -O3 --importMemory --sourceMap  --measure",
+        "build:worker": "npm run worker:optimized",
+        "worker:untouched": "asc assembly/worker.ts -t wasm/worker.untouched.wat -b wasm/worker.untouched.wasm --use Math=JSMath --runtime stub --importMemory --sourceMap --debug --measure",
+        "worker:optimized": "asc assembly/worker.ts -t wasm/worker.optimized.wat -b wasm/worker.optimized.wasm -d wasm/worker.optimized.d.ts --use Math=JSMath --maximumMemory=80 --sharedMemory --enable=threads --runtime stub -O3 --importMemory --sourceMap --measure",
         "build:module": "npm run module:optimized",
-        "module:untouched": "asc assembly/module.ts -t wasm/module.untouched.wat -b wasm/module.untouched.wasm --use Math=JSMath --runtime none --importMemory --validate --sourceMap --measure",
-        "module:optimized": "asc assembly/module.ts -t wasm/module.optimized.wat -b wasm/module.optimized.wasm -d wasm/module.optimized.d.ts --use Math=JSMath -O3  --runtime none --importMemory --validate --sourceMap --measure --optimize",
+        "module:untouched": "asc assembly/module.ts -t wasm/module.untouched.wat -b wasm/module.untouched.wasm --use Math=JSMath --runtime stub --importMemory --sourceMap --debug --measure",
+        "module:optimized": "asc assembly/module.ts -t wasm/module.optimized.wat -b wasm/module.optimized.wasm -d wasm/module.optimized.d.ts --use Math=JSMath --runtime stub -O3 --importMemory --sourceMap --measure",
         "build:index": "npm run index:optimized",
-        "index:untouched": "asc assembly/index.ts -b wasm/index.untouched.wasm -t wasm/index.untouched.wat --use Math=JSMath --runtime none --importMemory --sourceMap --debug --validate --measure",
-        "index:optimized": "asc assembly/index.ts -b wasm/index.optimized.wasm -t wasm/index.optimized.wat -d wasm/index.optimized.d.ts --use Math=JSMath -O3  --runtime none --importMemory --sourceMap --validate --measure",
+        "index:untouched": "asc assembly/index.ts -b wasm/index.untouched.wasm -t wasm/index.untouched.wat --use Math=JSMath --runtime none --importMemory --sourceMap --debug  --measure",
+        "index:optimized": "asc assembly/index.ts -b wasm/index.optimized.wasm -t wasm/index.optimized.wat -d wasm/index.optimized.d.ts --use Math=JSMath -O3  --runtime none --importMemory --sourceMap  --measure",
         "build:06": "npm run 06:optimized",
-        "06:untouched": "asc assembly/06.ts -b wasm/06.untouched.wasm -t wasm/06.untouched.wat --use Math=JSMath --runtime none --importMemory --sourceMap --debug --validate --measure",
-        "06:optimized": "asc assembly/06.ts -b wasm/06.optimized.wasm -t wasm/06.optimized.wat -d wasm/06.optimized.d.ts --use Math=JSMath -O3  --runtime none --importMemory --sourceMap --validate --measure",
+        "06:untouched": "asc assembly/06.ts -b wasm/06.untouched.wasm -t wasm/06.untouched.wat --use Math=JSMath --runtime none --importMemory --sourceMap --debug  --measure",
+        "06:optimized": "asc assembly/06.ts -b wasm/06.optimized.wasm -t wasm/06.optimized.wat -d wasm/06.optimized.d.ts --use Math=JSMath -O3  --runtime none --importMemory --sourceMap  --measure",
         "build:07": "npm run 07:optimized",
-        "07:untouched": "asc assembly/07.ts -b wasm/07.untouched.wasm -t wasm/07.untouched.wat --runtime none --sourceMap --debug --validate --measure",
-        "07:optimized": "asc assembly/07.ts -b wasm/07.optimized.wasm -t wasm/07.optimized.wat -d wasm/07.optimized.d.ts -O3  --runtime none --sourceMap --validate --measure"
-
+        "07:untouched": "asc assembly/07.ts -b wasm/07.untouched.wasm -t wasm/07.untouched.wat --runtime none --sourceMap --debug  --measure",
+        "07:optimized": "asc assembly/07.ts -b wasm/07.optimized.wasm -t wasm/07.optimized.wat -d wasm/07.optimized.d.ts -O3  --runtime none --sourceMap  --measure"
     },
     "devDependencies": {
-        "assemblyscript": "AssemblyScript/assemblyscript",
+        "assemblyscript": "^0.18.6",
         "ts-node": "^8.5.4"
     },
     "dependencies": {

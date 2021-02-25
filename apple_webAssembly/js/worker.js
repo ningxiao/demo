@@ -1,15 +1,14 @@
 onmessage = ({ data }) => {
-    const { id,memory,config: { x, y, d }} = data;
-    fetch("../wasm/mandelbrot.wasm").then(response => response.arrayBuffer())
-        .then(bytes =>
-            WebAssembly.instantiate(bytes, {
-                env: {
-                    memory
-                }
-            })
-        )
-        .then(({ module, instance }) => {
-            instance.exports.run(x, y, d, id);
-            postMessage("done");
-        });
+    const { id, mod, memory, config: { x, y, d } } = data;
+    WebAssembly.instantiate(mod, {
+        env: {
+            memory,
+            abort(_msg, _file, line, column) {
+                console.error("abort called at main.ts:" + line + ":" + column);
+            }
+        }
+    }).then(({ exports }) => {
+        exports.run(x, y, d, id);
+        postMessage("done");
+    });
 };

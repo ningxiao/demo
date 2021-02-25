@@ -15,7 +15,9 @@ declare module ASModule {
   export var GET_THIS_CONSTANT_FROM_JAVASCRIPT: i32;
   export function add(a: i32, b: i32): i32;
   export function callMeFromJavascript(a: i32, b: i32): i32;
-  export function getGlobal(): i64;
-  export function calculation(index: u16): u16;
+  export function get_data_map(key: i32): usize;
+  export function calculation(index: u16, value: u16): void;
+  export function colorAdjustProcess(index: u32, size: u32): void;
+  export function colorInvertProcess(index: u32, size: u32): void;
 }
 export default ASModule;

@@ -15,6 +15,9 @@ export function add(a: i32, b: i32): i32 {
 export function callMeFromJavascript(a: i32, b: i32): i32 {
     return addIntegerWithConstant(a, b);
 }
+export function getGlobal(): i64 {
+    return 42;
+}
 /**
  * 写入内存最小8位
  * 16位移2格 index<<1;

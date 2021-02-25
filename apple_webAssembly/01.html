@@ -22,7 +22,16 @@
 <body>
     <script>
         const memory = new WebAssembly.Memory({ initial: 1, maximum: 10 });
+        const table = new WebAssembly.Table({ initial: 2, element: "anyfunc" });
         const buffer = new Uint16Array(memory.buffer);
+        const assertEq = (msg, got, expected) => {
+            let message = `Testing ${msg}: `;
+            if (got !== expected) {
+                message += `FAIL!<br>Got: ${got}<br>Expected: ${expected}<br>`;
+            } else {
+                message += `SUCCESS! Got: ${got}<br>`;
+            }
+        }
         const config = {
             Math,
             env: {
@@ -58,6 +67,9 @@
             console.log(exports.add(1, 2));
             console.log('返回内存大小', exports.calculation(4));
             console.log(buffer);
+            console.log(table);  // 13
+            // console.log(table.get(0)());  // 13
+            // console.log(table.get(1)());  // 42
         });
     </script>
 </body>
