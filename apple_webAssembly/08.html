@@ -41,7 +41,7 @@
         ).then((mod) => {
             const workers = [];
             const image = new Image();
-            image.src = "/apple_webAssembly/pic/1.jpg";
+            image.src = "./pic/1.jpg";
             image.onload = () => {
                 context.drawImage(image, 0, 0);
                 window.requestAnimationFrame(() => {
