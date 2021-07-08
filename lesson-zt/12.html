@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Proxy实现沙箱</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+    </style>
+</head>
+
+<body>
+    <script>
+        const globals = new Set();
+        const sandboxProxys = new WeakMap();
+        const compiler = {
+            expose(...keys) {
+                for (const key of keys) {
+                    globals.add(key);
+                };
+            },
+            evalute(code, sandbox) {
+                const target = sandbox || Object.create(null);
+                const runCreateFun = new Function('sandbox', `with (sandbox) { return ${code} }`);
+                if (!sandboxProxys.has(target)) {
+                    const proxy = new Proxy(target, {
+                        has(target, key) {
+                            return globals.has(key) ? (key in target) : true;
+                        },
+                        get(target, key, receiver) {
+                            // 加固，防止逃逸
+                            if (key === Symbol.unscopables) {
+                                return undefined;
+                            }
+                            Reflect.get(target, key, receiver);
+                        }
+                    });
+                    sandboxProxys.set(target, proxy);
+                };
+                return runCreateFun(sandboxProxys.get(target));
+            },
+        };
+        compiler.expose('console', 'Math');
+        console.log(compiler.evalute('1 + 2'));
+        compiler.evalute('console.log(Math.round(1.8))');
+    </script>
+</body>
+
+</html>
