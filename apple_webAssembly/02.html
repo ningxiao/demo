@@ -24,8 +24,9 @@
             cursor: cell;
             user-select: none;
         }
+
     </style>
-    <script src="//cdn.jsdelivr.net/gh/Kevnz/stats.js/build/stats.min.js"></script>
+    <script src="./js/stats.min.js"></script>
 </head>
 
 <body>
@@ -42,7 +43,9 @@
         const height = bcr.height >>> 1;
         const size = width * height;
         const byteSize = (size + size) << 2;
-        const memory = new WebAssembly.Memory({ initial: ((byteSize + 0xffff) & ~0xffff) >>> 16 });
+        const memory = new WebAssembly.Memory({
+            initial: ((byteSize + 0xffff) & ~0xffff) >>> 16
+        });
         const rgb2bgr = rgb => ((rgb >>> 16) & 0xff) | (rgb & 0xff00) | (rgb & 0xff) << 16;
         canvas.width = width;
         canvas.height = height;
@@ -74,17 +77,27 @@
                 const imageData = ctx.createImageData(width, height);
                 const argb = new Uint32Array(imageData.data.buffer);
                 const draw = () => {
-                    stats.begin();
-                    mem.copyWithin(0, size, size + size);
-                    exports.step();
-                    argb.set(mem.subarray(size, size + size));
-                    ctx.putImageData(imageData, 0, 0);
-                    stats.end();
-                    window.requestAnimationFrame(draw);
-                }
-                [[canvas, "mousedown"], [canvas, "touchstart"]].forEach(eh => eh[0].addEventListener(eh[1], e => down = true));
-                [[document, "mouseup"], [document, "touchend"]].forEach(eh => eh[0].addEventListener(eh[1], e => down = false));
-                [[canvas, "mousemove"], [canvas, "touchmove"], [canvas, "mousedown"]].forEach(eh => eh[0].addEventListener(eh[1], e => {
+                        stats.begin();
+                        mem.copyWithin(0, size, size + size);
+                        exports.step();
+                        argb.set(mem.subarray(size, size + size));
+                        ctx.putImageData(imageData, 0, 0);
+                        stats.end();
+                        window.requestAnimationFrame(draw);
+                    }
+                    [
+                        [canvas, "mousedown"],
+                        [canvas, "touchstart"]
+                    ].forEach(eh => eh[0].addEventListener(eh[1], e => down = true));
+                [
+                    [document, "mouseup"],
+                    [document, "touchend"]
+                ].forEach(eh => eh[0].addEventListener(eh[1], e => down = false));
+                [
+                    [canvas, "mousemove"],
+                    [canvas, "touchmove"],
+                    [canvas, "mousedown"]
+                ].forEach(eh => eh[0].addEventListener(eh[1], e => {
                     if (!down) return;
                     let loc;
                     let bcr = canvas.getBoundingClientRect();
@@ -100,6 +113,7 @@
             }).catch(err => {
                 console.log(err.stack);
             });
+
     </script>
 </body>
 

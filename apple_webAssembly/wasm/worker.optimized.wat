@@ -1,11 +1,11 @@
 (module
  (type $i32_i32_=>_i32 (func (param i32 i32) (result i32)))
  (type $i32_i32_=>_none (func (param i32 i32)))
- (type $f64_=>_none (func (param f64)))
  (type $i32_=>_i32 (func (param i32) (result i32)))
- (type $none_=>_none (func))
+ (type $f64_=>_none (func (param f64)))
  (type $i32_i32_i32_i32_=>_none (func (param i32 i32 i32 i32)))
  (type $none_=>_f64 (func (result f64)))
+ (type $none_=>_none (func))
  (import "env" "memory" (memory $0 (shared 1 80)))
  (data (i32.const 1036) "<\00\00\00\00\00\00\00\00\00\00\00\01\00\00\00(\00\00\00A\00l\00l\00o\00c\00a\00t\00i\00o\00n\00 \00t\00o\00o\00 \00l\00a\00r\00g\00e\00\00\00\00\00")
  (data (i32.const 1100) "<\00\00\00\00\00\00\00\00\00\00\00\01\00\00\00\1e\00\00\00~\00l\00i\00b\00/\00r\00t\00/\00s\00t\00u\00b\00.\00t\00s\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
@@ -18,15 +18,15 @@
  (import "Math" "random" (func $~lib/bindings/Math/random (result f64)))
  (import "worker" "consoleLog" (func $assembly/worker/consoleLog (param f64)))
  (import "worker" "sayHello" (func $assembly/worker/sayHello (param f64)))
- (table $0 2 funcref)
- (elem (i32.const 1) $start:assembly/worker~anonymous|0)
  (global $~lib/rt/stub/offset (mut i32) (i32.const 0))
  (global $assembly/worker/DATA_MAP (mut i32) (i32.const 0))
  (global $assembly/worker/GET_THIS_CONSTANT_FROM_JAVASCRIPT i32 (i32.const 2424))
+ (table $0 2 funcref)
+ (elem $0 (i32.const 1) $start:assembly/worker~anonymous|0)
  (export "GET_THIS_CONSTANT_FROM_JAVASCRIPT" (global $assembly/worker/GET_THIS_CONSTANT_FROM_JAVASCRIPT))
  (export "add" (func $assembly/worker/add))
  (export "callMeFromJavascript" (func $assembly/worker/callMeFromJavascript))
- (export "get_data_map" (func $assembly/worker/get_data_map))
+ (export "utils.get_data_map" (func $assembly/worker/utils.get_data_map))
  (export "calculation" (func $assembly/worker/calculation))
  (export "colorAdjustProcess" (func $assembly/worker/colorAdjustProcess))
  (export "colorInvertProcess" (func $assembly/worker/colorInvertProcess))
@@ -172,11 +172,11 @@
    local.get $0
    local.get $1
    i32.add
-   i32.const 4
-   i32.sub
    local.tee $2
+   i32.const 1
+   i32.sub
    i32.const 0
-   i32.store8 offset=3
+   i32.store8
    local.get $0
    i32.const 2
    i32.le_u
@@ -188,11 +188,15 @@
    i32.const 0
    i32.store8 offset=2
    local.get $2
+   i32.const 2
+   i32.sub
    i32.const 0
-   i32.store8 offset=2
+   i32.store8
    local.get $2
+   i32.const 3
+   i32.sub
    i32.const 0
-   i32.store8 offset=1
+   i32.store8
    local.get $0
    i32.const 6
    i32.le_u
@@ -201,6 +205,8 @@
    i32.const 0
    i32.store8 offset=3
    local.get $2
+   i32.const 4
+   i32.sub
    i32.const 0
    i32.store8
    local.get $0
@@ -226,11 +232,11 @@
    i32.and
    local.tee $2
    i32.add
-   i32.const 28
-   i32.sub
    local.tee $0
+   i32.const 4
+   i32.sub
    i32.const 0
-   i32.store offset=24
+   i32.store
    local.get $2
    i32.const 8
    i32.le_u
@@ -242,11 +248,15 @@
    i32.const 0
    i32.store offset=8
    local.get $0
+   i32.const 12
+   i32.sub
    i32.const 0
-   i32.store offset=16
+   i32.store
    local.get $0
+   i32.const 8
+   i32.sub
    i32.const 0
-   i32.store offset=20
+   i32.store
    local.get $2
    i32.const 24
    i32.le_u
@@ -264,17 +274,25 @@
    i32.const 0
    i32.store offset=24
    local.get $0
+   i32.const 28
+   i32.sub
    i32.const 0
    i32.store
    local.get $0
+   i32.const 24
+   i32.sub
    i32.const 0
-   i32.store offset=4
+   i32.store
    local.get $0
+   i32.const 20
+   i32.sub
    i32.const 0
-   i32.store offset=8
+   i32.store
    local.get $0
+   i32.const 16
+   i32.sub
    i32.const 0
-   i32.store offset=12
+   i32.store
    local.get $1
    local.get $1
    i32.const 4
@@ -336,9 +354,9 @@
   local.get $1
   i32.const 1296
   i32.load
-  call_indirect (type $i32_i32_=>_i32)
+  call_indirect $0 (type $i32_i32_=>_i32)
  )
- (func $assembly/worker/get_data_map (param $0 i32) (result i32)
+ (func $assembly/worker/utils.get_data_map (param $0 i32) (result i32)
   (local $1 i32)
   (local $2 i32)
   global.get $assembly/worker/DATA_MAP

@@ -1,5 +1,3 @@
-// see: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
-
 //导入配置
 import { BGR_ALIVE, BGR_DEAD, BIT_ROT } from "./config";
 let w: i32;
@@ -47,11 +45,7 @@ export function step(): void {
             let xp1 = x == wm1 ? 0 : x + 1;
             // Every cell interacts with its eight neighbours, which are the cells that are horizontally,
             // vertically, or diagonally adjacent. Least significant bit indicates alive or dead.
-            let aliveNeighbors = (
-                (get(xm1, ym1) & 1) + (get(x, ym1) & 1) + (get(xp1, ym1) & 1) +
-                (get(xm1, y) & 1) + (get(xp1, y) & 1) +
-                (get(xm1, yp1) & 1) + (get(x, yp1) & 1) + (get(xp1, yp1) & 1)
-            );
+            let aliveNeighbors = ((get(xm1, ym1) & 1) + (get(x, ym1) & 1) + (get(xp1, ym1) & 1) + (get(xm1, y) & 1) + (get(xp1, y) & 1) + (get(xm1, yp1) & 1) + (get(x, yp1) & 1) + (get(xp1, yp1) & 1));
             let self = get(x, y);
             if (self & 1) {
                 // A live cell with 2 or 3 live neighbors rots on to the next generation.

@@ -45,7 +45,6 @@
     const context = document.querySelector("canvas").getContext("2d");
     const canvasData = new Uint8Array(memory.buffer, 4, 1200 * 800 * 4);
     const imageData = context.createImageData(1200, 800);
-    const start = performance.now();
     fetch('./wasm/mandelbrot.wasm').then(
         (response) => {
             return response.arrayBuffer();
@@ -55,12 +54,13 @@
             return WebAssembly.compile(bytes);
         }
     ).then((mod) => {
+        console.time('计算耗时');
         for (let i = 0; i < workerCount; i++) {
             const worker = new Worker("./js/worker.js");
             worker.onmessage = e => {
                 doneCount++;
                 if (doneCount === workerCount) {
-                    console.log("done", performance.now() - start);
+                    console.timeEnd('计算耗时');
                     imageData.data.set(canvasData);
                     context.putImageData(imageData, 0, 0);
                 }

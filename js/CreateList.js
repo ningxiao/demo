@@ -26,7 +26,7 @@ CreateList.prototype = {
         }
         this.oWrap.id = "wrap";
         this.copyright.id = "copyright";
-        this.copyright.innerHTML = "\u539f\u751fJavaScript\u5b66\u4e60, QQ:363305175";
+        this.copyright.innerHTML = "\u539f\u751fJavaScript\u5b66\u4e60, 微信:ningwlj1987";
         document.body.appendChild(this.oWrap);
         document.body.appendChild(this.copyright)
     },

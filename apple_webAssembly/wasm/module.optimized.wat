@@ -1,18 +1,18 @@
 (module
  (type $i32_i32_=>_i32 (func (param i32 i32) (result i32)))
  (type $f64_=>_none (func (param f64)))
- (type $none_=>_none (func))
- (type $i32_=>_i32 (func (param i32) (result i32)))
- (type $none_=>_i64 (func (result i64)))
  (type $none_=>_f64 (func (result f64)))
+ (type $none_=>_i64 (func (result i64)))
+ (type $i32_=>_i32 (func (param i32) (result i32)))
+ (type $none_=>_none (func))
  (import "env" "memory" (memory $0 1))
  (data (i32.const 1036) "\1c\00\00\00\00\00\00\00\00\00\00\00\03\00\00\00\08\00\00\00\01\00\00\00\00\00\00\00\00\00\00\00")
  (import "Math" "random" (func $~lib/bindings/Math/random (result f64)))
  (import "module" "consoleLog" (func $assembly/module/consoleLog (param f64)))
  (import "module" "sayHello" (func $assembly/module/sayHello (param f64)))
- (table $0 2 funcref)
- (elem (i32.const 1) $start:assembly/module~anonymous|0)
  (global $assembly/module/GET_THIS_CONSTANT_FROM_JAVASCRIPT i32 (i32.const 2424))
+ (table $0 2 funcref)
+ (elem $0 (i32.const 1) $start:assembly/module~anonymous|0)
  (export "GET_THIS_CONSTANT_FROM_JAVASCRIPT" (global $assembly/module/GET_THIS_CONSTANT_FROM_JAVASCRIPT))
  (export "add" (func $assembly/module/add))
  (export "callMeFromJavascript" (func $assembly/module/callMeFromJavascript))
@@ -37,7 +37,7 @@
   local.get $1
   i32.const 1056
   i32.load
-  call_indirect (type $i32_i32_=>_i32)
+  call_indirect $0 (type $i32_i32_=>_i32)
  )
  (func $assembly/module/getGlobal (result i64)
   i64.const 42

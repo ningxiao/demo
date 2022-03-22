@@ -17,6 +17,17 @@
 
 <body>
     <script>
+        class User {
+            constructor(id, name) {
+                this.x = 12;
+                this.id = id;
+                this.name = name;
+            }
+        }
+
+    </script>
+    <script>
+        const x = 4;
         const globals = new Set();
         const sandboxProxys = new WeakMap();
         const compiler = {
@@ -38,7 +49,7 @@
                             if (key === Symbol.unscopables) {
                                 return undefined;
                             }
-                            Reflect.get(target, key, receiver);
+                            return Reflect.get(target, key, receiver);
                         }
                     });
                     sandboxProxys.set(target, proxy);
@@ -46,9 +57,10 @@
                 return runCreateFun(sandboxProxys.get(target));
             },
         };
-        compiler.expose('console', 'Math');
-        console.log(compiler.evalute('1 + 2'));
-        compiler.evalute('console.log(Math.round(1.8))');
+        compiler.expose('console', 'Math', 'x');
+        console.log(compiler.evalute('1 + 2 + x'));
+        compiler.evalute("console.log(name+'--'+Math.round(1.8))", new User('u12', 'ningxaio'));
+
     </script>
 </body>
 

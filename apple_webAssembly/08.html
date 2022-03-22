@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
-    <title>WebAssembly</title>
+    <title>多线程滤镜</title>
     <style type="text/css">
         * {
             margin: 0;
@@ -17,6 +17,7 @@
             width: 100%;
             height: 100%;
         }
+
     </style>
 </head>
 
@@ -28,53 +29,68 @@
         const width = 768;
         const height = 480;
         const workerCount = 2;
-        const memory = new WebAssembly.Memory({ initial: 80, maximum: 80, shared: true });
-        const context = document.querySelector("canvas").getContext("2d");
-        fetch('./wasm/worker.optimized.wasm').then(
-            (response) => {
-                return response.arrayBuffer();
-            }
-        ).then(
-            (bytes) => {
-                return WebAssembly.compile(bytes);
-            }
-        ).then((mod) => {
-            const workers = [];
-            const image = new Image();
-            image.src = "./pic/1.jpg";
-            image.onload = () => {
-                context.drawImage(image, 0, 0);
-                window.requestAnimationFrame(() => {
-                    let start;
-                    let isBool = true;
-                    const size = (width * height * 4) / workerCount;
-                    const buffer = new Uint8Array(memory.buffer, 4, width * height * 4);
-                    const imageData = context.getImageData(0, 0, width, height);
-                    const source = new Uint8Array(new Uint8Array(imageData.data.buffer), 4, width * height * 4);
-                    for (let index = 0; index < workerCount; index++) {
-                        const worker = new Worker("./js/calculation.js");
-                        worker.onmessage = e => {
-                            doneCount++;
-                            if (doneCount === workerCount) {
-                                imageData.data.set(buffer);
-                                context.putImageData(imageData, 0, 0);
-                                console.log("done", performance.now() - start);
-                            }
-                        };
-                        workers.push(worker);
-                    }
-                    document.querySelector("canvas").addEventListener('click', () => {
-                        doneCount = 0;
-                        isBool = !isBool;
-                        buffer.set(source);
-                        for (let index = 0; index < workerCount; index++) {
-                            start = performance.now();
-                            workers[index].postMessage({ mod, memory, size, index: index * size, type: isBool ? 'colorInvertProcess' : 'colorAdjustProcess' });
-                        }
-                    });
-                });
-            }
+        const memory = new WebAssembly.Memory({
+            initial: 80,
+            maximum: 80,
+            shared: true
         });
+        const context = document.querySelector("canvas").getContext("2d");
+        if (crossOriginIsolated) {
+            fetch('./wasm/worker.optimized.wasm').then(
+                (response) => {
+                    return response.arrayBuffer();
+                }
+            ).then(
+                (bytes) => {
+                    return WebAssembly.compile(bytes);
+                }
+            ).then((mod) => {
+                const workers = [];
+                const image = new Image();
+                image.src = "./pic/1.jpg";
+                image.onload = () => {
+                    context.drawImage(image, 0, 0);
+                    window.requestAnimationFrame(() => {
+                        let start;
+                        let isBool = true;
+                        const size = (width * height * 4) / workerCount;
+                        const buffer = new Uint8Array(memory.buffer, 4, width * height * 4);
+                        const imageData = context.getImageData(0, 0, width, height);
+                        const source = new Uint8Array(new Uint8Array(imageData.data.buffer), 4,
+                            width * height * 4);
+                        for (let index = 0; index < workerCount; index++) {
+                            const worker = new Worker("./js/calculation.js");
+                            worker.onmessage = e => {
+                                doneCount++;
+                                if (doneCount === workerCount) {
+                                    imageData.data.set(buffer);
+                                    context.putImageData(imageData, 0, 0);
+                                    console.log("done", performance.now() - start);
+                                }
+                            };
+                            workers.push(worker);
+                        }
+                        document.querySelector("canvas").addEventListener('click', () => {
+                            doneCount = 0;
+                            isBool = !isBool;
+                            buffer.set(source);
+                            for (let index = 0; index < workerCount; index++) {
+                                start = performance.now();
+                                workers[index].postMessage({
+                                    mod,
+                                    size,
+                                    memory,
+                                    index: index * size,
+                                    type: isBool ? 'colorInvertProcess' : 'colorAdjustProcess'
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+        } else {
+            console.log('请开启', 'Cross-Origin-Opener-Policy:same-origin', '与','Cross-Origin-Embedder-Policy:require-corp');
+        }
     </script>
 </body>
 
