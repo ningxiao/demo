@@ -21,9 +21,6 @@
 
 <body>
     <script>
-        const memory = new WebAssembly.Memory({ initial: 1, maximum: 10 });
-        const table = new WebAssembly.Table({ initial: 2, element: "anyfunc" });
-        const buffer = new Uint16Array(memory.buffer);
         const assertEq = (msg, got, expected) => {
             let message = `Testing ${msg}: `;
             if (got !== expected) {
@@ -32,6 +29,9 @@
                 message += `SUCCESS! Got: ${got}<br>`;
             }
         }
+        const memory = new WebAssembly.Memory({ initial: 1, maximum: 10 });
+        const table = new WebAssembly.Table({ initial: 2, element: "anyfunc" });
+        const buffer = new Uint16Array(memory.buffer);
         const config = {
             Math,
             env: {
@@ -49,28 +49,26 @@
                 }
             },
         };
-        fetch('./wasm/module.optimized.wasm').then(
-            (response) => {
-                return response.arrayBuffer();
-            }
-        ).then(
-            (bytes) => {
-                return WebAssembly.instantiate(bytes, config);
-            }
-        ).then(({ module, instance }) => {
-            const exports = instance.exports;
-            for (let i = 0; i < 10; i++) {
-                buffer[i] = i;
-            }
-            console.log(exports.callMeFromJavascript(24, 24));
-            console.log(exports.GET_THIS_CONSTANT_FROM_JAVASCRIPT.valueOf());
-            console.log(exports.add(1, 2));
-            console.log('返回内存大小', exports.calculation(4));
-            console.log(buffer);
-            console.log(table);  // 13
-            // console.log(table.get(0)());  // 13
-            // console.log(table.get(1)());  // 42
-        });
+        fetch('./wasm/module.optimized.wasm')
+            .then(response => response.arrayBuffer())
+            .then(bytes => WebAssembly.instantiate(bytes, config))
+            .then(({
+                module,
+                instance
+            }) => {
+                const exports = instance.exports;
+                for (let i = 0; i < 10; i++) {
+                    buffer[i] = i;
+                }
+                console.log(exports.callMeFromJavascript(24, 24));
+                console.log(exports.GET_THIS_CONSTANT_FROM_JAVASCRIPT.valueOf());
+                console.log(exports.add(1, 2));
+                console.log('返回内存大小', exports.calculation(4));
+                console.log(buffer);
+                console.log(table); // 13
+                console.log(table.get(0)()); // 13
+                console.log(table.get(1)()); // 42
+            });
     </script>
 </body>
 

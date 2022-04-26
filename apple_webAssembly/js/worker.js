@@ -1,5 +1,16 @@
-onmessage = ({ data }) => {
-    const { id, mod, memory, config: { x, y, d } } = data;
+onmessage = ({
+    data
+}) => {
+    const {
+        id,
+        mod,
+        memory,
+        config: {
+            x,
+            y,
+            d
+        }
+    } = data;
     WebAssembly.instantiate(mod, {
         env: {
             memory,
@@ -7,7 +18,9 @@ onmessage = ({ data }) => {
                 console.error("abort called at main.ts:" + line + ":" + column);
             }
         }
-    }).then(({ exports }) => {
+    }).then(({
+        exports
+    }) => {
         exports.run(x, y, d, id);
         postMessage("done");
     });

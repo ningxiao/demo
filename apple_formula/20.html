@@ -54,6 +54,7 @@
             if (ev.data.name === "TransferBuffer") {
                 const { buffer } = ev.data;
                 ctx.drawImage(buffer, 0, 0);
+                buffer.close();
             }
         });
         worker.postMessage({ name: "Init", mode: "transfer", width, height });

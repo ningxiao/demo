@@ -56,6 +56,9 @@ const Init = (mode, data) => {
         width = data.width;
         height = data.height;
         canvas = new OffscreenCanvas(width, height);
+        // canvas.toBlob(blob => {
+        //     console.log(URL.createObjectURL(blob));
+        //  });
     } else if (mode === "commit") {
         canvas = data.canvas;
         width = canvas.width;
@@ -71,13 +74,13 @@ const Init = (mode, data) => {
         ctx = canvas.getContext('2d');
         const transferLoop = () => {
             draw();
-            const image_bitmap = canvas.transferToImageBitmap();
+            const bitmap = canvas.transferToImageBitmap();
             postMessage(
                 {
                     name: "TransferBuffer",
-                    buffer: image_bitmap
+                    buffer: bitmap
                 },
-                [image_bitmap]
+                [bitmap]
             );
             requestAnimationFrame(transferLoop);
         }

@@ -14,7 +14,6 @@
             margin: 0px;
             padding: 0px;
         }
-
     </style>
 </head>
 
@@ -25,26 +24,48 @@
                 this.x = x;
                 this.y = y;
             }
-            mag() { // 求向量长度
-                /**
-                 * ES6语法 Exponentiation (**) https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Exponentiation
-                 * return Math.sqrt(Math.pow(this.x,2)+ Math.pow(this.y,2));
-                 **/
+            /**
+             * 单位化向量
+             **/
+            normalize() {
+                const m = this.mag();
+                if (m != 0) {
+                    this.div(m);
+                }
+            }
+            /**
+             * 求向量长度
+             * ES6语法 Exponentiation (**) https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Exponentiation
+             * return Math.sqrt(Math.pow(this.x,2)+ Math.pow(this.y,2));
+             **/
+            mag() {
                 return Math.sqrt(this.x ** 2 + this.y ** 2);
             }
-            div(n) { // 向量除法 自身分量除一个标量（单位数）
+            /**
+             * 向量除法 自身分量除一个标量（单位数）
+             **/
+            div(n) {
                 this.x = this.x * n;
                 this.y = this.y * n;
             }
-            mult(n) { // 向量乘法 自身分量乘一个标量（单位数）
+            /**
+             *  向量乘法 自身分量乘一个标量（单位数）
+             **/
+            mult(n) { //
                 this.x = this.x * n;
                 this.y = this.y * n;
             }
-            add(v) { // 向量加法
+            /**
+             *  向量加法
+             **/
+            add(v) {
                 this.x = this.x + v.x;
                 this.y = this.y + v.y;
             }
-            sub(v) { // 向量减法
+            /**
+             *   向量减法
+             **/
+            sub(v) {
                 this.x = this.x - v.x;
                 this.y = this.y - v.y;
             }
