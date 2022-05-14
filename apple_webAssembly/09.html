@@ -203,7 +203,6 @@
             margin-top: 3px;
             font-size: 14px;
         }
-
     </style>
 </head>
 
@@ -211,7 +210,7 @@
     <div class="container" id="videoPlayer">
         <div class="sideBar">
             <span class="no-padding">
-                <img src="pic/home.png" class="left" id="btnHome" title="Visit My Homepage"
+                <img src="./pic/home.png" class="left" id="btnHome" title="ningxiao Homepage"
                     onclick="window.open('https://github.com/ningxiao')" />
             </span>
             <div id="input">
@@ -238,10 +237,10 @@
         </div>
         <div class="sideBar">
             <span class="no-padding">
-                <img src="pic/play.png" class="left" id="btnPlayVideo" onclick="playVideo()" />
+                <img src="pic/play.png" class="left" id="btnPlayVideo" />
             </span>
             <span class="no-padding" style=" padding-left:5px;">
-                <img src="pic/stop.png" class="left" id="btnStopVideo" onclick="stopVideo()" />
+                <img src="pic/stop.png" class="left" id="btnStopVideo" />
             </span>
             <span class="track-padding">
             </span>
@@ -252,7 +251,7 @@
                 <label id="timeLabel">00:00:00/00:00:00</label>
             </span>
             <span class="no-padding right">
-                <img src="pic/fullscreen.png" class="right" id="btnFullscreen" onclick="fullscreen()" />
+                <img src="pic/fullscreen.png" class="right" id="btnFullscreen" />
             </span>
         </div>
     </div>
@@ -261,79 +260,67 @@
     <script type='text/javascript' src="./js/webgl.js"></script>
     <script type='text/javascript' src="./js/player.js"></script>
     <script type='text/javascript'>
-        var defaultProtos = {
+        const logger = new Logger("Page");
+        const canvas = document.querySelector("#playCanvas");
+        const inputUrl = document.querySelector("#inputUrl");
+        const protoList = document.querySelector("#protocol");
+        const button = document.querySelector("#btnPlayVideo");
+        const loadingDiv = document.querySelector("#loading");
+        const timeTrack = document.querySelector("#timeTrack");
+        const timeLabel = document.querySelector("#timeLabel");
+        const btnStopVideo = document.querySelector("#btnStopVideo");
+        const btnFullscreen = document.querySelector("#btnFullscreen");
+        const playConfig = {
             http: {
                 url: "http://59.110.160.41/video/h265_high.mp4",
                 waitLength: 512 * 1024,
                 stream: false,
             }
         };
-        let inputUrl = document.getElementById("inputUrl");
-        inputUrl.value = defaultProtos["http"]["url"];
-        //Player object.
-        self.player = new Player();
-        var loadingDiv = document.getElementById("loading");
-        self.player.setLoadingDiv(loadingDiv);
-        //Formated logger.
-        var logger = new Logger("Page");
-
-        function playVideo() {
-            var protoList = document.getElementById("protocol");
-            var proto = protoList.options[protoList.selectedIndex].value;
-            var protoObj = defaultProtos[proto];
-            var inputUrl = document.getElementById("inputUrl");
-            var url = inputUrl.value;
-            var el = document.getElementById("btnPlayVideo");
-            var currentState = self.player.getState();
+        const playVideo = () => {
+            const proto = protoList.options[protoList.selectedIndex].value;
+            const protoObj = playConfig[proto];
+            const url = inputUrl.value;
+            const el = document.querySelector("#btnPlayVideo");
+            const currentState = self.player.getState();
+            el.src = "pic/pause.png";
             if (currentState == playerStatePlaying) {
                 el.src = "pic/play.png";
-            } else {
-                el.src = "pic/pause.png";
             }
             if (currentState != playerStatePlaying) {
-                const canvasId = "playCanvas";
-                var canvas = document.getElementById(canvasId);
                 if (!canvas) {
-                    logger.logError("No Canvas with id " + canvasId + "!");
+                    logger.logError("No Canvas with id playCanvas!");
                     return false;
                 }
-
                 self.player.play(url, canvas, function (e) {
                     console.log("play error " + e.error + " status " + e.status + ".");
                     if (e.error == 1) {
                         logger.logInfo("Finished.");
                     }
                 }, protoObj.waitLength, protoObj.stream);
-
-                var timeTrack = document.getElementById("timeTrack");
-                var timeLabel = document.getElementById("timeLabel");
                 self.player.setTrack(timeTrack, timeLabel);
             } else {
                 self.player.pause();
             }
-
             return true;
         }
-
-        function stopVideo() {
+        button.addEventListener('click', playVideo);
+        btnStopVideo.addEventListener('click', () => {
             self.player.stop();
-            var button = document.getElementById("btnPlayVideo");
             button.value = "Play";
             button.src = "pic/play.png";
-        }
-
-        function fullscreen() {
+        });
+        btnFullscreen.addEventListener('click', () => {
             self.player.fullscreen();
-        }
-
-        function onSelectProto() {
-            var protoList = document.getElementById("protocol");
-            var proto = protoList.options[protoList.selectedIndex].value;
-            var protoObj = defaultProtos[proto];
-            var inputUrl = document.getElementById("inputUrl");
+        });
+        protoList.addEventListener('change', () => {
+            const proto = protoList.options[protoList.selectedIndex].value;
+            const protoObj = defaultProtos[proto];
             inputUrl.value = protoObj["url"];
-        }
-
+        })
+        inputUrl.value = playConfig.http.url;
+        self.player = new Player();
+        self.player.setLoadingDiv(loadingDiv);
     </script>
 </body>
 

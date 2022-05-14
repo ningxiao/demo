@@ -3,18 +3,17 @@
  *
  * 2015.10.31 07:53
  * 实验使用node5创建http请求
- *
  **/
-var fs = require('fs');
-var os = require('os');
-var url = require('url');
-var http = require('http');
-var zlib = require('zlib');
-var path = require('path');
-var cluster = require('cluster');
-var httpserver, port = 80,
-    reqs = 0,
-    pids = {};
+const fs = require('fs');
+const os = require('os');
+const url = require('url');
+const http = require('http');
+const zlib = require('zlib');
+const path = require('path');
+const cluster = require('cluster');
+const port = 80;
+const reqs = 0;
+const pids = {};
 const mimemap = {
     css: 'text/css',
     gif: 'image/gif',
@@ -60,15 +59,15 @@ const defmap = {
 };
 const routing = {
     '/index': function (request, response) {
-        let buf, body = url.parse(request.url, true),
-            query = body.query;
+        let buf;
+        const body = url.parse(request.url, true);
+        const query = body.query;
         if (query['log'] == 'pid') {
-            let json = {
+            buf = Buffer.from(JSON.stringify({
                 worker: cluster.worker.id,
                 pid: process.pid,
                 pids: pids,
-            };
-            buf = Buffer.from(JSON.stringify(json));
+            }));
         } else {
             buf = Buffer.from('对不起不存在此人!');
         }
@@ -81,8 +80,7 @@ const routing = {
     },
 };
 const islog = true;
-
-function getip() {
+const getip = () => {
     let list, hostname = os.hostname(),
         network = os.networkInterfaces();
     for (let key in network) {
@@ -96,15 +94,15 @@ function getip() {
     return '127.0.0.1';
 }
 
-function rulefile(url, host) {
+const rulefile = (url, host) => {
     if (url.indexOf('.js') != -1 || url.indexOf('.css') != -1) {
         return url.replace(rulemap[host], '.');
     }
     return url;
 }
 
-function httpsuccess(filepath, request, response) {
-    fs.stat(filepath, function (err, stats) {
+const httpsuccess = (filepath, request, response) => {
+    fs.stat(filepath, (err, stats) => {
         let head, zlibs, encoding, extname, contenttype;
         if (err) {
             httpfail(titles[2], response);
@@ -113,11 +111,10 @@ function httpsuccess(filepath, request, response) {
         extname = path.extname(filepath).slice(1);
         contenttype = mimemap[extname] || 'text/plain;charset=utf-8';
         encoding = request.headers['accept-encoding'] || '';
-        islog &&
-            process.send({
-                type: 'pids',
-                data: process.pid,
-            });
+        islog && process.send({
+            type: 'pids',
+            data: process.pid,
+        });
         if (extname.match(iszip) && encoding) {
             if (encoding.match(/\bgzip\b/)) {
                 zlibs = zlib.createGzip();
@@ -151,7 +148,7 @@ function httpsuccess(filepath, request, response) {
     });
 }
 
-function httpfail(body, request, response) {
+const httpfail = (body, request, response) => {
     response.writeHead(200, {
         'Content-Length': body.length,
         'Content-Type': 'text/plain;charset=utf-8',
@@ -159,7 +156,7 @@ function httpfail(body, request, response) {
     response.write(body);
     response.end();
 }
-httpserver = http.createServer(function (request, response) {
+const httpserver = http.createServer(function (request, response) {
     let host,
         body = url.parse(request.url, true),
         query = body.query,
@@ -186,7 +183,8 @@ httpserver = http.createServer(function (request, response) {
     }
 });
 if (cluster.isMaster) {
-    function messagenotice(msg) {
+    const cpus = os.cpus().length;
+    const messagenotice = (msg) => {
         switch (msg.type) {
             case 'count':
                 reqs += 1;
@@ -214,22 +212,21 @@ if (cluster.isMaster) {
             default:
         }
     }
-    let cpus = os.cpus().length;
-    for (let i = 0; i < cpus; i++) {
-        cluster.fork();
-    }
     cluster.on('exit', function (worker, code, signal) {
         console.log('[master] ' + 'exit worker' + worker.id + ' died');
     });
     Object.keys(cluster.workers).forEach(function (id) {
         cluster.workers[id].on('message', messagenotice);
     });
+    for (let i = 0; i < cpus; i++) {
+        cluster.fork();
+    }
 } else {
-    function main(argv) {
+    const main = (argv) => {
         if (argv.length == 1) {
             port = argv[0];
         }
-        httpserver.on('error', function (error) {
+        httpserver.on('error', (error) => {
             if (error.code == 'EADDRINUSE') {
                 console.log('服务端口被占用');
             }
@@ -240,16 +237,16 @@ if (cluster.isMaster) {
     /**
      * 退出输出日志
      **/
-    process.on('exit', function (error) {
+    process.on('exit', (error) => {
         console.log('服务器退出');
     });
     /**
      * 监听异常退出输出日志
      **/
-    process.on('uncaughtException', function (error) {
+    process.on('uncaughtException', (error) => {
         console.log(error.toString());
     });
-    process.on('message', function (msg) {
+    process.on('message', (msg) => {
         switch (msg.type) {
             case 'sum':
                 reqs = msg.data;
