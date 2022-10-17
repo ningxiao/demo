@@ -23,6 +23,7 @@
             background: #100707;
             cursor: cell;
             user-select: none;
+            pointer-events: none;
         }
 
     </style>
@@ -86,21 +87,18 @@
                         window.requestAnimationFrame(draw);
                     }
                     [
-                        [canvas, "mousedown"],
-                        [canvas, "touchstart"]
+                        [document.body, "mousedown"]
                     ].forEach(eh => eh[0].addEventListener(eh[1], e => down = true));
                 [
-                    [document, "mouseup"],
-                    [document, "touchend"]
+                    [document.body, "mouseup"]
                 ].forEach(eh => eh[0].addEventListener(eh[1], e => down = false));
                 [
-                    [canvas, "mousemove"],
-                    [canvas, "touchmove"],
-                    [canvas, "mousedown"]
+                    [document.body, "mousemove"],
+                    [document.body, "mousedown"]
                 ].forEach(eh => eh[0].addEventListener(eh[1], e => {
                     if (!down) return;
                     let loc;
-                    let bcr = canvas.getBoundingClientRect();
+                    let bcr = document.body.getBoundingClientRect();
                     if (e.touches) {
                         if (e.touches.length > 1) return;
                         loc = e.touches[0];
