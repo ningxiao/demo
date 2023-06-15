@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TransformStream文本转换为大写</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        span {
+            width: 100px;
+            height: 40px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: red;
+            user-select: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const upperCaseTransformStream = () => {
+            return new TransformStream({
+                transform(chunk, controller) {
+                    controller.enqueue(chunk.toUpperCase());
+                },
+            });
+        };
+        const appendToDOMStream = (el) => {
+            return new WritableStream({
+                write(chunk) {
+                    el.append(chunk);
+                }
+            });
+        };
+        fetch('./js/jquery-1.8.3.min.js').then((response) =>
+            response.body
+                .pipeThrough(new TextDecoderStream())
+                .pipeThrough(upperCaseTransformStream())
+                .pipeTo(appendToDOMStream(document.body))
+        );
+// 闭包泄露对象
+const o1 = (() => {
+    const data = {
+        a: 1,
+        b: 2
+    };
+    return {
+        get: (key) => {
+            return data[key];
+        }
+    }
+})();
+const o2 = (() => { // 判断是否属于原型链属性解决泄露
+    const data = {
+        a: 1,
+        b: 2
+    };
+    return {
+        get: (key) => {
+            if (data.hasOwnProperty(key)) {
+                return data[key];
+            }
+            return undefined;
+        }
+    }
+})();
+const o3 = (() => { // 隔绝原型链解决泄露
+    const data = Object.create({
+        a: 1,
+        b: 2
+    });
+    return {
+        get: (key) => {
+            return data[key];
+        }
+    }
+})();
+const o4 = (() => { // 使用合适的数据类型Map
+    const data = new Map([
+        ['a', 1],
+        ['b', 1]
+    ]);
+    return {
+        get: (key) => {
+            return data.get(key);
+        }
+    }
+})();
+// 添加漏洞打破闭包隔绝
+Object.defineProperty(Object.prototype, 'all', {
+    get() {
+        return this;
+    }
+});
+console.log(o1.get('all')); //泄露会获取data
+console.log(o2.get('all'));
+console.log(o3.get('all'));
+console.log(o4.get('all'));
+    </script>
+    <script>
+        const Owl = (() => {
+            const errorInfo = (res) => {
+                const error = res.error || res;
+                return error.msg || error.message || '接口错误';
+            }
+            const ruleSet = new Set([
+                [
+                    (res) => {
+                        return res.code !== undefined && res.code !== 0;
+                    },
+                    errorInfo
+                ],
+                [
+                    (res) => {
+                        return res.status !== undefined && !(res.status === 0 || res.status === 200);
+                    },
+                    errorInfo
+                ],
+                [
+                    (res) => {
+                        return res.error !== undefined && (res.data === null || res.error !== null);
+                    },
+                    errorInfo
+                ]
+            ]);
+            return {
+                testRule(res) {
+                    const calculates = [];
+                    for (const item of ruleSet) {
+                        const [rule, calculate] = item;
+                        if (rule(res)) {
+                            calculates.push(calculate);
+                        }
+                    }
+                    switch (calculates.length) {
+                        case 0:
+                            console.info('接口验证无异常');
+                            break;
+                        case 1:
+                            return calculates[0](res);
+                            break;
+                        default:
+                            console.warn('过滤规则重叠');
+                            break;
+                    }
+                    return null;
+                },
+                addRule(rule, calculate) {
+                    ruleSet.add([rule, calculate || errorInfo]);
+                }
+            }
+        })();
+        Owl.addRule(
+            (res) => {
+                return res.info !== undefined && res.info !== null;
+            },
+            (res) => {
+                return res.info || '接口错误';
+            }
+        );
+        console.warn(
+            Owl.testRule(
+                {
+                    code: 0,
+                    data: {
+                        name: '宁肖',
+                        age: 35
+                    },
+                    message: '使用code判断异常'
+                }
+            )
+        );
+        console.warn(
+            Owl.testRule(
+                {
+                    data: {
+                        name: '宁肖',
+                        age: 35
+                    },
+                    info: '使用info判断异常'
+                }
+            )
+        );
+    </script>
+</body>
+
+</html>

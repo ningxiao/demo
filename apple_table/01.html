@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>视频海报</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --main-bg-width: 370px;
+            --main-bg-height: 1028px;
+            --main-video-top: 720px;
+            --main-video-width: 335px;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .box {
+            width: var(--main-bg-width);
+            height: var(--main-bg-height);
+            position: relative;
+            overflow: hidden;
+            background: url("./20230303_1080_3000.png") no-repeat;
+            background-size: cover;
+            z-index: 2;
+        }
+
+        .box>video {
+            left: 50%;
+            position: absolute;
+            width: var(--main-video-width);
+            height: var(--main-video-height);
+            transform: translate(-50%, var(--main-video-top));
+            z-index: 10;
+        }
+
+        #particles-js {
+            width: var(--main-bg-width);
+            height: var(--main-bg-height);
+            position: absolute;
+            z-index: 8;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div id="particles-js"></div>
+        <video controls>
+            <source src="/apple_promotion/ressources/bunny.webm" type="video/webm">
+        </video>
+    </div>
+    <script>
+        const url = '/apple_formula/js/particles.min.js';
+        const loadscript = (src) => {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.onload = resolve;
+                script.src = src;
+                document.head.appendChild(script);
+            });
+        };
+        loadscript(url).then(() => {
+            particlesJS('particles-js',
+
+                {
+                    "particles": {
+                        "number": {
+                            "value": 70,
+                            "density": {
+                                "enable": true,
+                                "value_area": 220
+                            }
+                        },
+                        "color": {
+                            "value": "#ffffff"
+                        },
+                        "opacity": {
+                            "value": 0.6,
+                            "random": false,
+                            "anim": {
+                                "enable": false,
+                                "speed": 1,
+                                "opacity_min": 0.1,
+                                "sync": false
+                            }
+                        },
+                        "size": {
+                            "value": 3,
+                            "random": true,
+                            "anim": {
+                                "enable": false,
+                                "speed": 40,
+                                "size_min": 0.1,
+                                "sync": false
+                            }
+                        },
+                        "line_linked": {
+                            "enable": true,
+                            "distance": 100,
+                            "color": "#ffffff",
+                            "opacity": 0.3,
+                            "width": 1
+                        },
+                        "move": {
+                            "enable": true,
+                            "speed": 4,
+                            "direction": "none",
+                            "random": false,
+                            "straight": false,
+                            "out_mode": "out",
+                            "attract": {
+                                "enable": false,
+                                "rotateX": 600,
+                                "rotateY": 1200
+                            }
+                        }
+                    },
+                    "interactivity": {
+                        "detect_on": "canvas",
+                        "events": {
+                            "onhover": {
+                                "enable": false,
+                                "mode": "repulse"
+                            },
+                            "onclick": {
+                                "enable": true,
+                                "mode": "push"
+                            },
+                            "resize": true
+                        },
+                        "modes": {
+                            "grab": {
+                                "distance": 400,
+                                "line_linked": {
+                                    "opacity": 1
+                                }
+                            },
+                            "bubble": {
+                                "distance": 400,
+                                "size": 40,
+                                "duration": 2,
+                                "opacity": 8,
+                                "speed": 3
+                            },
+                            "repulse": {
+                                "distance": 200
+                            },
+                            "push": {
+                                "particles_nb": 4
+                            },
+                            "remove": {
+                                "particles_nb": 2
+                            }
+                        }
+                    },
+                    "retina_detect": true,
+                    "config_demo": {
+                        "hide_card": false,
+                        "background_color": "#b61924",
+                        "background_image": "",
+                        "background_position": "50% 50%",
+                        "background_repeat": "no-repeat",
+                        "background_size": "cover"
+                    }
+                }
+            );
+        });
+    </script>
+</body>
+
+</html>

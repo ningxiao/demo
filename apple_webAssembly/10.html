@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <title>WebAssembly</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const memory = new WebAssembly.Memory({ initial: 1, maximum: 10 });
+        const config = {
+            env: {
+                memory,
+                abort(_msg, _file, line, column) {
+                    console.error("abort called at main.ts:" + line + ":" + column);
+                }
+            },
+            module: {
+                jsAbs(x) {
+                    console.log('rust_call_js_abs', Array(Math.abs(x)).fill("*").join(""));
+                    return Math.abs(x);
+                }
+            },
+        };
+        fetch('./wasm/hello_world.wasm')
+            .then(response => response.arrayBuffer())
+            .then(bytes => WebAssembly.instantiate(bytes, config))
+            .then(({
+                module,
+                instance
+            }) => {
+                const { add_sum, print_hello, run_async_main, exported_symbol_name, exported_function_test } = instance.exports;
+                print_hello();
+                exported_function_test();
+                console.log(exported_symbol_name(3));
+                console.log(add_sum(12, 34));
+                console.log('-----', run_async_main(8));
+            }).catch(err => {
+                console.error(err)
+            });
+    </script>
+</body>
+
+</html>

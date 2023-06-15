@@ -6,17 +6,9 @@ self.addEventListener('fetch', ev => {
         // });
         const url = ev.request.url;
         if (/\.html/.test(url)) {
-            const dataSource = {};
-            const res = await fetch(ev.request);
-            const tmpl = await res.text();
-            const sdl = tmpl.replace(/<script\s+type=\"text\/json\">([\w\W]*?)<\/script>/, (matchs, $1) => {
-                if ($1) {
-                    const data = JSON.parse($1);
-                    Reflect.set(dataSource, data.key, data.source);
-                }
-                return '';
-            });
-            const body = template.compile(sdl)(dataSource);
+            const tmpl = await (await fetch(ev.request)).text();
+            const data = await (await fetch('./data.json')).json();
+            const body = template.compile(tmpl)(data);
             return new Response(body, {
                 headers: {
                     'content-type': 'text/html; charset=utf-8'
